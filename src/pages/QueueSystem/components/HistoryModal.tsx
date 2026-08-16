@@ -517,7 +517,7 @@ export function HistoryModal({ isOpen, onClose, isAdmin = false }: HistoryModalP
                     </td>
                     <td style={{ padding: '0.75rem' }}>
                       <div style={{ display: 'flex', gap: '4px', alignItems: 'center' }}>
-                        <div style={{ width: '120px' }}>
+                        <div style={{ width: '180px' }}>
                           <SmartSelect
                             options={factionOptions}
                             value={editForm.gang_1 || ''}
@@ -528,7 +528,7 @@ export function HistoryModal({ isOpen, onClose, isAdmin = false }: HistoryModalP
                           />
                         </div>
                         <span style={{ fontSize: '0.8rem', color: '#64748b' }}>vs</span>
-                        <div style={{ width: '120px' }}>
+                        <div style={{ width: '180px' }}>
                           <SmartSelect
                             options={factionOptions}
                             value={editForm.gang_2 || ''}
@@ -541,7 +541,7 @@ export function HistoryModal({ isOpen, onClose, isAdmin = false }: HistoryModalP
                       </div>
                     </td>
                     <td style={{ padding: '0.75rem' }}>
-                      <div style={{ width: '140px' }}>
+                      <div style={{ width: '180px' }}>
                         <SmartSelect
                           options={storyTypeOptions}
                           value={editForm.story_type}
@@ -646,7 +646,7 @@ export function HistoryModal({ isOpen, onClose, isAdmin = false }: HistoryModalP
                       <td>
                         {isEd ? (
                           <div style={{ display: 'flex', gap: '4px', alignItems: 'center' }}>
-                            <div style={{ width: '120px' }}>
+                            <div style={{ width: '180px' }}>
                               <SmartSelect
                                 options={factionOptions}
                                 value={editForm.gang_1 || ''}
@@ -657,7 +657,7 @@ export function HistoryModal({ isOpen, onClose, isAdmin = false }: HistoryModalP
                               />
                             </div>
                             <span style={{ fontSize: '0.8rem', color: '#64748b' }}>vs</span>
-                            <div style={{ width: '120px' }}>
+                            <div style={{ width: '180px' }}>
                               <SmartSelect
                                 options={factionOptions}
                                 value={editForm.gang_2 || ''}
@@ -678,7 +678,7 @@ export function HistoryModal({ isOpen, onClose, isAdmin = false }: HistoryModalP
                       </td>
                       <td style={{ whiteSpace: 'nowrap' }}>
                         {isEd ? (
-                          <div style={{ width: '140px' }}>
+                          <div style={{ width: '180px' }}>
                             <SmartSelect
                               options={storyTypeOptions}
                               value={editForm.story_type}
