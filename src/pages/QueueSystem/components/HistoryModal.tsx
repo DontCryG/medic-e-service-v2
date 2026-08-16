@@ -2,6 +2,7 @@ import { useState, useEffect, useMemo } from 'react';
 import { X, Filter, Plus, Edit2, Trash2, Save } from 'lucide-react';
 import { supabase } from '@/lib/supabase';
 import SmartDatePicker from '../../../components/common/SmartDatePicker';
+import SmartTimePicker from '../../../components/common/SmartTimePicker';
 import { useQueueMutations } from '../hooks/useQueueMutations';
 import { useGangs, useFamilies } from '../../SystemSettings/hooks/useGangsFamilies';
 
@@ -423,24 +424,39 @@ export function HistoryModal({ isOpen, onClose, isAdmin = false }: HistoryModalP
               <tbody>
                 {isAdding && (
                   <tr style={{ background: '#f8fafc' }}>
-                    <td style={{ padding: '0.75rem', width: '200px' }}>
-                      <SmartDatePicker
-                        selected={editForm.start_time ? new Date(editForm.start_time) : new Date()}
-                        onChange={(date: Date | null) => {
-                          if (date) {
-                            const offset = date.getTimezoneOffset() * 60000;
-                            const localISOTime = (new Date(date.getTime() - offset)).toISOString().slice(0, 16);
-                            setEditForm({...editForm, start_time: localISOTime});
-                          }
-                        }}
-                        showTimeInput
-                        timeFormat="HH:mm"
-                        timeInputLabel="เวลา:"
-                        timeCaption="เวลา"
-                        dateFormat="dd/MM/yyyy HH:mm"
-                        className="date-input"
-                        wrapperClassName="w-full"
-                      />
+                    <td style={{ padding: '0.75rem', width: '260px' }}>
+                      <div style={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
+                        <SmartDatePicker
+                          selected={editForm.start_time ? new Date(editForm.start_time) : new Date()}
+                          onChange={(date: Date | null) => {
+                            if (date) {
+                              const oldDate = editForm.start_time ? new Date(editForm.start_time) : new Date();
+                              date.setHours(oldDate.getHours(), oldDate.getMinutes());
+                              const offset = date.getTimezoneOffset() * 60000;
+                              const localISOTime = (new Date(date.getTime() - offset)).toISOString().slice(0, 16);
+                              setEditForm({...editForm, start_time: localISOTime});
+                            }
+                          }}
+                          dateFormat="dd/MM/yyyy"
+                          className="date-input"
+                          wrapperClassName="w-full"
+                          placeholderText="วันที่"
+                        />
+                        <SmartTimePicker
+                          value={editForm.start_time ? editForm.start_time.split('T')[1] : ''}
+                          onChange={(timeStr: string) => {
+                            if (timeStr && timeStr.includes(':')) {
+                              const [hh, mm] = timeStr.split(':');
+                              const date = editForm.start_time ? new Date(editForm.start_time) : new Date();
+                              date.setHours(parseInt(hh, 10), parseInt(mm, 10));
+                              const offset = date.getTimezoneOffset() * 60000;
+                              const localISOTime = (new Date(date.getTime() - offset)).toISOString().slice(0, 16);
+                              setEditForm({...editForm, start_time: localISOTime});
+                            }
+                          }}
+                          style={{ width: '100px' }}
+                        />
+                      </div>
                     </td>
                     <td style={{ padding: '0.75rem', position: 'relative' }}>
                       <input
@@ -534,23 +550,38 @@ export function HistoryModal({ isOpen, onClose, isAdmin = false }: HistoryModalP
                     <tr key={log.id}>
                       <td style={{ fontSize: '0.9rem' }}>
                         {isEd ? (
+                        <div style={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
                           <SmartDatePicker
                             selected={editForm.start_time ? new Date(editForm.start_time) : new Date()}
                             onChange={(date: Date | null) => {
                               if (date) {
+                                const oldDate = editForm.start_time ? new Date(editForm.start_time) : new Date();
+                                date.setHours(oldDate.getHours(), oldDate.getMinutes());
                                 const offset = date.getTimezoneOffset() * 60000;
                                 const localISOTime = (new Date(date.getTime() - offset)).toISOString().slice(0, 16);
                                 setEditForm({...editForm, start_time: localISOTime});
                               }
                             }}
-                            showTimeInput
-                            timeFormat="HH:mm"
-                            timeInputLabel="เวลา:"
-                            timeCaption="เวลา"
-                            dateFormat="dd/MM/yyyy HH:mm"
+                            dateFormat="dd/MM/yyyy"
                             className="date-input"
                             wrapperClassName="w-full"
+                            placeholderText="วันที่"
                           />
+                          <SmartTimePicker
+                            value={editForm.start_time ? editForm.start_time.split('T')[1] : ''}
+                            onChange={(timeStr: string) => {
+                              if (timeStr && timeStr.includes(':')) {
+                                const [hh, mm] = timeStr.split(':');
+                                const date = editForm.start_time ? new Date(editForm.start_time) : new Date();
+                                date.setHours(parseInt(hh, 10), parseInt(mm, 10));
+                                const offset = date.getTimezoneOffset() * 60000;
+                                const localISOTime = (new Date(date.getTime() - offset)).toISOString().slice(0, 16);
+                                setEditForm({...editForm, start_time: localISOTime});
+                              }
+                            }}
+                            style={{ width: '100px' }}
+                          />
+                        </div>
                         ) : (
                           new Date(log.start_time).toLocaleString('th-TH', { 
                             dateStyle: 'short', timeStyle: 'short' 
