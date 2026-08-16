@@ -46,14 +46,8 @@ export function HistoryModal({ isOpen, onClose, isAdmin = false }: HistoryModalP
   const storyTypeOptions = [
     { value: 'ไฟต์ตรง (1 คน)', label: 'ไฟต์ตรง (1 คน)' },
     { value: 'ไฟต์ตรง (2 คน)', label: 'ไฟต์ตรง (2 คน)' },
-    { value: 'สตอรี่ปล้น (1 คน)', label: 'สตอรี่ปล้น (1 คน)' },
-    { value: 'สตอรี่ปล้น (2 คน)', label: 'สตอรี่ปล้น (2 คน)' },
-    { value: 'ชิงตัว / ตีคุก (1 คน)', label: 'ชิงตัว / ตีคุก (1 คน)' },
-    { value: 'ชิงตัว / ตีคุก (2 คน)', label: 'ชิงตัว / ตีคุก (2 คน)' },
-    { value: 'ตีธง (1 คน)', label: 'ตีธง (1 คน)' },
-    { value: 'ตีธง (2 คน)', label: 'ตีธง (2 คน)' },
-    { value: 'Airdrop (1 คน)', label: 'Airdrop (1 คน)' },
-    { value: 'Airdrop (2 คน)', label: 'Airdrop (2 คน)' },
+    { value: 'บั๊มรถ (1 คน)', label: 'บั๊มรถ (1 คน)' },
+    { value: 'บั๊มรถ (2 คน)', label: 'บั๊มรถ (2 คน)' },
   ];
 
   const fetchLogs = async () => {
