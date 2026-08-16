@@ -15,7 +15,7 @@
   background: var(--qs-surface, #ffffff);
   border-radius: 20px;
   width: 100%;
-  max-width: 900px;
+  max-width: 1200px;
   max-height: 90vh;
   display: flex;
   flex-direction: column;
