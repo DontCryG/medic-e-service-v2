@@ -33,6 +33,7 @@ export function HistoryModal({ isOpen, onClose, isAdmin = false }: HistoryModalP
   const [isAdding, setIsAdding] = useState(false);
   const [editingId, setEditingId] = useState<string | null>(null);
   const [editForm, setEditForm] = useState<any>({});
+  const [showDoctorDropdown, setShowDoctorDropdown] = useState(false);
 
   const fetchLogs = async () => {
     setLoading(true);
@@ -183,6 +184,7 @@ export function HistoryModal({ isOpen, onClose, isAdmin = false }: HistoryModalP
   const handleAddStory = () => {
     setEditForm({
       discord_id: '',
+      doctorSearchText: '',
       start_time: new Date().toISOString().slice(0, 16),
       gang_1: '',
       gang_2: '',
@@ -199,6 +201,7 @@ export function HistoryModal({ isOpen, onClose, isAdmin = false }: HistoryModalP
     
     setEditForm({
       discord_id: log.discord_id,
+      doctorSearchText: log.users?.ic_name || '',
       start_time: localISOTime,
       gang_1: log.gang_1,
       gang_2: log.gang_2,
@@ -439,17 +442,38 @@ export function HistoryModal({ isOpen, onClose, isAdmin = false }: HistoryModalP
                         wrapperClassName="w-full"
                       />
                     </td>
-                    <td style={{ padding: '0.75rem' }}>
-                      <select 
-                        value={editForm.discord_id} 
-                        onChange={e => setEditForm({...editForm, discord_id: e.target.value})}
-                        style={{ width: '100%', padding: '0.25rem', fontSize: '0.85rem' }}
-                      >
-                        <option value="">-- เลือกแพทย์ --</option>
-                        {allDoctors.map(d => (
-                          <option key={d.discord_id} value={d.discord_id}>{d.ic_name}</option>
-                        ))}
-                      </select>
+                    <td style={{ padding: '0.75rem', position: 'relative' }}>
+                      <input
+                        type="text"
+                        value={editForm.doctorSearchText ?? ''}
+                        onChange={(e) => {
+                          setEditForm({...editForm, doctorSearchText: e.target.value, discord_id: ''});
+                          setShowDoctorDropdown(true);
+                        }}
+                        onFocus={() => setShowDoctorDropdown(true)}
+                        onBlur={() => setTimeout(() => setShowDoctorDropdown(false), 200)}
+                        placeholder="ค้นหาชื่อแพทย์"
+                        style={{ width: '100%', padding: '0.35rem 0.5rem', borderRadius: '8px', border: '1px solid #cbd5e1', fontSize: '0.85rem', boxSizing: 'border-box' }}
+                      />
+                      {showDoctorDropdown && allDoctors.length > 0 && (
+                        <div style={{ position: 'absolute', top: '100%', left: '0.75rem', right: '0.75rem', marginTop: '2px', background: '#ffffff', border: '1px solid #e2e8f0', borderRadius: '8px', boxShadow: '0 10px 15px -3px rgba(0, 0, 0, 0.1)', maxHeight: '180px', overflowY: 'auto', zIndex: 50 }}>
+                          {allDoctors.filter(d => d.ic_name.toLowerCase().includes((editForm.doctorSearchText || '').toLowerCase())).map(d => (
+                              <div 
+                                key={d.discord_id}
+                                onMouseDown={(e) => {
+                                  e.preventDefault();
+                                  setEditForm({ ...editForm, discord_id: d.discord_id, doctorSearchText: d.ic_name });
+                                  setShowDoctorDropdown(false);
+                                }}
+                                style={{ padding: '0.5rem 0.75rem', cursor: 'pointer', borderBottom: '1px solid #f1f5f9', fontSize: '0.85rem', transition: 'background-color 0.2s', textAlign: 'left' }}
+                                onMouseEnter={(e) => e.currentTarget.style.backgroundColor = '#f8fafc'}
+                                onMouseLeave={(e) => e.currentTarget.style.backgroundColor = '#ffffff'}
+                              >
+                                {d.ic_name}
+                              </div>
+                            ))}
+                        </div>
+                      )}
                     </td>
                     <td style={{ padding: '0.75rem' }}>
                       <div style={{ display: 'flex', gap: '4px', alignItems: 'center' }}>
@@ -533,17 +557,41 @@ export function HistoryModal({ isOpen, onClose, isAdmin = false }: HistoryModalP
                           })
                         )}
                       </td>
-                      <td>
+                      <td style={{ position: 'relative' }}>
                         {isEd ? (
-                          <select 
-                            value={editForm.discord_id} 
-                            onChange={e => setEditForm({...editForm, discord_id: e.target.value})}
-                            style={{ width: '100%', padding: '0.25rem', fontSize: '0.85rem' }}
-                          >
-                            {allDoctors.map(d => (
-                              <option key={d.discord_id} value={d.discord_id}>{d.ic_name}</option>
-                            ))}
-                          </select>
+                          <>
+                            <input
+                              type="text"
+                              value={editForm.doctorSearchText ?? ''}
+                              onChange={(e) => {
+                                setEditForm({...editForm, doctorSearchText: e.target.value, discord_id: ''});
+                                setShowDoctorDropdown(true);
+                              }}
+                              onFocus={() => setShowDoctorDropdown(true)}
+                              onBlur={() => setTimeout(() => setShowDoctorDropdown(false), 200)}
+                              placeholder="ค้นหาชื่อแพทย์"
+                              style={{ width: '100%', padding: '0.35rem 0.5rem', borderRadius: '8px', border: '1px solid #cbd5e1', fontSize: '0.85rem', boxSizing: 'border-box' }}
+                            />
+                            {showDoctorDropdown && allDoctors.length > 0 && (
+                              <div style={{ position: 'absolute', top: '100%', left: '0', right: '0', marginTop: '2px', background: '#ffffff', border: '1px solid #e2e8f0', borderRadius: '8px', boxShadow: '0 10px 15px -3px rgba(0, 0, 0, 0.1)', maxHeight: '180px', overflowY: 'auto', zIndex: 50 }}>
+                                {allDoctors.filter(d => d.ic_name.toLowerCase().includes((editForm.doctorSearchText || '').toLowerCase())).map(d => (
+                                    <div 
+                                      key={d.discord_id}
+                                      onMouseDown={(e) => {
+                                        e.preventDefault();
+                                        setEditForm({ ...editForm, discord_id: d.discord_id, doctorSearchText: d.ic_name });
+                                        setShowDoctorDropdown(false);
+                                      }}
+                                      style={{ padding: '0.5rem 0.75rem', cursor: 'pointer', borderBottom: '1px solid #f1f5f9', fontSize: '0.85rem', transition: 'background-color 0.2s', textAlign: 'left' }}
+                                      onMouseEnter={(e) => e.currentTarget.style.backgroundColor = '#f8fafc'}
+                                      onMouseLeave={(e) => e.currentTarget.style.backgroundColor = '#ffffff'}
+                                    >
+                                      {d.ic_name}
+                                    </div>
+                                  ))}
+                              </div>
+                            )}
+                          </>
                         ) : (
                           log.users?.ic_name
                         )}
