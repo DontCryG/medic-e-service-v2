@@ -98,16 +98,17 @@ export function useQueue(currentUserId: string | undefined) {
 
       // Sort logic
       users.sort((a, b) => {
-        // 1. Current user always at top (unless they are unavailable? let's keep them top always)
-        if (a.is_current_user) return -1;
-        if (b.is_current_user) return 1;
-        
-        // 2. "Unavailable" always goes to the bottom
+        // 1. "Unavailable" always goes to the bottom
         const aUnavail = a.status_record?.status === 'unavailable';
         const bUnavail = b.status_record?.status === 'unavailable';
         if (aUnavail && !bUnavail) return 1;
         if (!aUnavail && bUnavail) return -1;
+
+        // 2. Current user always at top (unless they are unavailable)
+        if (a.is_current_user && !b.is_current_user) return -1;
+        if (!a.is_current_user && b.is_current_user) return 1;
         
+
         // 3. Keep original clock_in ascending order (or volunteers at bottom if tie)
         if (a.is_volunteer && !b.is_volunteer) return 1;
         if (!a.is_volunteer && b.is_volunteer) return -1;
