@@ -35,6 +35,8 @@ export default function SmartSelect({
   const containerRef = useRef<HTMLDivElement>(null);
   const searchInputRef = useRef<HTMLInputElement>(null);
   const optionsRef = useRef<HTMLDivElement>(null);
+  const dropdownRef = useRef<HTMLDivElement>(null);
+  const isKeyboardNav = useRef(false);
 
   const filteredOptions = options.filter(option =>
     option.label.toLowerCase().includes(searchQuery.toLowerCase())
@@ -59,7 +61,12 @@ export default function SmartSelect({
   // Handle clicking outside to close
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
-      if (containerRef.current && !containerRef.current.contains(event.target as Node)) {
+      if (
+        containerRef.current && 
+        !containerRef.current.contains(event.target as Node) &&
+        dropdownRef.current && 
+        !dropdownRef.current.contains(event.target as Node)
+      ) {
         setIsOpen(false);
       }
     };
@@ -95,9 +102,9 @@ export default function SmartSelect({
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [isOpen]);
 
-  // Scroll to highlighted item
+  // Scroll to highlighted item only if navigating with keyboard
   useEffect(() => {
-    if (isOpen && optionsRef.current && highlightedIndex >= 0) {
+    if (isOpen && optionsRef.current && highlightedIndex >= 0 && isKeyboardNav.current) {
       const optionElements = optionsRef.current.querySelectorAll('.smart-select-option');
       const highlightedElement = optionElements[highlightedIndex] as HTMLElement;
       
@@ -141,6 +148,7 @@ export default function SmartSelect({
         break;
       case 'ArrowDown':
         e.preventDefault();
+        isKeyboardNav.current = true;
         if (!isOpen) {
           setIsOpen(true);
         } else {
@@ -151,6 +159,7 @@ export default function SmartSelect({
         break;
       case 'ArrowUp':
         e.preventDefault();
+        isKeyboardNav.current = true;
         if (!isOpen) {
           setIsOpen(true);
         } else {
@@ -192,7 +201,7 @@ export default function SmartSelect({
       </div>
 
       {isOpen && createPortal(
-        <div className="smart-select-dropdown" style={dropdownStyle}>
+        <div className="smart-select-dropdown" style={dropdownStyle} ref={dropdownRef}>
           {searchable && (
             <div className="smart-select-search-container">
               <input
@@ -231,7 +240,10 @@ export default function SmartSelect({
                     onChange(option.value);
                     setIsOpen(false);
                   }}
-                  onMouseEnter={() => setHighlightedIndex(index)}
+                  onMouseEnter={() => {
+                    isKeyboardNav.current = false;
+                    setHighlightedIndex(index);
+                  }}
                 >
                   <span style={{ overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
                     {option.label}
