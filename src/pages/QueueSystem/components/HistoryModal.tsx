@@ -420,12 +420,23 @@ export function HistoryModal({ isOpen, onClose, isAdmin = false }: HistoryModalP
               <tbody>
                 {isAdding && (
                   <tr style={{ background: '#f8fafc' }}>
-                    <td style={{ padding: '0.75rem' }}>
-                      <input 
-                        type="datetime-local" 
-                        value={editForm.start_time}
-                        onChange={e => setEditForm({...editForm, start_time: e.target.value})}
-                        style={{ width: '100%', padding: '0.25rem', fontSize: '0.85rem' }}
+                    <td style={{ padding: '0.75rem', width: '200px' }}>
+                      <SmartDatePicker
+                        selected={editForm.start_time ? new Date(editForm.start_time) : new Date()}
+                        onChange={(date: Date | null) => {
+                          if (date) {
+                            const offset = date.getTimezoneOffset() * 60000;
+                            const localISOTime = (new Date(date.getTime() - offset)).toISOString().slice(0, 16);
+                            setEditForm({...editForm, start_time: localISOTime});
+                          }
+                        }}
+                        showTimeSelect
+                        timeFormat="HH:mm"
+                        timeIntervals={5}
+                        timeCaption="เวลา"
+                        dateFormat="dd/MM/yyyy HH:mm"
+                        className="date-input"
+                        wrapperClassName="w-full"
                       />
                     </td>
                     <td style={{ padding: '0.75rem' }}>
@@ -499,11 +510,22 @@ export function HistoryModal({ isOpen, onClose, isAdmin = false }: HistoryModalP
                     <tr key={log.id}>
                       <td style={{ fontSize: '0.9rem' }}>
                         {isEd ? (
-                          <input 
-                            type="datetime-local" 
-                            value={editForm.start_time}
-                            onChange={e => setEditForm({...editForm, start_time: e.target.value})}
-                            style={{ width: '100%', padding: '0.25rem', fontSize: '0.85rem' }}
+                          <SmartDatePicker
+                            selected={editForm.start_time ? new Date(editForm.start_time) : new Date()}
+                            onChange={(date: Date | null) => {
+                              if (date) {
+                                const offset = date.getTimezoneOffset() * 60000;
+                                const localISOTime = (new Date(date.getTime() - offset)).toISOString().slice(0, 16);
+                                setEditForm({...editForm, start_time: localISOTime});
+                              }
+                            }}
+                            showTimeSelect
+                            timeFormat="HH:mm"
+                            timeIntervals={5}
+                            timeCaption="เวลา"
+                            dateFormat="dd/MM/yyyy HH:mm"
+                            className="date-input"
+                            wrapperClassName="w-full"
                           />
                         ) : (
                           new Date(log.start_time).toLocaleString('th-TH', { 
