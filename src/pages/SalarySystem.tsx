@@ -91,15 +91,10 @@ export default function SalarySystem({ profile: _profile }: SalarySystemProps) {
               onChange={(date: Date | null) => {
                 if (date) {
                   const d = new Date(date);
-                  const day = d.getDay() === 0 ? 6 : d.getDay() - 1;
-                  d.setDate(d.getDate() - day);
                   d.setHours(0, 0, 0, 0);
                   setStartDate(d);
-                  
-                  const end = new Date(d);
-                  end.setDate(end.getDate() + 6);
-                  end.setHours(23, 59, 59, 999);
-                  setEndDate(end);
+                } else {
+                  setStartDate(null);
                 }
               }}
               className="date-picker-input"
@@ -110,7 +105,15 @@ export default function SalarySystem({ profile: _profile }: SalarySystemProps) {
             <label style={{ fontSize: '0.95rem', color: 'var(--text-secondary)', fontWeight: 500, whiteSpace: 'nowrap' }}>ถึงวันที่:</label>
             <SmartDatePicker
               selected={endDate}
-              onChange={(date: Date | null) => date && setEndDate(date)}
+              onChange={(date: Date | null) => {
+                if (date) {
+                  const d = new Date(date);
+                  d.setHours(23, 59, 59, 999);
+                  setEndDate(d);
+                } else {
+                  setEndDate(null);
+                }
+              }}
               className="date-picker-input"
               minDate={startDate || undefined}
             />
