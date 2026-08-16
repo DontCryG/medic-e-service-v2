@@ -135,6 +135,8 @@ export function useQueue(currentUserId: string | undefined) {
     },
     enabled: !!currentUserId,
     refetchInterval: 30000,
+    staleTime: 0,
+    refetchOnWindowFocus: true,
   });
 
   // Subscribe to Realtime changes
@@ -166,6 +168,9 @@ export function useQueue(currentUserId: string | undefined) {
       )
       .subscribe((status) => {
         setRealtimeConnected(status === 'SUBSCRIBED');
+        if (status === 'SUBSCRIBED') {
+          queryClient.invalidateQueries({ queryKey: ['queue_users'] });
+        }
       });
 
     return () => {

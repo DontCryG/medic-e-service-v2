@@ -13,6 +13,7 @@ export function useAppRealtime() {
       .channel('public:duty_logs')
       .on('postgres_changes', { event: '*', schema: 'public', table: 'duty_logs' }, () => {
         queryClient.invalidateQueries({ queryKey: dutyKeys.all });
+        queryClient.invalidateQueries({ queryKey: ['queue_users'] });
       })
       .subscribe();
 
