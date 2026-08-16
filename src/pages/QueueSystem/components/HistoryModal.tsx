@@ -3,6 +3,7 @@ import { X, Filter, Plus, Edit2, Trash2, Save } from 'lucide-react';
 import { supabase } from '@/lib/supabase';
 import SmartDatePicker from '../../../components/common/SmartDatePicker';
 import SmartTimePicker from '../../../components/common/SmartTimePicker';
+import SmartSelect from '../../../components/common/SmartSelect';
 import { useQueueMutations } from '../hooks/useQueueMutations';
 import { useGangs, useFamilies } from '../../SystemSettings/hooks/useGangsFamilies';
 
@@ -35,6 +36,25 @@ export function HistoryModal({ isOpen, onClose, isAdmin = false }: HistoryModalP
   const [editingId, setEditingId] = useState<string | null>(null);
   const [editForm, setEditForm] = useState<any>({});
   const [showDoctorDropdown, setShowDoctorDropdown] = useState(false);
+
+  const factionOptions = useMemo(() => {
+    const gangOpts = gangs.map(g => ({ value: g.name, label: g.name }));
+    const famOpts = families.map(f => ({ value: f.name, label: f.name }));
+    return [...gangOpts, ...famOpts];
+  }, [gangs, families]);
+
+  const storyTypeOptions = [
+    { value: 'ไฟต์ตรง (1 คน)', label: 'ไฟต์ตรง (1 คน)' },
+    { value: 'ไฟต์ตรง (2 คน)', label: 'ไฟต์ตรง (2 คน)' },
+    { value: 'สตอรี่ปล้น (1 คน)', label: 'สตอรี่ปล้น (1 คน)' },
+    { value: 'สตอรี่ปล้น (2 คน)', label: 'สตอรี่ปล้น (2 คน)' },
+    { value: 'ชิงตัว / ตีคุก (1 คน)', label: 'ชิงตัว / ตีคุก (1 คน)' },
+    { value: 'ชิงตัว / ตีคุก (2 คน)', label: 'ชิงตัว / ตีคุก (2 คน)' },
+    { value: 'ตีธง (1 คน)', label: 'ตีธง (1 คน)' },
+    { value: 'ตีธง (2 คน)', label: 'ตีธง (2 คน)' },
+    { value: 'Airdrop (1 คน)', label: 'Airdrop (1 คน)' },
+    { value: 'Airdrop (2 คน)', label: 'Airdrop (2 คน)' },
+  ];
 
   const fetchLogs = async () => {
     setLoading(true);
@@ -493,46 +513,38 @@ export function HistoryModal({ isOpen, onClose, isAdmin = false }: HistoryModalP
                     </td>
                     <td style={{ padding: '0.75rem' }}>
                       <div style={{ display: 'flex', gap: '4px', alignItems: 'center' }}>
-                        <select 
-                          value={editForm.gang_1 || ''} 
-                          onChange={e => setEditForm({...editForm, gang_1: e.target.value})}
-                          style={{ width: '100%', padding: '0.25rem', fontSize: '0.85rem' }}
-                        >
-                          <option value="">- Gang 1 -</option>
-                          {combinedGangs.map(g => (
-                            <option key={`g1-${g}`} value={g}>{g}</option>
-                          ))}
-                        </select>
-                        <span style={{ fontSize: '0.75rem' }}>vs</span>
-                        <select 
-                          value={editForm.gang_2 || ''} 
-                          onChange={e => setEditForm({...editForm, gang_2: e.target.value})}
-                          style={{ width: '100%', padding: '0.25rem', fontSize: '0.85rem' }}
-                        >
-                          <option value="">- Gang 2 -</option>
-                          {combinedGangs.map(g => (
-                            <option key={`g2-${g}`} value={g}>{g}</option>
-                          ))}
-                        </select>
+                        <div style={{ width: '120px' }}>
+                          <SmartSelect
+                            options={factionOptions}
+                            value={editForm.gang_1 || ''}
+                            onChange={(val) => setEditForm({...editForm, gang_1: val})}
+                            searchable
+                            placeholder="- Gang 1 -"
+                            className="filter-input-small"
+                          />
+                        </div>
+                        <span style={{ fontSize: '0.8rem', color: '#64748b' }}>vs</span>
+                        <div style={{ width: '120px' }}>
+                          <SmartSelect
+                            options={factionOptions}
+                            value={editForm.gang_2 || ''}
+                            onChange={(val) => setEditForm({...editForm, gang_2: val})}
+                            searchable
+                            placeholder="- Gang 2 -"
+                            className="filter-input-small"
+                          />
+                        </div>
                       </div>
                     </td>
                     <td style={{ padding: '0.75rem' }}>
-                      <select 
-                        value={editForm.story_type} 
-                        onChange={e => setEditForm({...editForm, story_type: e.target.value})}
-                        style={{ width: '100%', padding: '0.25rem', fontSize: '0.85rem' }}
-                      >
-                        <option value="ไฟต์ตรง (1 คน)">ไฟต์ตรง (1 คน)</option>
-                        <option value="ไฟต์ตรง (2 คน)">ไฟต์ตรง (2 คน)</option>
-                        <option value="สตอรี่ปล้น (1 คน)">สตอรี่ปล้น (1 คน)</option>
-                        <option value="สตอรี่ปล้น (2 คน)">สตอรี่ปล้น (2 คน)</option>
-                        <option value="ชิงตัว / ตีคุก (1 คน)">ชิงตัว / ตีคุก (1 คน)</option>
-                        <option value="ชิงตัว / ตีคุก (2 คน)">ชิงตัว / ตีคุก (2 คน)</option>
-                        <option value="ตีธง (1 คน)">ตีธง (1 คน)</option>
-                        <option value="ตีธง (2 คน)">ตีธง (2 คน)</option>
-                        <option value="Airdrop (1 คน)">Airdrop (1 คน)</option>
-                        <option value="Airdrop (2 คน)">Airdrop (2 คน)</option>
-                      </select>
+                      <div style={{ width: '140px' }}>
+                        <SmartSelect
+                          options={storyTypeOptions}
+                          value={editForm.story_type}
+                          onChange={(val) => setEditForm({...editForm, story_type: val})}
+                          className="filter-input-small"
+                        />
+                      </div>
                     </td>
                     {isAdmin && (
                       <td style={{ padding: '0.75rem', textAlign: 'center' }}>
@@ -629,51 +641,47 @@ export function HistoryModal({ isOpen, onClose, isAdmin = false }: HistoryModalP
                       </td>
                       <td>
                         {isEd ? (
-                           <div style={{ display: 'flex', gap: '4px', alignItems: 'center' }}>
-                             <select 
-                               value={editForm.gang_1 || ''} 
-                               onChange={e => setEditForm({...editForm, gang_1: e.target.value})}
-                               style={{ width: '100%', padding: '0.25rem', fontSize: '0.85rem' }}
-                             >
-                               <option value="">- Gang 1 -</option>
-                               {combinedGangs.map(g => (
-                                 <option key={`g1-${g}`} value={g}>{g}</option>
-                               ))}
-                             </select>
-                             <span style={{ fontSize: '0.75rem' }}>vs</span>
-                             <select 
-                               value={editForm.gang_2 || ''} 
-                               onChange={e => setEditForm({...editForm, gang_2: e.target.value})}
-                               style={{ width: '100%', padding: '0.25rem', fontSize: '0.85rem' }}
-                             >
-                               <option value="">- Gang 2 -</option>
-                               {combinedGangs.map(g => (
-                                 <option key={`g2-${g}`} value={g}>{g}</option>
-                               ))}
-                             </select>
-                           </div>
+                          <div style={{ display: 'flex', gap: '4px', alignItems: 'center' }}>
+                            <div style={{ width: '120px' }}>
+                              <SmartSelect
+                                options={factionOptions}
+                                value={editForm.gang_1 || ''}
+                                onChange={(val) => setEditForm({...editForm, gang_1: val})}
+                                searchable
+                                placeholder="- Gang 1 -"
+                                className="filter-input-small"
+                              />
+                            </div>
+                            <span style={{ fontSize: '0.8rem', color: '#64748b' }}>vs</span>
+                            <div style={{ width: '120px' }}>
+                              <SmartSelect
+                                options={factionOptions}
+                                value={editForm.gang_2 || ''}
+                                onChange={(val) => setEditForm({...editForm, gang_2: val})}
+                                searchable
+                                placeholder="- Gang 2 -"
+                                className="filter-input-small"
+                              />
+                            </div>
+                          </div>
                         ) : (
-                          log.gang_1 && log.gang_2 ? `${log.gang_1} vs ${log.gang_2}` : '-'
+                          <span style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                            {log.gang_1 ? <span className="gang-badge" style={{ fontSize: '0.8rem' }}>{log.gang_1}</span> : '-'}
+                            <span style={{ color: '#94a3b8', fontSize: '0.8rem' }}>vs</span>
+                            {log.gang_2 ? <span className="gang-badge" style={{ fontSize: '0.8rem' }}>{log.gang_2}</span> : '-'}
+                          </span>
                         )}
                       </td>
                       <td style={{ whiteSpace: 'nowrap' }}>
                         {isEd ? (
-                           <select 
-                             value={editForm.story_type} 
-                             onChange={e => setEditForm({...editForm, story_type: e.target.value})}
-                             style={{ width: '100%', padding: '0.25rem', fontSize: '0.85rem' }}
-                           >
-                             <option value="ไฟต์ตรง (1 คน)">ไฟต์ตรง (1 คน)</option>
-                             <option value="ไฟต์ตรง (2 คน)">ไฟต์ตรง (2 คน)</option>
-                             <option value="สตอรี่ปล้น (1 คน)">สตอรี่ปล้น (1 คน)</option>
-                             <option value="สตอรี่ปล้น (2 คน)">สตอรี่ปล้น (2 คน)</option>
-                             <option value="ชิงตัว / ตีคุก (1 คน)">ชิงตัว / ตีคุก (1 คน)</option>
-                             <option value="ชิงตัว / ตีคุก (2 คน)">ชิงตัว / ตีคุก (2 คน)</option>
-                             <option value="ตีธง (1 คน)">ตีธง (1 คน)</option>
-                             <option value="ตีธง (2 คน)">ตีธง (2 คน)</option>
-                             <option value="Airdrop (1 คน)">Airdrop (1 คน)</option>
-                             <option value="Airdrop (2 คน)">Airdrop (2 คน)</option>
-                           </select>
+                          <div style={{ width: '140px' }}>
+                            <SmartSelect
+                              options={storyTypeOptions}
+                              value={editForm.story_type}
+                              onChange={(val) => setEditForm({...editForm, story_type: val})}
+                              className="filter-input-small"
+                            />
+                          </div>
                         ) : (
                           log.story_type
                         )}
