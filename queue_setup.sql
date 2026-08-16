@@ -52,11 +52,14 @@ ALTER TABLE story_logs ENABLE ROW LEVEL SECURITY;
 CREATE POLICY "Allow public read queue_status" ON queue_status FOR SELECT USING (true);
 CREATE POLICY "Allow public insert queue_status" ON queue_status FOR INSERT WITH CHECK (true);
 CREATE POLICY "Allow public update queue_status" ON queue_status FOR UPDATE USING (true);
+CREATE POLICY "Allow public delete queue_status" ON queue_status FOR DELETE USING (true);
 
 CREATE POLICY "Allow public read queue_manager_logs" ON queue_manager_logs FOR SELECT USING (true);
 CREATE POLICY "Allow public insert queue_manager_logs" ON queue_manager_logs FOR INSERT WITH CHECK (true);
 CREATE POLICY "Allow public update queue_manager_logs" ON queue_manager_logs FOR UPDATE USING (true);
+CREATE POLICY "Allow public delete queue_manager_logs" ON queue_manager_logs FOR DELETE USING (true);
 
 CREATE POLICY "Allow public read story_logs" ON story_logs FOR SELECT USING (true);
 CREATE POLICY "Allow public insert story_logs" ON story_logs FOR INSERT WITH CHECK (true);
 CREATE POLICY "Allow public update story_logs" ON story_logs FOR UPDATE USING (true);
+CREATE POLICY "Allow public delete story_logs" ON story_logs FOR DELETE USING (true);
