@@ -64,10 +64,11 @@ export default function SmartSelect({
       }
       
       // Highlight currently selected item
-      const index = filteredOptions.findIndex(opt => opt.value === value);
+      const index = options.findIndex(opt => opt.value === value);
       setHighlightedIndex(index >= 0 ? index : 0);
     }
-  }, [isOpen, searchable, value, filteredOptions]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [isOpen]);
 
   // Scroll to highlighted item
   useEffect(() => {
