@@ -316,10 +316,148 @@ export function useQueueMutations() {
     }
   });
 
+  const addStoryLogMutation = useMutation({
+    mutationFn: async (newStory: {
+      discord_id: string;
+      gang_1: string | null;
+      gang_2: string | null;
+      story_type: string | null;
+      start_time: string;
+      end_time?: string | null;
+    }) => {
+      const { data, error } = await supabase
+        .from('story_logs')
+        .insert([newStory])
+        .select()
+        .single();
+      
+      if (error) throw error;
+      return data;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['queue_users'] });
+    },
+    onError: (err: any) => {
+      console.error('Failed to add story log:', err);
+      alert('Error adding story log: ' + err.message);
+    }
+  });
+
+  const updateStoryLogMutation = useMutation({
+    mutationFn: async (updatedStory: {
+      id: string;
+      discord_id: string;
+      gang_1: string | null;
+      gang_2: string | null;
+      story_type: string | null;
+      start_time: string;
+      end_time?: string | null;
+    }) => {
+      const { id, ...updates } = updatedStory;
+      const { data, error } = await supabase
+        .from('story_logs')
+        .update(updates)
+        .eq('id', id)
+        .select()
+        .single();
+      
+      if (error) throw error;
+      return data;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['queue_users'] });
+    },
+    onError: (err: any) => {
+      console.error('Failed to update story log:', err);
+      alert('Error updating story log: ' + err.message);
+    }
+  });
+
+  const deleteStoryLogMutation = useMutation({
+    mutationFn: async (id: string) => {
+      const { error } = await supabase
+        .from('story_logs')
+        .delete()
+        .eq('id', id);
+      
+      if (error) throw error;
+      return true;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['queue_users'] });
+      queryClient.invalidateQueries({ queryKey: ['story_logs'] });
+    }
+  });
+
+  const addVolunteerMutation = useMutation({
+    mutationFn: async (name: string) => {
+      const { data: setting } = await supabase.from('system_settings').select('value').eq('key', 'queue_volunteers').maybeSingle();
+      let volunteers: any[] = [];
+      if (setting?.value) {
+        try { volunteers = JSON.parse(setting.value); } catch(e){}
+      }
+      volunteers.push({
+        id: `vol_${Date.now()}_${Math.floor(Math.random()*1000)}`,
+        name,
+        status: null
+      });
+      await supabase.from('system_settings').upsert({
+        key: 'queue_volunteers',
+        value: JSON.stringify(volunteers),
+        description: 'รายชื่อหมออาสา',
+        type: 'json'
+      });
+    },
+    onSuccess: () => queryClient.invalidateQueries({ queryKey: ['queue_users'] })
+  });
+
+  const updateVolunteerMutation = useMutation({
+    mutationFn: async ({ id, newStatus }: { id: string, newStatus: QueueStatusType | null }) => {
+      const { data: setting } = await supabase.from('system_settings').select('value').eq('key', 'queue_volunteers').maybeSingle();
+      if (!setting?.value) return;
+      let volunteers: any[] = [];
+      try { volunteers = JSON.parse(setting.value); } catch(e){}
+      const v = volunteers.find((x: any) => x.id === id);
+      if (v) {
+        v.status = newStatus;
+        await supabase.from('system_settings').upsert({
+          key: 'queue_volunteers',
+          value: JSON.stringify(volunteers),
+          description: 'รายชื่อหมออาสา',
+          type: 'json'
+        });
+      }
+    },
+    onSuccess: () => queryClient.invalidateQueries({ queryKey: ['queue_users'] })
+  });
+
+  const removeVolunteerMutation = useMutation({
+    mutationFn: async (id: string) => {
+      const { data: setting } = await supabase.from('system_settings').select('value').eq('key', 'queue_volunteers').maybeSingle();
+      if (!setting?.value) return;
+      let volunteers: any[] = [];
+      try { volunteers = JSON.parse(setting.value); } catch(e){}
+      volunteers = volunteers.filter((x: any) => x.id !== id);
+      await supabase.from('system_settings').upsert({
+        key: 'queue_volunteers',
+        value: JSON.stringify(volunteers),
+        description: 'รายชื่อหมออาสา',
+        type: 'json'
+      });
+    },
+    onSuccess: () => queryClient.invalidateQueries({ queryKey: ['queue_users'] })
+  });
+
   return {
     updateStatus: updateStatusMutation.mutateAsync,
     updateStoryDetails: updateStoryDetailsMutation.mutateAsync,
     lockStory: lockStoryMutation.mutateAsync,
     endStory: endStoryMutation.mutateAsync,
+    addStoryLog: addStoryLogMutation.mutateAsync,
+    updateStoryLog: updateStoryLogMutation.mutateAsync,
+    deleteStoryLog: deleteStoryLogMutation.mutateAsync,
+    addVolunteer: addVolunteerMutation.mutateAsync,
+    updateVolunteer: updateVolunteerMutation.mutateAsync,
+    removeVolunteer: removeVolunteerMutation.mutateAsync
   };
 }

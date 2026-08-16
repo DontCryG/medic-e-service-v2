@@ -41,5 +41,6 @@ export interface QueueUser {
   ic_name: string;
   avatar_url: string | null;
   is_current_user: boolean;
+  is_volunteer?: boolean;
   status_record: QueueStatus | null;
 }

@@ -12,7 +12,7 @@ interface QueueRowProps {
 }
 
 export function QueueRow({ user }: QueueRowProps) {
-  const { updateStatus, updateStoryDetails, lockStory, endStory } = useQueueMutations();
+  const { updateStatus, updateStoryDetails, lockStory, endStory, updateVolunteer, removeVolunteer } = useQueueMutations();
   const { data: gangs = [] } = useGangs();
   const { data: families = [] } = useFamilies();
   
@@ -57,26 +57,41 @@ export function QueueRow({ user }: QueueRowProps) {
     // If clicking the currently checked status, untick it by setting to null
     if (currentStatus === newStatus) {
       setLocalStatus(null);
-      updateStatus({
-        discord_id: user.discord_id,
-        newStatus: null,
-        currentStatusRecord: statusRecord
-      }).catch(err => {
-        setLocalStatus(statusRecord?.status || null);
-        alert("Error in updateStatus (null): " + err.message);
-      });
+      if (user.is_volunteer) {
+        updateVolunteer({ id: user.discord_id, newStatus: null }).catch(err => {
+          setLocalStatus(statusRecord?.status || null);
+          alert("Error: " + err.message);
+        });
+      } else {
+        updateStatus({
+          discord_id: user.discord_id,
+          newStatus: null,
+          currentStatusRecord: statusRecord
+        }).catch(err => {
+          setLocalStatus(statusRecord?.status || null);
+          alert("Error in updateStatus (null): " + err.message);
+        });
+      }
       return;
     }
 
     setLocalStatus(newStatus);
-    updateStatus({
-      discord_id: user.discord_id,
-      newStatus,
-      currentStatusRecord: statusRecord
-    }).catch(err => {
-      setLocalStatus(statusRecord?.status || null);
-      alert("Error in updateStatus: " + err.message);
-    });
+    
+    if (user.is_volunteer) {
+      updateVolunteer({ id: user.discord_id, newStatus }).catch(err => {
+        setLocalStatus(statusRecord?.status || null);
+        alert("Error: " + err.message);
+      });
+    } else {
+      updateStatus({
+        discord_id: user.discord_id,
+        newStatus,
+        currentStatusRecord: statusRecord
+      }).catch(err => {
+        setLocalStatus(statusRecord?.status || null);
+        alert("Error in updateStatus: " + err.message);
+      });
+    }
   };
 
   // Handle Story Typing
@@ -174,6 +189,25 @@ export function QueueRow({ user }: QueueRowProps) {
           )}
           <span className="user-name">{user.ic_name}</span>
           {user.is_current_user && <span className="badge-me">(คุณ)</span>}
+          {user.is_volunteer && (
+            <button 
+              onClick={() => removeVolunteer(user.discord_id)}
+              style={{
+                background: 'none',
+                border: 'none',
+                color: '#ef4444',
+                cursor: 'pointer',
+                display: 'flex',
+                alignItems: 'center',
+                padding: '4px',
+                marginLeft: '8px',
+                borderRadius: '4px'
+              }}
+              title="ลบหมออาสา"
+            >
+              <X size={16} />
+            </button>
+          )}
         </div>
       </td>
 
@@ -202,148 +236,156 @@ export function QueueRow({ user }: QueueRowProps) {
       </td>
 
       <td className="col-manager">
-        <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '4px' }}>
-          <label className={`custom-checkbox ${currentStatus === 'manager' ? 'checked-manager' : ''} ${isLocked ? 'disabled' : ''}`}>
-            <input 
-              type="checkbox" 
-              checked={currentStatus === 'manager'} 
-              onChange={() => handleStatusChange('manager')} 
-              disabled={isLocked}
-            />
-            <Check size={16} />
-          </label>
-          {currentStatus === 'manager' && (
-            <span style={{ fontSize: '0.7rem', fontWeight: 600, color: '#0ea5e9' }}>
-              ⏱ {managerTimer}
-            </span>
-          )}
-        </div>
+        {user.is_volunteer ? (
+          <span style={{ color: '#cbd5e1' }}>-</span>
+        ) : (
+          <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '4px' }}>
+            <label className={`custom-checkbox ${currentStatus === 'manager' ? 'checked-manager' : ''} ${isLocked ? 'disabled' : ''}`}>
+              <input 
+                type="checkbox" 
+                checked={currentStatus === 'manager'} 
+                onChange={() => handleStatusChange('manager')} 
+                disabled={isLocked}
+              />
+              <Check size={16} />
+            </label>
+            {currentStatus === 'manager' && (
+              <span style={{ fontSize: '0.7rem', fontWeight: 600, color: '#0ea5e9' }}>
+                ⏱ {managerTimer}
+              </span>
+            )}
+          </div>
+        )}
       </td>
 
       <td className="col-story">
-        {/* Story Checkbox can only be unchecked manually when locked, or checked manually when there's a target time */}
-        <label className={`custom-checkbox ${currentStatus === 'story' && isLocked ? 'checked-story' : ''} ${(!isLocked && !statusRecord?.story_target_time) ? 'disabled' : ''}`}>
-          <input 
-            type="checkbox" 
-            checked={currentStatus === 'story' && isLocked} 
-            onChange={async () => {
-              if (isLocked) {
-                if (!gang1.trim() || !gang2.trim()) {
-                  Swal.fire({
-                    title: 'ข้อมูลไม่ครบถ้วน',
-                    text: 'กรุณากรอกชื่อแก๊งให้ครบทั้งสองช่องก่อนที่จะจบเคสสตอรี่',
-                    icon: 'warning',
-                    confirmButtonColor: '#ef4444'
+        {user.is_volunteer ? (
+          <span style={{ color: '#cbd5e1' }}>-</span>
+        ) : (
+          <label className={`custom-checkbox ${currentStatus === 'story' && isLocked ? 'checked-story' : ''} ${(!isLocked && !statusRecord?.story_target_time) ? 'disabled' : ''}`}>
+            <input 
+              type="checkbox" 
+              checked={currentStatus === 'story' && isLocked} 
+              onChange={async () => {
+                if (isLocked) {
+                  if (!gang1.trim() || !gang2.trim()) {
+                    Swal.fire({
+                      title: 'ข้อมูลไม่ครบถ้วน',
+                      text: 'กรุณากรอกชื่อแก๊งให้ครบทั้งสองช่องก่อนที่จะจบเคสสตอรี่',
+                      icon: 'warning',
+                      confirmButtonColor: '#ef4444'
+                    });
+                    return;
+                  }
+                  
+                  const result = await Swal.fire({
+                    title: 'ยืนยันจบเคสสตอรี่?',
+                    text: 'คุณต้องการจบเคสสตอรี่นี้ใช่หรือไม่? ข้อมูลจะถูกบันทึกลงในประวัติสตอรี่',
+                    icon: 'question',
+                    showCancelButton: true,
+                    confirmButtonText: 'ยืนยันจบเคส',
+                    cancelButtonText: 'ยกเลิก',
+                    confirmButtonColor: '#10b981'
                   });
-                  return;
+                  
+                  if (result.isConfirmed) {
+                    endStory({
+                      discord_id: user.discord_id,
+                      statusRecord: statusRecord!,
+                      saveToHistory: true
+                    });
+                  }
+                } else if (statusRecord?.story_target_time) {
+                  lockStory(user.discord_id);
                 }
-                
-                const result = await Swal.fire({
-                  title: 'ยืนยันจบเคสสตอรี่?',
-                  text: 'คุณต้องการจบเคสสตอรี่นี้ใช่หรือไม่? ข้อมูลจะถูกบันทึกลงในประวัติสตอรี่',
-                  icon: 'question',
-                  showCancelButton: true,
-                  confirmButtonText: 'ยืนยันจบเคส',
-                  cancelButtonText: 'ยกเลิก',
-                  confirmButtonColor: '#10b981'
-                });
-                
-                if (result.isConfirmed) {
-                  // End Case (Success) -> saves to history
-                  endStory({
-                    discord_id: user.discord_id,
-                    statusRecord: statusRecord!,
-                    saveToHistory: true
-                  });
-                }
-              } else if (statusRecord?.story_target_time) {
-                // Start Case (Manual lock)
-                lockStory(user.discord_id);
-              }
-            }} 
-            disabled={!isLocked && !statusRecord?.story_target_time}
-          />
-          <Check size={16} />
-        </label>
+              }} 
+              disabled={!isLocked && !statusRecord?.story_target_time}
+            />
+            <Check size={16} />
+          </label>
+        )}
       </td>
 
       <td className="col-story-time">
-        <div className="story-inputs">
-          <SmartTimePicker 
-            value={targetTime}
-            onChange={setTargetTime}
-            onBlur={handleTimeBlur}
-            placeholder="00:00"
-          />
-          
-          {showStoryInputs && (
-            <>
-              <div className="premium-dropdown" style={{ width: '120px' }}>
-                <SmartSelect
-                  options={factionOptions}
-                  value={gang1}
-                  onChange={(val) => {
-                    setGang1(val);
-                    if (targetTime) {
-                      updateStoryDetails({
-                        discord_id: user.discord_id,
-                        targetTime,
-                        gang1: val,
-                        gang2,
-                        type: storyType
-                      });
-                    }
-                  }}
-                  searchable
-                  placeholder="แก๊ง/แฟม"
-                />
-              </div>
-              <span className="story-vs">VS</span>
-              <div className="premium-dropdown" style={{ width: '120px' }}>
-                <SmartSelect
-                  options={factionOptions}
-                  value={gang2}
-                  onChange={(val) => {
-                    setGang2(val);
-                    if (targetTime) {
-                      updateStoryDetails({
-                        discord_id: user.discord_id,
-                        targetTime,
-                        gang1,
-                        gang2: val,
-                        type: storyType
-                      });
-                    }
-                  }}
-                  searchable
-                  placeholder="แก๊ง/แฟม"
-                />
-              </div>
-              <div className="premium-dropdown" style={{ width: '130px' }}>
-                <SmartSelect
-                  value={storyType}
-                  onChange={(val) => {
-                    setStoryType(val);
-                    if (targetTime) {
-                      updateStoryDetails({
-                        discord_id: user.discord_id,
-                        targetTime,
-                        gang1,
-                        gang2,
-                        type: val
-                      });
-                    }
-                  }}
-                  options={[
-                    { value: 'ไฟต์ตรง (1 คน)', label: 'ไฟต์ตรง (1 คน)' },
-                    { value: 'ไฟต์ตรง (2 คน)', label: 'ไฟต์ตรง (2 คน)' },
-                    { value: 'บั๊มรถ (1 คน)', label: 'บั๊มรถ (1 คน)' },
-                    { value: 'บั๊มรถ (2 คน)', label: 'บั๊มรถ (2 คน)' }
-                  ]}
-                />
-              </div>
+        {user.is_volunteer ? (
+          <span style={{ color: '#cbd5e1' }}>ไม่มีข้อมูลสตอรี่สำหรับหมออาสา</span>
+        ) : (
+          <div className="story-inputs">
+            <SmartTimePicker 
+              value={targetTime}
+              onChange={setTargetTime}
+              onBlur={handleTimeBlur}
+              placeholder="00:00"
+            />
+            
+            {showStoryInputs && (
+              <>
+                <div className="premium-dropdown" style={{ width: '120px' }}>
+                  <SmartSelect
+                    options={factionOptions}
+                    value={gang1}
+                    onChange={(val) => {
+                      setGang1(val);
+                      if (targetTime) {
+                        updateStoryDetails({
+                          discord_id: user.discord_id,
+                          targetTime,
+                          gang1: val,
+                          gang2,
+                          type: storyType
+                        });
+                      }
+                    }}
+                    searchable
+                    placeholder="แก๊ง/แฟม"
+                  />
+                </div>
+                <span className="story-vs">VS</span>
+                <div className="premium-dropdown" style={{ width: '120px' }}>
+                  <SmartSelect
+                    options={factionOptions}
+                    value={gang2}
+                    onChange={(val) => {
+                      setGang2(val);
+                      if (targetTime) {
+                        updateStoryDetails({
+                          discord_id: user.discord_id,
+                          targetTime,
+                          gang1,
+                          gang2: val,
+                          type: storyType
+                        });
+                      }
+                    }}
+                    searchable
+                    placeholder="แก๊ง/แฟม"
+                  />
+                </div>
+                <div className="premium-dropdown" style={{ width: '130px' }}>
+                  <SmartSelect
+                    value={storyType}
+                    onChange={(val) => {
+                      setStoryType(val);
+                      if (targetTime) {
+                        updateStoryDetails({
+                          discord_id: user.discord_id,
+                          targetTime,
+                          gang1,
+                          gang2,
+                          type: val
+                        });
+                      }
+                    }}
+                    options={[
+                      { value: 'ไฟต์ตรง (1 คน)', label: 'ไฟต์ตรง (1 คน)' },
+                      { value: 'ไฟต์ตรง (2 คน)', label: 'ไฟต์ตรง (2 คน)' },
+                      { value: 'บั๊มรถ (1 คน)', label: 'บั๊มรถ (1 คน)' },
+                      { value: 'บั๊มรถ (2 คน)', label: 'บั๊มรถ (2 คน)' }
+                    ]}
+                  />
+                </div>
 
-              {/* Cancel Button - clears everything without history */}
+                {/* Cancel Button - clears everything without history */}
                 <button 
                   className="cancel-story-btn" 
                   onClick={() => {
@@ -357,9 +399,10 @@ export function QueueRow({ user }: QueueRowProps) {
                 >
                   <X size={14} />
                 </button>
-            </>
-          )}
-        </div>
+              </>
+            )}
+          </div>
+        )}
       </td>
     </tr>
   );

@@ -1,7 +1,8 @@
 import { useState } from 'react';
-import { History, RefreshCw } from 'lucide-react';
+import { History, RefreshCw, UserPlus } from 'lucide-react';
 import { useAuthStore } from '@/store/authStore';
 import { useQueue } from './hooks/useQueue';
+import { useQueueMutations } from './hooks/useQueueMutations';
 import { QueueRow } from './components/QueueRow';
 import { HistoryModal } from './components/HistoryModal';
 import './QueueSystem.css';
@@ -10,8 +11,16 @@ import './QueueModal.css'; // Add this for Modal styles
 export function QueueSystem() {
   const { user } = useAuthStore();
   const { queueUsers, isLoading, realtimeConnected, error } = useQueue(user?.discord_id);
+  const { addVolunteer } = useQueueMutations();
   
   const [isHistoryOpen, setIsHistoryOpen] = useState(false);
+  const [volunteerName, setVolunteerName] = useState('');
+  
+  const handleAddVolunteer = async () => {
+    if (!volunteerName.trim()) return;
+    await addVolunteer(volunteerName.trim());
+    setVolunteerName('');
+  };
 
   return (
     <div className="queue-container">
@@ -25,7 +34,43 @@ export function QueueSystem() {
             </span>
           </p>
         </div>
-        <div className="queue-header-actions">
+        <div className="queue-header-actions" style={{ display: 'flex', gap: '1rem', flexWrap: 'wrap' }}>
+          <div style={{ display: 'flex', gap: '0.5rem' }}>
+            <input 
+              type="text" 
+              placeholder="ชื่อหมออาสา" 
+              value={volunteerName}
+              onChange={(e) => setVolunteerName(e.target.value)}
+              onKeyDown={(e) => e.key === 'Enter' && handleAddVolunteer()}
+              style={{
+                padding: '0.5rem 1rem',
+                borderRadius: '8px',
+                border: '1px solid #cbd5e1',
+                outline: 'none',
+                width: '180px'
+              }}
+            />
+            <button 
+              onClick={handleAddVolunteer}
+              disabled={!volunteerName.trim()}
+              style={{
+                display: 'flex',
+                alignItems: 'center',
+                gap: '0.5rem',
+                padding: '0.5rem 1rem',
+                backgroundColor: '#10b981',
+                color: 'white',
+                border: 'none',
+                borderRadius: '8px',
+                cursor: volunteerName.trim() ? 'pointer' : 'not-allowed',
+                opacity: volunteerName.trim() ? 1 : 0.6,
+                fontWeight: 500
+              }}
+            >
+              <UserPlus size={18} />
+              เพิ่มอาสา
+            </button>
+          </div>
           <button className="history-btn" onClick={() => setIsHistoryOpen(true)}>
             <History size={18} />
             ประวัติการจัดการ
@@ -78,7 +123,11 @@ export function QueueSystem() {
         </div>
       </div>
 
-      <HistoryModal isOpen={isHistoryOpen} onClose={() => setIsHistoryOpen(false)} />
+      <HistoryModal 
+        isOpen={isHistoryOpen} 
+        onClose={() => setIsHistoryOpen(false)} 
+        isAdmin={user?.role === 'admin'}
+      />
     </div>
   );
 }

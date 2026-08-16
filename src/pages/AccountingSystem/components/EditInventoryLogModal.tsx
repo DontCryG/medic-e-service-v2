@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { X, Save } from 'lucide-react';
 import { useUpdateInventoryLog } from '../hooks/useAccountingMutations';
+import { useInventoryStock } from '../hooks/useAccountingQueries';
 
 interface EditInventoryLogModalProps {
   isOpen: boolean;
@@ -10,9 +11,11 @@ interface EditInventoryLogModalProps {
 
 export default function EditInventoryLogModal({ isOpen, onClose, log }: EditInventoryLogModalProps) {
   const updateMutation = useUpdateInventoryLog();
+  const stocks = useInventoryStock();
   
   const [type, setType] = useState<'receive' | 'disburse'>('receive');
   const [itemName, setItemName] = useState('');
+  const [showDropdown, setShowDropdown] = useState(false);
   const [quantity, setQuantity] = useState<number | ''>('');
   const [description, setDescription] = useState('');
 
@@ -92,14 +95,19 @@ export default function EditInventoryLogModal({ isOpen, onClose, log }: EditInve
             </button>
           </div>
 
-          <div>
+          <div className="modal-form-group" style={{ position: 'relative' }}>
             <label style={{ display: 'block', marginBottom: '0.5rem', fontWeight: 500, color: '#475569' }}>
               ชื่อสิ่งของ
             </label>
             <input
               type="text"
               value={itemName}
-              onChange={(e) => setItemName(e.target.value)}
+              onChange={(e) => {
+                setItemName(e.target.value);
+                setShowDropdown(true);
+              }}
+              onFocus={() => setShowDropdown(true)}
+              onBlur={() => setTimeout(() => setShowDropdown(false), 200)}
               placeholder="เช่น ผ้าพันแผล, ยาดม"
               style={{
                 width: '100%',
@@ -111,6 +119,57 @@ export default function EditInventoryLogModal({ isOpen, onClose, log }: EditInve
               }}
               required
             />
+            
+            {/* Custom Autocomplete Dropdown */}
+            {showDropdown && stocks.length > 0 && (
+              <div style={{
+                position: 'absolute',
+                top: '100%',
+                left: 0,
+                right: 0,
+                marginTop: '4px',
+                background: '#ffffff',
+                border: '1px solid #e2e8f0',
+                borderRadius: '8px',
+                boxShadow: '0 10px 15px -3px rgba(0, 0, 0, 0.1)',
+                maxHeight: '200px',
+                overflowY: 'auto',
+                zIndex: 50
+              }}>
+                {stocks.filter(s => s.name.toLowerCase().includes(itemName.toLowerCase())).map(s => (
+                  <div 
+                    key={s.name}
+                    onMouseDown={(e) => {
+                      e.preventDefault(); // Prevent blur
+                      setItemName(s.name);
+                      setShowDropdown(false);
+                    }}
+                    style={{
+                      padding: '0.75rem 1rem',
+                      cursor: 'pointer',
+                      borderBottom: '1px solid #f1f5f9',
+                      display: 'flex',
+                      justifyContent: 'space-between',
+                      alignItems: 'center',
+                      transition: 'background-color 0.2s'
+                    }}
+                    onMouseEnter={(e) => e.currentTarget.style.backgroundColor = '#f8fafc'}
+                    onMouseLeave={(e) => e.currentTarget.style.backgroundColor = '#ffffff'}
+                  >
+                    <span style={{ fontWeight: 500, color: '#334155' }}>{s.name}</span>
+                    <span style={{ 
+                      fontSize: '0.85rem', 
+                      color: s.quantity <= 0 ? '#ef4444' : '#64748b',
+                      background: s.quantity <= 0 ? '#fef2f2' : '#f1f5f9',
+                      padding: '2px 8px',
+                      borderRadius: '12px'
+                    }}>
+                      เหลือ {s.quantity.toLocaleString()} ชิ้น
+                    </span>
+                  </div>
+                ))}
+              </div>
+            )}
           </div>
 
           <div>
