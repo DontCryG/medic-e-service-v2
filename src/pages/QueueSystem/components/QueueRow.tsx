@@ -320,7 +320,7 @@ export function QueueRow({ user }: QueueRowProps) {
             
             {showStoryInputs && (
               <>
-                <div className="premium-dropdown" style={{ width: '120px' }}>
+                <div className="premium-dropdown" style={{ width: '160px' }}>
                   <SmartSelect
                     options={factionOptions}
                     value={gang1}
@@ -341,7 +341,7 @@ export function QueueRow({ user }: QueueRowProps) {
                   />
                 </div>
                 <span className="story-vs">VS</span>
-                <div className="premium-dropdown" style={{ width: '120px' }}>
+                <div className="premium-dropdown" style={{ width: '160px' }}>
                   <SmartSelect
                     options={factionOptions}
                     value={gang2}
@@ -361,7 +361,7 @@ export function QueueRow({ user }: QueueRowProps) {
                     placeholder="แก๊ง/แฟม"
                   />
                 </div>
-                <div className="premium-dropdown" style={{ width: '130px' }}>
+                <div className="premium-dropdown" style={{ width: '160px' }}>
                   <SmartSelect
                     value={storyType}
                     onChange={(val) => {
