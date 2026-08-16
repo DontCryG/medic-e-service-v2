@@ -181,21 +181,23 @@ export default function DutySystem({ profile }: DutySystemProps) {
           onStartDateChange={(date) => { 
             if (date) {
               const d = new Date(date);
-              const day = d.getDay() === 0 ? 6 : d.getDay() - 1;
-              d.setDate(d.getDate() - day);
               d.setHours(0, 0, 0, 0);
               setStartDate(d);
-              
-              const end = new Date(d);
-              end.setDate(end.getDate() + 6);
-              end.setHours(23, 59, 59, 999);
-              setEndDate(end);
               setHistoryPage(1);
             } else {
               setStartDate(null);
             }
           }}
-          onEndDateChange={(date) => { setEndDate(date); setHistoryPage(1); }}
+          onEndDateChange={(date) => { 
+            if (date) {
+              const d = new Date(date);
+              d.setHours(23, 59, 59, 999);
+              setEndDate(d);
+            } else {
+              setEndDate(null);
+            }
+            setHistoryPage(1);
+          }}
           onClearFilters={handleClearFilters}
           onPageChange={setHistoryPage}
         />
