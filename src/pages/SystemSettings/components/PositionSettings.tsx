@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import Swal from 'sweetalert2';
 import { Plus, Edit2, Trash2, AlertTriangle, Save, X } from 'lucide-react';
 import { usePositions, useAddPosition, useUpdatePosition, useDeletePosition } from '../../../hooks/usePositions';
 import type { Position } from '../../../hooks/usePositions';
@@ -54,7 +55,17 @@ export default function PositionSettings() {
   };
 
   const handleDelete = async (id: string) => {
-    if (window.confirm('คุณแน่ใจหรือไม่ว่าต้องการลบตำแหน่งนี้?')) {
+    const result = await Swal.fire({
+      title: 'คุณแน่ใจหรือไม่ว่าต้องการลบตำแหน่งนี้?',
+      icon: 'warning',
+      showCancelButton: true,
+      confirmButtonColor: '#ef4444',
+      cancelButtonColor: '#94a3b8',
+      confirmButtonText: 'ยืนยัน',
+      cancelButtonText: 'ยกเลิก'
+    });
+
+    if (result.isConfirmed) {
       try {
         await deleteMutation.mutateAsync(id);
       } catch (err) {

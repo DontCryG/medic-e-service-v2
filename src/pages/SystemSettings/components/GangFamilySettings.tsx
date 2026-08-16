@@ -4,6 +4,7 @@ import {
   useGangs, useAddGang, useUpdateGang, useDeleteGang, 
   useFamilies, useAddFamily, useUpdateFamily, useDeleteFamily,
 } from '../hooks/useGangsFamilies';
+import Swal from 'sweetalert2';
 import type { Gang, Family } from '../hooks/useGangsFamilies';
 
 export default function GangFamilySettings() {
@@ -57,7 +58,17 @@ function GangSettings() {
   };
 
   const handleDelete = async (id: string) => {
-    if (window.confirm('คุณแน่ใจหรือไม่ว่าต้องการลบรายชื่อนี้?')) {
+    const result = await Swal.fire({
+      title: 'คุณแน่ใจหรือไม่ว่าต้องการลบรายชื่อนี้?',
+      icon: 'warning',
+      showCancelButton: true,
+      confirmButtonColor: '#ef4444',
+      cancelButtonColor: '#94a3b8',
+      confirmButtonText: 'ยืนยัน',
+      cancelButtonText: 'ยกเลิก'
+    });
+
+    if (result.isConfirmed) {
       try {
         await deleteMutation.mutateAsync(id);
       } catch (err) {
@@ -207,7 +218,17 @@ function FamilySettings() {
   };
 
   const handleDelete = async (id: string) => {
-    if (window.confirm('คุณแน่ใจหรือไม่ว่าต้องการลบรายชื่อนี้?')) {
+    const result = await Swal.fire({
+      title: 'คุณแน่ใจหรือไม่ว่าต้องการลบรายชื่อนี้?',
+      icon: 'warning',
+      showCancelButton: true,
+      confirmButtonColor: '#ef4444',
+      cancelButtonColor: '#94a3b8',
+      confirmButtonText: 'ยืนยัน',
+      cancelButtonText: 'ยกเลิก'
+    });
+
+    if (result.isConfirmed) {
       try {
         await deleteMutation.mutateAsync(id);
       } catch (err) {

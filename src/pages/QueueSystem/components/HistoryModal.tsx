@@ -4,6 +4,7 @@ import { supabase } from '@/lib/supabase';
 import SmartDatePicker from '../../../components/common/SmartDatePicker';
 import SmartTimePicker from '../../../components/common/SmartTimePicker';
 import SmartSelect from '../../../components/common/SmartSelect';
+import Swal from 'sweetalert2';
 import { useQueueMutations } from '../hooks/useQueueMutations';
 import { useGangs, useFamilies } from '../../SystemSettings/hooks/useGangsFamilies';
 
@@ -257,7 +258,17 @@ export function HistoryModal({ isOpen, onClose, isAdmin = false }: HistoryModalP
   };
 
   const handleDeleteStory = async (id: string) => {
-    if (window.confirm('ยืนยันการลบประวัติสตอรี่นี้?')) {
+    const result = await Swal.fire({
+      title: 'ยืนยันการลบประวัติสตอรี่นี้?',
+      icon: 'warning',
+      showCancelButton: true,
+      confirmButtonColor: '#3085d6',
+      cancelButtonColor: '#d33',
+      confirmButtonText: 'ยืนยัน',
+      cancelButtonText: 'ยกเลิก'
+    });
+
+    if (result.isConfirmed) {
       try {
         await deleteStoryLog(id);
         fetchLogs();

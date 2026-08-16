@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import Swal from 'sweetalert2';
 import { Plus, Edit2, Trash2, Save, X } from 'lucide-react';
 import { useSystemSettings, useSaveSystemSetting, useDeleteSystemSetting } from '../hooks/useSystemSettings';
 import type { SystemSetting } from '../hooks/useSystemSettings';
@@ -47,7 +48,17 @@ export default function PricingSettings() {
   };
 
   const handleDelete = async (key: string) => {
-    if (window.confirm(`คุณแน่ใจหรือไม่ว่าต้องการลบการตั้งค่า ${key}?`)) {
+    const result = await Swal.fire({
+      title: 'คุณแน่ใจหรือไม่ว่าต้องการลบการตั้งค่า ${key}?',
+      icon: 'warning',
+      showCancelButton: true,
+      confirmButtonColor: '#ef4444',
+      cancelButtonColor: '#94a3b8',
+      confirmButtonText: 'ยืนยัน',
+      cancelButtonText: 'ยกเลิก'
+    });
+
+    if (result.isConfirmed) {
       try {
         await deleteMutation.mutateAsync(key);
       } catch (err) {
