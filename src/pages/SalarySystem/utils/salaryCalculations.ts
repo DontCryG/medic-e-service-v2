@@ -24,6 +24,14 @@ export interface StoryLog {
   end_time: string | null;
 }
 
+export interface QueueManagerLog {
+  id: string;
+  discord_id: string;
+  start_time: string;
+  end_time: string | null;
+  duration_minutes: number;
+}
+
 export interface UserPosition {
   name: string;
   rank: number;
@@ -72,6 +80,7 @@ export function calculateSalary(
   dutyLogs: DutyLog[],
   leaveLogs: LeaveRequest[] = [],
   storyLogs: StoryLog[] = [],
+  queueManagerLogs: QueueManagerLog[] = [],
   settings: Record<string, any> = {}
 ): SalaryResult[] {
   
@@ -95,6 +104,13 @@ export function calculateSalary(
     acc[story.discord_id].push(story);
     return acc;
   }, {} as Record<string, StoryLog[]>);
+
+  // Group queue manager logs by discord_id
+  const userQueueManager = queueManagerLogs.reduce((acc, log) => {
+    if (!acc[log.discord_id]) acc[log.discord_id] = [];
+    acc[log.discord_id].push(log);
+    return acc;
+  }, {} as Record<string, QueueManagerLog[]>);
 
   let pooledGachaIC = 0;
   let pooledCoins = 0;
@@ -121,6 +137,21 @@ export function calculateSalary(
     if (daysWorked.size >= 7 && !hasLeaves) {
       totalMinutes += 3 * 60; 
     }
+
+    // Check for Queue Manager Bonus (2 hours for every day >= 120 mins)
+    const qmLogs = userQueueManager[user.discord_id] || [];
+    const qmDailyMins: Record<string, number> = {};
+    qmLogs.forEach(log => {
+      const d = new Date(log.start_time);
+      const dayKey = `${d.getFullYear()}-${d.getMonth()}-${d.getDate()}`;
+      qmDailyMins[dayKey] = (qmDailyMins[dayKey] || 0) + (log.duration_minutes || 0);
+    });
+
+    Object.values(qmDailyMins).forEach(mins => {
+      if (mins >= 120) {
+        totalMinutes += 120; // +2 hours bonus
+      }
+    });
 
     // A3: Drop fractional minutes to get total hours
     const totalHours = Math.floor(totalMinutes / 60);

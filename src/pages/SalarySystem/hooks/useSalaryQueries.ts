@@ -52,7 +52,15 @@ export function useSalaryData(startDate: Date, endDate: Date) {
         .lte('start_time', endDate.toISOString());
       const storyLogs = await fetchAllRows(storyQuery);
 
-      // 5. Fetch system settings
+      // 5. Fetch queue manager logs within date range
+      const queueQuery = supabase
+        .from('queue_manager_logs')
+        .select('*')
+        .gte('start_time', startDate.toISOString())
+        .lte('start_time', endDate.toISOString());
+      const queueLogs = await fetchAllRows(queueQuery);
+
+      // 6. Fetch system settings
       const settingsQuery = supabase
         .from('system_settings')
         .select('*');
@@ -70,7 +78,7 @@ export function useSalaryData(startDate: Date, endDate: Date) {
       }));
 
       // Calculate the results
-      const results = calculateSalary(typedUsers as any, logs || [], leaveLogs || [], storyLogs || [], settingsMap);
+      const results = calculateSalary(typedUsers as any, logs || [], leaveLogs || [], storyLogs || [], queueLogs || [], settingsMap);
       return results;
     },
     enabled: !!startDate && !!endDate,
