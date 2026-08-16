@@ -12,7 +12,7 @@ export function useRequestRealtime() {
       .on('postgres_changes', { event: '*', schema: 'public', table: 'general_requests' }, () => {
         queryClient.invalidateQueries({ queryKey: requestKeys.all });
       })
-      .subscribe();
+      .subscribe((status) => { if (status === 'SUBSCRIBED') { queryClient.invalidateQueries(); } });
 
     return () => {
       supabase.removeChannel(channel);

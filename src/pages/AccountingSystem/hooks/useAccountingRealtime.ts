@@ -12,14 +12,14 @@ export function useAccountingRealtime() {
       .on('postgres_changes', { event: '*', schema: 'public', table: 'accounting_logs' }, () => {
         queryClient.invalidateQueries({ queryKey: accountingKeys.finance });
       })
-      .subscribe();
+      .subscribe((status) => { if (status === 'SUBSCRIBED') { queryClient.invalidateQueries(); } });
 
     const inventoryChannel = supabase
       .channel('realtime_inventory_logs')
       .on('postgres_changes', { event: '*', schema: 'public', table: 'inventory_logs' }, () => {
         queryClient.invalidateQueries({ queryKey: accountingKeys.inventory });
       })
-      .subscribe();
+      .subscribe((status) => { if (status === 'SUBSCRIBED') { queryClient.invalidateQueries(); } });
 
     return () => {
       supabase.removeChannel(financeChannel);

@@ -17,7 +17,7 @@ export function useLeaveRealtime() {
         // Invalidate all leave queries to trigger a refetch automatically
         queryClient.invalidateQueries({ queryKey: leaveKeys.all });
       })
-      .subscribe();
+      .subscribe((status) => { if (status === 'SUBSCRIBED') { queryClient.invalidateQueries(); } });
 
     return () => {
       supabase.removeChannel(subscription);

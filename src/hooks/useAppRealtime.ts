@@ -15,7 +15,7 @@ export function useAppRealtime() {
         queryClient.invalidateQueries({ queryKey: dutyKeys.all });
         queryClient.invalidateQueries({ queryKey: ['queue_users'] });
       })
-      .subscribe();
+      .subscribe((status) => { if (status === 'SUBSCRIBED') { queryClient.invalidateQueries(); } });
 
     // Listen to changes on users (Personnel System)
     const usersSubscription = supabase
@@ -44,7 +44,7 @@ export function useAppRealtime() {
           }
         }
       })
-      .subscribe();
+      .subscribe((status) => { if (status === 'SUBSCRIBED') { queryClient.invalidateQueries(); } });
 
     // Listen to changes on positions
     const positionsSubscription = supabase
@@ -52,7 +52,7 @@ export function useAppRealtime() {
       .on('postgres_changes', { event: '*', schema: 'public', table: 'positions' }, () => {
         queryClient.invalidateQueries();
       })
-      .subscribe();
+      .subscribe((status) => { if (status === 'SUBSCRIBED') { queryClient.invalidateQueries(); } });
 
     return () => {
       supabase.removeChannel(dutyLogsSubscription);

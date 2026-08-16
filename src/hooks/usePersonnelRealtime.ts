@@ -24,7 +24,7 @@ export function usePersonnelRealtime() {
         // Invalidate positions query
         queryClient.invalidateQueries({ queryKey: ['positions'] });
       })
-      .subscribe();
+      .subscribe((status) => { if (status === 'SUBSCRIBED') { queryClient.invalidateQueries(); } });
 
     return () => {
       supabase.removeChannel(channel);
