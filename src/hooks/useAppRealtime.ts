@@ -54,10 +54,20 @@ export function useAppRealtime() {
       })
       .subscribe((status) => { if (status === 'SUBSCRIBED') { queryClient.invalidateQueries(); } });
 
+    // Listen to changes on system_settings
+    const settingsSubscription = supabase
+      .channel('public:system_settings')
+      .on('postgres_changes', { event: '*', schema: 'public', table: 'system_settings' }, () => {
+        queryClient.invalidateQueries({ queryKey: ['system_settings'] });
+        queryClient.invalidateQueries({ queryKey: ['queue_users'] });
+      })
+      .subscribe((status) => { if (status === 'SUBSCRIBED') { queryClient.invalidateQueries(); } });
+
     return () => {
       supabase.removeChannel(dutyLogsSubscription);
       supabase.removeChannel(usersSubscription);
       supabase.removeChannel(positionsSubscription);
+      supabase.removeChannel(settingsSubscription);
     };
   }, [queryClient]);
 }

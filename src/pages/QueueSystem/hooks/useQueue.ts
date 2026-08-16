@@ -161,7 +161,7 @@ export function useQueue(currentUserId: string | undefined) {
       )
       .on(
         'postgres_changes',
-        { event: '*', schema: 'public', table: 'system_settings', filter: 'key=eq.queue_volunteers' },
+        { event: '*', schema: 'public', table: 'system_settings' },
         () => {
           queryClient.invalidateQueries({ queryKey: ['queue_users'] });
         }
