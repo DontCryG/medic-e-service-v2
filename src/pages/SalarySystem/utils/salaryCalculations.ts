@@ -24,6 +24,12 @@ export interface StoryLog {
   end_time: string | null;
 }
 
+export interface UserPosition {
+  name: string;
+  rank: number;
+  oc_rate?: number;
+}
+
 export interface UserInfo {
   ic_name: string;
   discord_id: string;

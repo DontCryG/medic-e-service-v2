@@ -13,6 +13,28 @@ export interface QueueStatus {
   updated_at: string;
 }
 
+export interface QueueManagerLog {
+  id: string;
+  discord_id: string;
+  start_time: string;
+  end_time: string | null;
+  duration_minutes: number | null;
+  created_at: string;
+}
+
+export interface StoryLog {
+  id: string;
+  discord_id: string;
+  gang_1: string | null;
+  gang_2: string | null;
+  story_type: string | null;
+  story_target_time: string | null;
+  start_time: string;
+  end_time: string | null;
+  duration_minutes: number | null;
+  created_at: string;
+}
+
 // Extending user profile for display in queue
 export interface QueueUser {
   discord_id: string;

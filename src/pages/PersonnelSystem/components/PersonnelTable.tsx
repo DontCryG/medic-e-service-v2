@@ -2,6 +2,21 @@ import { memo } from 'react';
 import { Users, Search, Edit2, Trash2, Clock } from 'lucide-react';
 import { getInitial } from '../utils/personnelUtils';
 
+export interface UserWithPosition {
+  discord_id: string;
+  ic_name: string;
+  ic_phone?: string;
+  avatar_url?: string;
+  is_admin: boolean;
+  role?: string;
+  positions?: {
+    id: string;
+    name: string;
+    rank: number;
+    oc_rate: number;
+  };
+}
+
 interface PersonnelTableProps {
   profile: any;
   filteredUsers: UserWithPosition[];
