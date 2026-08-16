@@ -430,9 +430,9 @@ export function HistoryModal({ isOpen, onClose, isAdmin = false }: HistoryModalP
                             setEditForm({...editForm, start_time: localISOTime});
                           }
                         }}
-                        showTimeSelect
+                        showTimeInput
                         timeFormat="HH:mm"
-                        timeIntervals={5}
+                        timeInputLabel="เวลา:"
                         timeCaption="เวลา"
                         dateFormat="dd/MM/yyyy HH:mm"
                         className="date-input"
@@ -519,9 +519,9 @@ export function HistoryModal({ isOpen, onClose, isAdmin = false }: HistoryModalP
                                 setEditForm({...editForm, start_time: localISOTime});
                               }
                             }}
-                            showTimeSelect
+                            showTimeInput
                             timeFormat="HH:mm"
-                            timeIntervals={5}
+                            timeInputLabel="เวลา:"
                             timeCaption="เวลา"
                             dateFormat="dd/MM/yyyy HH:mm"
                             className="date-input"
