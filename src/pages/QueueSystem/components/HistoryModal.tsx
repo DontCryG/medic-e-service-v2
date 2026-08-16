@@ -517,36 +517,33 @@ export function HistoryModal({ isOpen, onClose, isAdmin = false }: HistoryModalP
                     </td>
                     <td style={{ padding: '0.75rem' }}>
                       <div style={{ display: 'flex', gap: '4px', alignItems: 'center' }}>
-                        <div style={{ width: '180px' }}>
+                        <div style={{ width: '200px' }}>
                           <SmartSelect
                             options={factionOptions}
                             value={editForm.gang_1 || ''}
                             onChange={(val) => setEditForm({...editForm, gang_1: val})}
                             searchable
                             placeholder="- Gang 1 -"
-                            className="filter-input-small"
                           />
                         </div>
                         <span style={{ fontSize: '0.8rem', color: '#64748b' }}>vs</span>
-                        <div style={{ width: '180px' }}>
+                        <div style={{ width: '200px' }}>
                           <SmartSelect
                             options={factionOptions}
                             value={editForm.gang_2 || ''}
                             onChange={(val) => setEditForm({...editForm, gang_2: val})}
                             searchable
                             placeholder="- Gang 2 -"
-                            className="filter-input-small"
                           />
                         </div>
                       </div>
                     </td>
                     <td style={{ padding: '0.75rem' }}>
-                      <div style={{ width: '180px' }}>
+                      <div style={{ width: '200px' }}>
                         <SmartSelect
                           options={storyTypeOptions}
                           value={editForm.story_type}
                           onChange={(val) => setEditForm({...editForm, story_type: val})}
-                          className="filter-input-small"
                         />
                       </div>
                     </td>
@@ -646,25 +643,23 @@ export function HistoryModal({ isOpen, onClose, isAdmin = false }: HistoryModalP
                       <td>
                         {isEd ? (
                           <div style={{ display: 'flex', gap: '4px', alignItems: 'center' }}>
-                            <div style={{ width: '180px' }}>
+                            <div style={{ width: '200px' }}>
                               <SmartSelect
                                 options={factionOptions}
                                 value={editForm.gang_1 || ''}
                                 onChange={(val) => setEditForm({...editForm, gang_1: val})}
                                 searchable
                                 placeholder="- Gang 1 -"
-                                className="filter-input-small"
                               />
                             </div>
                             <span style={{ fontSize: '0.8rem', color: '#64748b' }}>vs</span>
-                            <div style={{ width: '180px' }}>
+                            <div style={{ width: '200px' }}>
                               <SmartSelect
                                 options={factionOptions}
                                 value={editForm.gang_2 || ''}
                                 onChange={(val) => setEditForm({...editForm, gang_2: val})}
                                 searchable
                                 placeholder="- Gang 2 -"
-                                className="filter-input-small"
                               />
                             </div>
                           </div>
@@ -678,12 +673,11 @@ export function HistoryModal({ isOpen, onClose, isAdmin = false }: HistoryModalP
                       </td>
                       <td style={{ whiteSpace: 'nowrap' }}>
                         {isEd ? (
-                          <div style={{ width: '180px' }}>
+                          <div style={{ width: '200px' }}>
                             <SmartSelect
                               options={storyTypeOptions}
                               value={editForm.story_type}
                               onChange={(val) => setEditForm({...editForm, story_type: val})}
-                              className="filter-input-small"
                             />
                           </div>
                         ) : (
