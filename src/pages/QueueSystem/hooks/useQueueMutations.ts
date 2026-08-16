@@ -60,6 +60,33 @@ async function saveManagerHistory(discord_id: string, manager_start_time: string
   }
 }
 
+const clearOtherQueued = async (excludeDiscordId: string) => {
+  // Clear regular doctors
+  await supabase.from('queue_status').delete().eq('status', 'queued').neq('discord_id', excludeDiscordId);
+  
+  // Clear volunteers
+  const { data: setting } = await supabase.from('system_settings').select('value').eq('key', 'queue_volunteers').maybeSingle();
+  if (setting?.value) {
+    let volunteers: any[] = [];
+    try { volunteers = JSON.parse(setting.value); } catch(e){}
+    let changed = false;
+    volunteers.forEach((v: any) => {
+      if (v.status === 'queued' && v.id !== excludeDiscordId) {
+        v.status = null;
+        changed = true;
+      }
+    });
+    if (changed) {
+      await supabase.from('system_settings').upsert({
+        key: 'queue_volunteers',
+        value: JSON.stringify(volunteers),
+        description: 'ข้อมูลหมออาสา',
+        type: 'json'
+      });
+    }
+  }
+};
+
 export function useQueueMutations() {
   const queryClient = useQueryClient();
 
@@ -94,6 +121,10 @@ export function useQueueMutations() {
           alert("คำสั่งลบไม่ทำงาน อาจเกิดจาก RLS Policy ยังไม่ได้เปิดให้ลบข้อมูล หรือระบุเงื่อนไขไม่ตรง");
         }
         return;
+      }
+
+      if (newStatus === 'queued') {
+        await clearOtherQueued(discord_id);
       }
 
       // Handle entering Manager
@@ -414,6 +445,10 @@ export function useQueueMutations() {
 
   const updateVolunteerMutation = useMutation({
     mutationFn: async ({ id, newStatus }: { id: string, newStatus: QueueStatusType | null }) => {
+      if (newStatus === 'queued') {
+        await clearOtherQueued(id);
+      }
+      
       const { data: setting } = await supabase.from('system_settings').select('value').eq('key', 'queue_volunteers').maybeSingle();
       if (!setting?.value) return;
       let volunteers: any[] = [];
