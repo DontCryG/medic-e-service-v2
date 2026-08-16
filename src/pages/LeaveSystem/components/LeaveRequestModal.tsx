@@ -80,7 +80,7 @@ export default function LeaveRequestModal({ onClose, profile }: LeaveRequestModa
             <Calendar size={22} color="#3b82f6" />
             ยื่นใบลางาน
           </h2>
-          <button className="modal-close" onClick={onClose}><X size={20} /></button>
+          <button className="close-btn" onClick={onClose}><X size={20} /></button>
         </div>
 
         <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '1.2rem' }}>
