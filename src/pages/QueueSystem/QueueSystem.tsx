@@ -141,16 +141,13 @@ export function QueueSystem() {
               <thead>
                 <tr>
                   <th className="col-name">ชื่อผู้เล่น</th>
-                  <th className="col-unavailable">ไม่สะดวก</th>
-                  <th className="col-queued">คิว</th>
-                  <th className="col-manager">ผจก.คิว</th>
                   <th className="col-story">สตอรี่</th>
                   <th className="col-story-time">รายละเอียดสตอรี่</th>
                 </tr>
               </thead>
               <tbody>
                 {storyLockedUsers.map(queueUser => (
-                  <QueueRow key={queueUser.discord_id} user={queueUser} />
+                  <QueueRow key={queueUser.discord_id} user={queueUser} isStoryQueue={true} />
                 ))}
               </tbody>
             </table>

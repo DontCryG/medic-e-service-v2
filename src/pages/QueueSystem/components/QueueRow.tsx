@@ -9,9 +9,10 @@ import { useGangs, useFamilies } from '../../SystemSettings/hooks/useGangsFamili
 
 interface QueueRowProps {
   user: QueueUser;
+  isStoryQueue?: boolean;
 }
 
-export function QueueRow({ user }: QueueRowProps) {
+export function QueueRow({ user, isStoryQueue = false }: QueueRowProps) {
   const { updateStatus, updateStoryDetails, lockStory, endStory, updateVolunteer, removeVolunteer } = useQueueMutations();
   const { data: gangs = [] } = useGangs();
   const { data: families = [] } = useFamilies();
@@ -211,52 +212,56 @@ export function QueueRow({ user }: QueueRowProps) {
         </div>
       </td>
 
-      <td className="col-unavailable">
-        <label className={`custom-checkbox ${currentStatus === 'unavailable' ? 'checked-unavailable' : ''} ${isLocked ? 'disabled' : ''}`}>
-          <input 
-            type="checkbox" 
-            checked={currentStatus === 'unavailable'} 
-            onChange={() => handleStatusChange('unavailable')} 
-            disabled={isLocked}
-          />
-          <Check size={16} />
-        </label>
-      </td>
-
-      <td className="col-queued">
-        <label className={`custom-checkbox ${currentStatus === 'queued' ? 'checked-queued' : ''} ${isLocked ? 'disabled' : ''}`}>
-          <input 
-            type="checkbox" 
-            checked={currentStatus === 'queued'} 
-            onChange={() => handleStatusChange('queued')} 
-            disabled={isLocked}
-          />
-          <Check size={16} />
-        </label>
-      </td>
-
-      <td className="col-manager">
-        {user.is_volunteer ? (
-          <span style={{ color: '#cbd5e1' }}>-</span>
-        ) : (
-          <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '4px' }}>
-            <label className={`custom-checkbox ${currentStatus === 'manager' ? 'checked-manager' : ''} ${isLocked ? 'disabled' : ''}`}>
+      {!isStoryQueue && (
+        <>
+          <td className="col-unavailable">
+            <label className={`custom-checkbox ${currentStatus === 'unavailable' ? 'checked-unavailable' : ''} ${isLocked ? 'disabled' : ''}`}>
               <input 
                 type="checkbox" 
-                checked={currentStatus === 'manager'} 
-                onChange={() => handleStatusChange('manager')} 
+                checked={currentStatus === 'unavailable'} 
+                onChange={() => handleStatusChange('unavailable')} 
                 disabled={isLocked}
               />
               <Check size={16} />
             </label>
-            {currentStatus === 'manager' && (
-              <span style={{ fontSize: '0.7rem', fontWeight: 600, color: '#0ea5e9' }}>
-                ⏱ {managerTimer}
-              </span>
+          </td>
+
+          <td className="col-queued">
+            <label className={`custom-checkbox ${currentStatus === 'queued' ? 'checked-queued' : ''} ${isLocked ? 'disabled' : ''}`}>
+              <input 
+                type="checkbox" 
+                checked={currentStatus === 'queued'} 
+                onChange={() => handleStatusChange('queued')} 
+                disabled={isLocked}
+              />
+              <Check size={16} />
+            </label>
+          </td>
+
+          <td className="col-manager">
+            {user.is_volunteer ? (
+              <span style={{ color: '#cbd5e1' }}>-</span>
+            ) : (
+              <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '4px' }}>
+                <label className={`custom-checkbox ${currentStatus === 'manager' ? 'checked-manager' : ''} ${isLocked ? 'disabled' : ''}`}>
+                  <input 
+                    type="checkbox" 
+                    checked={currentStatus === 'manager'} 
+                    onChange={() => handleStatusChange('manager')} 
+                    disabled={isLocked}
+                  />
+                  <Check size={16} />
+                </label>
+                {currentStatus === 'manager' && (
+                  <span style={{ fontSize: '0.7rem', fontWeight: 600, color: '#0ea5e9' }}>
+                    ⏱ {managerTimer}
+                  </span>
+                )}
+              </div>
             )}
-          </div>
-        )}
-      </td>
+          </td>
+        </>
+      )}
 
       <td className="col-story">
         {user.is_volunteer ? (
