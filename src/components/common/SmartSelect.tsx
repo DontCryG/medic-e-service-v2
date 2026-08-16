@@ -3,11 +3,6 @@ import type { KeyboardEvent } from 'react';
 import { ChevronDown, Check } from 'lucide-react';
 import './SmartSelect.css';
 
-export interface SmartSelectOption {
-  value: string;
-  label: string;
-}
-
 export interface SmartSelectProps {
   options: SmartSelectOption[];
   value: string;
