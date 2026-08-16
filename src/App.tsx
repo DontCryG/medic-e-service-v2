@@ -4,18 +4,17 @@ import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { useAuthStore } from './store/authStore';
 import { useAppRealtime } from './hooks/useAppRealtime';
 
-// Lazy Load Pages
-const Portal = React.lazy(() => import('./pages/Portal'));
-const MainLayout = React.lazy(() => import('./layouts/MainLayout'));
-const Dashboard = React.lazy(() => import('./pages/Dashboard'));
-const PersonnelSystem = React.lazy(() => import('./pages/PersonnelSystem'));
-const DutySystem = React.lazy(() => import('./pages/DutySystem'));
-const SalarySystem = React.lazy(() => import('./pages/SalarySystem'));
-const LeaveSystem = React.lazy(() => import('./pages/LeaveSystem'));
-const QueueSystem = React.lazy(() => import('./pages/QueueSystem/QueueSystem').then(module => ({ default: module.QueueSystem })));
-const RequestManagement = React.lazy(() => import('./pages/RequestManagement/RequestManagement').then(module => ({ default: module.RequestManagement })));
-const AccountingSystem = React.lazy(() => import('./pages/AccountingSystem/AccountingSystem').then(module => ({ default: module.AccountingSystem })));
-const SystemSettings = React.lazy(() => import('./pages/SystemSettings'));
+import Portal from './pages/Portal';
+import MainLayout from './layouts/MainLayout';
+import Dashboard from './pages/Dashboard';
+import PersonnelSystem from './pages/PersonnelSystem';
+import DutySystem from './pages/DutySystem';
+import SalarySystem from './pages/SalarySystem';
+import LeaveSystem from './pages/LeaveSystem';
+import { QueueSystem } from './pages/QueueSystem/QueueSystem';
+import { RequestManagement } from './pages/RequestManagement/RequestManagement';
+import { AccountingSystem } from './pages/AccountingSystem/AccountingSystem';
+import SystemSettings from './pages/SystemSettings';
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -62,12 +61,7 @@ export default function App() {
     <QueryClientProvider client={queryClient}>
       <AppEffects />
       <BrowserRouter>
-        <React.Suspense fallback={
-          <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '100vh', flexDirection: 'column', gap: '1rem' }}>
-            <div className="spinner" style={{ width: '40px', height: '40px' }}></div>
-            <div style={{ color: '#64748b', fontSize: '0.9rem' }}>กำลังโหลดข้อมูลระบบ...</div>
-          </div>
-        }>
+
           <Routes>
             {/* Public Portal Route */}
             <Route path="/" element={user ? <Navigate to="/dashboard" replace /> : <Portal />} />
@@ -99,7 +93,7 @@ export default function App() {
             {/* Fallback */}
             <Route path="*" element={<Navigate to="/" replace />} />
           </Routes>
-        </React.Suspense>
+
       </BrowserRouter>
     </QueryClientProvider>
   );
