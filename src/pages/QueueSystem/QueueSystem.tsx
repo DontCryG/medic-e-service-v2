@@ -22,6 +22,9 @@ export function QueueSystem() {
     setVolunteerName('');
   };
 
+  const storyLockedUsers = queueUsers.filter(u => u.status_record?.status === 'story' && u.status_record?.story_locked === true);
+  const mainQueueUsers = queueUsers.filter(u => !(u.status_record?.status === 'story' && u.status_record?.story_locked === true));
+
   return (
     <div className="queue-container">
       <div className="queue-header">
@@ -107,14 +110,14 @@ export function QueueSystem() {
                     เกิดข้อผิดพลาดในการโหลดข้อมูล: {(error as Error).message}
                   </td>
                 </tr>
-              ) : queueUsers.length > 0 ? (
-                queueUsers.map(queueUser => (
+              ) : mainQueueUsers.length > 0 ? (
+                mainQueueUsers.map(queueUser => (
                   <QueueRow key={queueUser.discord_id} user={queueUser} />
                 ))
               ) : (
                 <tr>
                   <td colSpan={6} style={{ textAlign: 'center', padding: '40px', color: '#64748b' }}>
-                    ไม่มีบุคลากรเข้าเวรในขณะนี้
+                    ไม่มีข้อมูลผู้เล่นในคิว
                   </td>
                 </tr>
               )}
@@ -122,6 +125,38 @@ export function QueueSystem() {
           </table>
         </div>
       </div>
+
+      {storyLockedUsers.length > 0 && (
+        <div className="queue-card" style={{ marginTop: '24px', borderTop: '4px solid #f43f5e' }}>
+          <div style={{ padding: '16px 24px', borderBottom: '1px solid #e2e8f0', backgroundColor: '#fff1f2', display: 'flex', alignItems: 'center' }}>
+            <h2 style={{ fontSize: '1.25rem', fontWeight: 600, color: '#e11d48', margin: 0 }}>
+              คิวสตอรี่ (Story Queue)
+            </h2>
+            <span style={{ marginLeft: '12px', padding: '4px 10px', backgroundColor: '#e11d48', color: 'white', borderRadius: '9999px', fontSize: '0.875rem', fontWeight: 600 }}>
+              {storyLockedUsers.length} คน
+            </span>
+          </div>
+          <div className="queue-table-wrapper">
+            <table className="queue-table">
+              <thead>
+                <tr>
+                  <th className="col-name">ชื่อผู้เล่น</th>
+                  <th className="col-unavailable">ไม่สะดวก</th>
+                  <th className="col-queued">คิว</th>
+                  <th className="col-manager">ผจก.คิว</th>
+                  <th className="col-story">สตอรี่</th>
+                  <th className="col-story-time">รายละเอียดสตอรี่</th>
+                </tr>
+              </thead>
+              <tbody>
+                {storyLockedUsers.map(queueUser => (
+                  <QueueRow key={queueUser.discord_id} user={queueUser} />
+                ))}
+              </tbody>
+            </table>
+          </div>
+        </div>
+      )}
 
       <HistoryModal 
         isOpen={isHistoryOpen} 
