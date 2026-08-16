@@ -513,7 +513,7 @@ export function HistoryModal({ isOpen, onClose, isAdmin = false }: HistoryModalP
                       <div style={{ display: 'flex', gap: '4px', alignItems: 'center' }}>
                         <div style={{ width: '200px' }}>
                           <SmartSelect
-                            options={factionOptions}
+                            options={factionOptions.filter(opt => opt.value !== editForm.gang_2)}
                             value={editForm.gang_1 || ''}
                             onChange={(val) => setEditForm({...editForm, gang_1: val})}
                             searchable
@@ -523,7 +523,7 @@ export function HistoryModal({ isOpen, onClose, isAdmin = false }: HistoryModalP
                         <span style={{ fontSize: '0.8rem', color: '#64748b' }}>vs</span>
                         <div style={{ width: '200px' }}>
                           <SmartSelect
-                            options={factionOptions}
+                            options={factionOptions.filter(opt => opt.value !== editForm.gang_1)}
                             value={editForm.gang_2 || ''}
                             onChange={(val) => setEditForm({...editForm, gang_2: val})}
                             searchable
@@ -639,7 +639,7 @@ export function HistoryModal({ isOpen, onClose, isAdmin = false }: HistoryModalP
                           <div style={{ display: 'flex', gap: '4px', alignItems: 'center' }}>
                             <div style={{ width: '200px' }}>
                               <SmartSelect
-                                options={factionOptions}
+                                options={factionOptions.filter(opt => opt.value !== editForm.gang_2)}
                                 value={editForm.gang_1 || ''}
                                 onChange={(val) => setEditForm({...editForm, gang_1: val})}
                                 searchable
@@ -649,7 +649,7 @@ export function HistoryModal({ isOpen, onClose, isAdmin = false }: HistoryModalP
                             <span style={{ fontSize: '0.8rem', color: '#64748b' }}>vs</span>
                             <div style={{ width: '200px' }}>
                               <SmartSelect
-                                options={factionOptions}
+                                options={factionOptions.filter(opt => opt.value !== editForm.gang_1)}
                                 value={editForm.gang_2 || ''}
                                 onChange={(val) => setEditForm({...editForm, gang_2: val})}
                                 searchable
