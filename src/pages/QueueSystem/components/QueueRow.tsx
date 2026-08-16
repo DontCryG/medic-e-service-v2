@@ -325,7 +325,7 @@ export function QueueRow({ user, isStoryQueue = false }: QueueRowProps) {
               <>
                 <div className="premium-dropdown" style={{ width: '160px' }}>
                   <SmartSelect
-                    options={factionOptions}
+                    options={factionOptions.filter(opt => opt.value !== gang2)}
                     value={gang1}
                     onChange={(val) => {
                       setGang1(val);
@@ -346,7 +346,7 @@ export function QueueRow({ user, isStoryQueue = false }: QueueRowProps) {
                 <span className="story-vs">VS</span>
                 <div className="premium-dropdown" style={{ width: '160px' }}>
                   <SmartSelect
-                    options={factionOptions}
+                    options={factionOptions.filter(opt => opt.value !== gang1)}
                     value={gang2}
                     onChange={(val) => {
                       setGang2(val);
