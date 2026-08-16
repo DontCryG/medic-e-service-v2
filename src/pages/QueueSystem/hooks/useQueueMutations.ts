@@ -111,19 +111,22 @@ export function useQueueMutations() {
       }
 
       if (!newStatus) {
-        console.log("ATTEMPTING TO DELETE ROW FOR", discord_id);
-        // Delete the record completely to untick everything
+        console.log("ATTEMPTING TO UPDATE ROW FOR", discord_id, "TO NULL STATUS");
+        // Instead of deleting, we update status to null to preserve story data
         const response = await supabase
           .from('queue_status')
-          .delete()
+          .update({
+            status: null,
+            manager_start_time: null,
+            updated_at: new Date().toISOString()
+          })
           .eq('discord_id', discord_id)
           .select();
         
-        console.log("DELETE RESPONSE:", response);
+        console.log("UPDATE RESPONSE:", response);
         if (response.error) throw response.error;
         if (response.data?.length === 0) {
-          console.warn("DELETE SUCCEEDED BUT 0 ROWS WERE DELETED. THIS MEANS RLS BLOCKED IT OR ROW DOESN'T EXIST.");
-          alert("คำสั่งลบไม่ทำงาน อาจเกิดจาก RLS Policy ยังไม่ได้เปิดให้ลบข้อมูล หรือระบุเงื่อนไขไม่ตรง");
+          console.warn("UPDATE SUCCEEDED BUT 0 ROWS WERE UPDATED. THIS MEANS RLS BLOCKED IT OR ROW DOESN'T EXIST.");
         }
         return;
       }
