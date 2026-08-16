@@ -68,9 +68,11 @@ export default function Portal() {
         .from('users')
         .select('*, positions(*)')
         .eq('discord_id', providerId)
-        .single();
+        .maybeSingle();
 
-      if (error && error.code === 'PGRST116') {
+      if (error) console.error(error);
+
+      if (!userData) {
         // Not found -> Go to registration flow
         setDiscordId(providerId);
         setAvatarUrl(avatar);

@@ -65,7 +65,7 @@ export default function DutySystem({ profile }: DutySystemProps) {
         .from('queue_status')
         .select('status')
         .eq('discord_id', profile.discord_id)
-        .single();
+        .maybeSingle();
         
       if (queueData) {
         if (queueData.status === 'story') {
@@ -112,7 +112,7 @@ export default function DutySystem({ profile }: DutySystemProps) {
         .from('queue_status')
         .select('status')
         .eq('discord_id', session.discord_id)
-        .single();
+        .maybeSingle();
         
       if (queueData) {
         if (queueData.status === 'story') {

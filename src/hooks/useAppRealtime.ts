@@ -30,7 +30,7 @@ export function useAppRealtime() {
             .from('users')
             .select('*, positions(*)')
             .eq('discord_id', currentUser.discord_id)
-            .single();
+            .maybeSingle();
             
           if (data) {
             useAuthStore.getState().login({
