@@ -292,9 +292,11 @@ export function HistoryModal({ isOpen, onClose, isAdmin = false }: HistoryModalP
         <div style={{ 
           display: 'flex', 
           justifyContent: 'space-between',
-          alignItems: 'center', 
+          alignItems: 'flex-start', 
           padding: '0 24px 16px 24px',
-          borderBottom: '1px solid var(--qs-border, #e2e8f0)' 
+          borderBottom: '1px solid var(--qs-border, #e2e8f0)',
+          gap: '16px',
+          flexWrap: 'wrap'
         }}>
           <div style={{ display: 'flex', gap: '12px', flexWrap: 'wrap', alignItems: 'center' }}>
             <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
@@ -339,7 +341,7 @@ export function HistoryModal({ isOpen, onClose, isAdmin = false }: HistoryModalP
           {isAdmin && activeTab === 'story' && (
              <button 
                onClick={handleAddStory}
-               style={{ display: 'flex', alignItems: 'center', gap: '4px', padding: '6px 12px', background: '#8b5cf6', color: 'white', border: 'none', borderRadius: '8px', cursor: 'pointer', fontWeight: 600, fontSize: '0.85rem' }}
+               style={{ display: 'flex', alignItems: 'center', gap: '4px', padding: '8px 16px', background: '#8b5cf6', color: 'white', border: 'none', borderRadius: '8px', cursor: 'pointer', fontWeight: 600, fontSize: '0.85rem', whiteSpace: 'nowrap', flexShrink: 0 }}
              >
                <Plus size={16} /> เพิ่มประวัติย้อนหลัง
              </button>
