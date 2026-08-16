@@ -2,10 +2,12 @@ import { useState } from 'react';
 import { Package, ArrowDownToLine, ArrowUpFromLine, Clock } from 'lucide-react';
 import { useAuthStore } from '@/store/authStore';
 import { useInventoryLogs, useInventoryStock } from '../hooks/useAccountingQueries';
-import { useAddInventoryLog } from '../hooks/useAccountingMutations';
+import { useAddInventoryLog, useDeleteInventoryLog } from '../hooks/useAccountingMutations';
 import InventoryReportModal from './InventoryReportModal';
+import EditInventoryLogModal from './EditInventoryLogModal';
 import CustomDatePicker from '@/components/common/CustomDatePicker';
 import Swal from 'sweetalert2';
+import { Edit2, Trash2 } from 'lucide-react';
 
 export default function InventoryTab() {
   const { user } = useAuthStore();
@@ -15,6 +17,9 @@ export default function InventoryTab() {
 
   const [isReportOpen, setIsReportOpen] = useState(false);
   const [showDropdown, setShowDropdown] = useState(false);
+  const [editingLog, setEditingLog] = useState<any>(null);
+  
+  const deleteMutation = useDeleteInventoryLog();
   
   // Date Range Filter
   const [startDate, setStartDate] = useState('');
@@ -424,6 +429,7 @@ export default function InventoryTab() {
                       <th style={{ whiteSpace: 'nowrap' }}>สิ่งของ</th>
                       <th style={{ textAlign: 'right', whiteSpace: 'nowrap' }}>จำนวน</th>
                       <th style={{ whiteSpace: 'nowrap' }}>รายละเอียด</th>
+                      {user?.role === 'admin' && <th style={{ whiteSpace: 'nowrap', textAlign: 'center' }}>จัดการ</th>}
                     </tr>
                   </thead>
                 <tbody>
@@ -460,6 +466,43 @@ export default function InventoryTab() {
                         {log.type === 'receive' ? '+' : '-'}{log.quantity.toLocaleString()}
                       </td>
                       <td style={{ color: 'var(--text-secondary)', whiteSpace: 'pre-wrap', fontSize: '0.85rem' }}>{log.description || '-'}</td>
+                      {user?.role === 'admin' && (
+                        <td style={{ whiteSpace: 'nowrap', textAlign: 'center' }}>
+                          <button
+                            onClick={() => setEditingLog(log)}
+                            style={{
+                              background: 'none', border: 'none', color: '#3b82f6', cursor: 'pointer', padding: '4px', marginRight: '8px'
+                            }}
+                            title="แก้ไข"
+                          >
+                            <Edit2 size={16} />
+                          </button>
+                          <button
+                            onClick={() => {
+                              Swal.fire({
+                                title: 'ยืนยันการลบ?',
+                                text: "คุณต้องการลบรายการนี้ใช่หรือไม่?",
+                                icon: 'warning',
+                                showCancelButton: true,
+                                confirmButtonColor: '#ef4444',
+                                cancelButtonColor: '#94a3b8',
+                                confirmButtonText: 'ลบข้อมูล',
+                                cancelButtonText: 'ยกเลิก'
+                              }).then((result) => {
+                                if (result.isConfirmed) {
+                                  deleteMutation.mutate(log.id);
+                                }
+                              });
+                            }}
+                            style={{
+                              background: 'none', border: 'none', color: '#ef4444', cursor: 'pointer', padding: '4px'
+                            }}
+                            title="ลบ"
+                          >
+                            <Trash2 size={16} />
+                          </button>
+                        </td>
+                      )}
                     </tr>
                   ))}
                 </tbody>
@@ -477,6 +520,14 @@ export default function InventoryTab() {
           onClose={() => setIsReportOpen(false)} 
           startDate={startDate}
           endDate={endDate}
+        />
+      )}
+      
+      {editingLog && (
+        <EditInventoryLogModal
+          isOpen={!!editingLog}
+          onClose={() => setEditingLog(null)}
+          log={editingLog}
         />
       )}
     </div>

@@ -6,7 +6,10 @@ import { useAddFinanceLog } from '../hooks/useAccountingMutations';
 
 import CustomDatePicker from '@/components/common/CustomDatePicker';
 import FinanceReportModal from './FinanceReportModal';
+import EditFinanceLogModal from './EditFinanceLogModal';
 import Swal from 'sweetalert2';
+import { useDeleteFinanceLog } from '../hooks/useAccountingMutations';
+import { Edit2, Trash2 } from 'lucide-react';
 
 export default function FinanceTab() {
   const { user } = useAuthStore();
@@ -17,6 +20,8 @@ export default function FinanceTab() {
   const [amount, setAmount] = useState<number | ''>('');
   const [description, setDescription] = useState('');
   const [isReportOpen, setIsReportOpen] = useState(false);
+  const [editingLog, setEditingLog] = useState<any>(null);
+  const deleteMutation = useDeleteFinanceLog();
   
   // Date Range Filter States
   const [startDate, setStartDate] = useState('');
@@ -272,8 +277,9 @@ export default function FinanceTab() {
                     <th style={{ whiteSpace: 'nowrap' }}>วันที่/เวลา</th>
                     <th style={{ whiteSpace: 'nowrap' }}>ผู้บันทึก</th>
                     <th style={{ whiteSpace: 'nowrap' }}>ประเภท</th>
-                    <th style={{ textAlign: 'right', whiteSpace: 'nowrap' }}>จำนวนเงิน</th>
+                    <th style={{ textAlign: 'right', whiteSpace: 'nowrap' }}>จำนวนเงิน (฿)</th>
                     <th style={{ whiteSpace: 'nowrap' }}>รายละเอียด</th>
+                    {user?.role === 'admin' && <th style={{ whiteSpace: 'nowrap', textAlign: 'center' }}>จัดการ</th>}
                   </tr>
                 </thead>
               <tbody>
@@ -308,7 +314,44 @@ export default function FinanceTab() {
                     }}>
                       {log.type === 'income' ? '+' : '-'}{log.amount.toLocaleString()}
                     </td>
-                    <td style={{ color: 'var(--text-secondary)' }}>{log.description || '-'}</td>
+                    <td style={{ color: 'var(--text-secondary)', whiteSpace: 'pre-wrap', fontSize: '0.85rem' }}>{log.description || '-'}</td>
+                    {user?.role === 'admin' && (
+                        <td style={{ whiteSpace: 'nowrap', textAlign: 'center' }}>
+                          <button
+                            onClick={() => setEditingLog(log)}
+                            style={{
+                              background: 'none', border: 'none', color: '#3b82f6', cursor: 'pointer', padding: '4px', marginRight: '8px'
+                            }}
+                            title="แก้ไข"
+                          >
+                            <Edit2 size={16} />
+                          </button>
+                          <button
+                            onClick={() => {
+                              Swal.fire({
+                                title: 'ยืนยันการลบ?',
+                                text: "คุณต้องการลบรายการนี้ใช่หรือไม่?",
+                                icon: 'warning',
+                                showCancelButton: true,
+                                confirmButtonColor: '#ef4444',
+                                cancelButtonColor: '#94a3b8',
+                                confirmButtonText: 'ลบข้อมูล',
+                                cancelButtonText: 'ยกเลิก'
+                              }).then((result) => {
+                                if (result.isConfirmed) {
+                                  deleteMutation.mutate(log.id);
+                                }
+                              });
+                            }}
+                            style={{
+                              background: 'none', border: 'none', color: '#ef4444', cursor: 'pointer', padding: '4px'
+                            }}
+                            title="ลบ"
+                          >
+                            <Trash2 size={16} />
+                          </button>
+                        </td>
+                      )}
                   </tr>
                 ))}
               </tbody>
@@ -324,6 +367,14 @@ export default function FinanceTab() {
           onClose={() => setIsReportOpen(false)} 
           startDate={startDate}
           endDate={endDate}
+        />
+      )}
+      
+      {editingLog && (
+        <EditFinanceLogModal
+          isOpen={!!editingLog}
+          onClose={() => setEditingLog(null)}
+          log={editingLog}
         />
       )}
     </div>
