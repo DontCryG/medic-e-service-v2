@@ -282,7 +282,11 @@ export function HistoryModal({ isOpen, onClose, isAdmin = false }: HistoryModalP
 
   return (
     <div className="modal-overlay" onClick={onClose}>
-      <div className="queue-modal-content" onClick={e => e.stopPropagation()}>
+      <div 
+        className="queue-modal-content" 
+        onClick={e => e.stopPropagation()}
+        style={{ maxWidth: activeTab === 'story' ? '1200px' : '900px', transition: 'max-width 0.3s ease' }}
+      >
         <div className="modal-header">
           <h2>ประวัติระบบคิว & รายงาน</h2>
           <button className="close-btn" onClick={onClose}>
