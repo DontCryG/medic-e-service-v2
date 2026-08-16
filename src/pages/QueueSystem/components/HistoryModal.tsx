@@ -552,10 +552,10 @@ export function HistoryModal({ isOpen, onClose, isAdmin = false }: HistoryModalP
                              </select>
                            </div>
                         ) : (
-                          log.gang_1 && log.gang_2 ? `[${log.gang_1}] vs [${log.gang_2}]` : '-'
+                          log.gang_1 && log.gang_2 ? `${log.gang_1} vs ${log.gang_2}` : '-'
                         )}
                       </td>
-                      <td>
+                      <td style={{ whiteSpace: 'nowrap' }}>
                         {isEd ? (
                            <select 
                              value={editForm.story_type} 
