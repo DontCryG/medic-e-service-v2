@@ -273,7 +273,6 @@ export function QueueRow({ user }: QueueRowProps) {
             value={targetTime}
             onChange={setTargetTime}
             onBlur={handleTimeBlur}
-            disabled={isLocked && !user.is_current_user} // Usually locked for others
             placeholder="00:00"
           />
           
@@ -297,7 +296,6 @@ export function QueueRow({ user }: QueueRowProps) {
                   }}
                   searchable
                   placeholder="แก๊ง/แฟม"
-                  disabled={isLocked && !user.is_current_user}
                 />
               </div>
               <span className="story-vs">VS</span>
@@ -319,7 +317,6 @@ export function QueueRow({ user }: QueueRowProps) {
                   }}
                   searchable
                   placeholder="แก๊ง/แฟม"
-                  disabled={isLocked && !user.is_current_user}
                 />
               </div>
               <div className="premium-dropdown" style={{ width: '130px' }}>
@@ -337,7 +334,6 @@ export function QueueRow({ user }: QueueRowProps) {
                       });
                     }
                   }}
-                  disabled={isLocked && !user.is_current_user}
                   options={[
                     { value: 'ไฟต์ตรง (1 คน)', label: 'ไฟต์ตรง (1 คน)' },
                     { value: 'ไฟต์ตรง (2 คน)', label: 'ไฟต์ตรง (2 คน)' },
@@ -348,7 +344,6 @@ export function QueueRow({ user }: QueueRowProps) {
               </div>
 
               {/* Cancel Button - clears everything without history */}
-              {(!isLocked || (isLocked && user.is_current_user)) && (
                 <button 
                   className="cancel-story-btn" 
                   onClick={() => {
@@ -362,7 +357,6 @@ export function QueueRow({ user }: QueueRowProps) {
                 >
                   <X size={14} />
                 </button>
-              )}
             </>
           )}
         </div>
