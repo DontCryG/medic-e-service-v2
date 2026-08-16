@@ -104,12 +104,7 @@ export function useQueue(currentUserId: string | undefined) {
         if (aUnavail && !bUnavail) return 1;
         if (!aUnavail && bUnavail) return -1;
 
-        // 2. Current user always at top (unless they are unavailable)
-        if (a.is_current_user && !b.is_current_user) return -1;
-        if (!a.is_current_user && b.is_current_user) return 1;
-        
-
-        // 3. Keep original clock_in ascending order (or volunteers at bottom if tie)
+        // 2. Keep original clock_in ascending order (or volunteers at bottom if tie)
         if (a.is_volunteer && !b.is_volunteer) return 1;
         if (!a.is_volunteer && b.is_volunteer) return -1;
         
