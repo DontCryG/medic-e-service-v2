@@ -1,4 +1,5 @@
 import { useState, useRef, useEffect } from 'react';
+import { createPortal } from 'react-dom';
 import type { KeyboardEvent } from 'react';
 import { ChevronDown, Check } from 'lucide-react';
 import './SmartSelect.css';
@@ -40,6 +41,20 @@ export default function SmartSelect({
   );
 
   const selectedOption = options.find(opt => opt.value === value);
+  const [dropdownStyle, setDropdownStyle] = useState<React.CSSProperties>({});
+
+  const updatePosition = () => {
+    if (containerRef.current) {
+      const rect = containerRef.current.getBoundingClientRect();
+      setDropdownStyle({
+        position: 'fixed',
+        top: rect.bottom + 4,
+        left: rect.left,
+        width: rect.width,
+        zIndex: 99999
+      });
+    }
+  };
 
   // Handle clicking outside to close
   useEffect(() => {
@@ -55,7 +70,7 @@ export default function SmartSelect({
     };
   }, []);
 
-  // Focus search input when opened
+  // Focus search input when opened and update position
   useEffect(() => {
     if (isOpen) {
       setSearchQuery('');
@@ -66,7 +81,17 @@ export default function SmartSelect({
       // Highlight currently selected item
       const index = options.findIndex(opt => opt.value === value);
       setHighlightedIndex(index >= 0 ? index : 0);
+      
+      // Setup portal position and listeners
+      updatePosition();
+      window.addEventListener('scroll', updatePosition, true);
+      window.addEventListener('resize', updatePosition);
     }
+    
+    return () => {
+      window.removeEventListener('scroll', updatePosition, true);
+      window.removeEventListener('resize', updatePosition);
+    };
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [isOpen]);
 
@@ -166,8 +191,8 @@ export default function SmartSelect({
         <ChevronDown size={18} className="smart-select-icon" />
       </div>
 
-      {isOpen && (
-        <div className="smart-select-dropdown">
+      {isOpen && createPortal(
+        <div className="smart-select-dropdown" style={dropdownStyle}>
           {searchable && (
             <div className="smart-select-search-container">
               <input
@@ -218,7 +243,8 @@ export default function SmartSelect({
               <div className="smart-select-empty">ไม่พบข้อมูล</div>
             )}
           </div>
-        </div>
+        </div>,
+        document.body
       )}
     </div>
   );
