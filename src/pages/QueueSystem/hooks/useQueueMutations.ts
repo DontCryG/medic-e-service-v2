@@ -399,7 +399,8 @@ export function useQueueMutations() {
       volunteers.push({
         id: `vol_${Date.now()}_${Math.floor(Math.random()*1000)}`,
         name,
-        status: null
+        status: null,
+        added_at: new Date().toISOString()
       });
       await supabase.from('system_settings').upsert({
         key: 'queue_volunteers',

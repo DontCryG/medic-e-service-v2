@@ -42,5 +42,6 @@ export interface QueueUser {
   avatar_url: string | null;
   is_current_user: boolean;
   is_volunteer?: boolean;
+  volunteer_added_at?: string;
   status_record: QueueStatus | null;
 }

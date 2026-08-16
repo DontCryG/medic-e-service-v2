@@ -74,25 +74,39 @@ export function useQueue(currentUserId: string | undefined) {
       });
 
       // Map volunteers
-      const volunteerUsers: QueueUser[] = volunteers.map((v: any) => ({
-        discord_id: v.id,
-        ic_name: v.name + ' (อาสา)',
-        avatar_url: null,
-        is_current_user: false,
-        is_volunteer: true,
-        status_record: {
-          discord_id: v.id,
-          status: v.status,
-          manager_start_time: null,
-          story_target_time: null,
-          story_gang_1: null,
-          story_gang_2: null,
-          story_type: null,
-          story_locked: false,
-          story_premium: null,
-          updated_at: new Date().toISOString()
+      const volunteerUsers: QueueUser[] = volunteers.map((v: any) => {
+        // Fallback: parse timestamp from ID (e.g. vol_1701234567890_123) if added_at is missing
+        let addedAt = v.added_at;
+        if (!addedAt) {
+          const match = v.id?.match(/vol_(\d+)_/);
+          if (match) {
+            addedAt = new Date(parseInt(match[1])).toISOString();
+          } else {
+            addedAt = new Date().toISOString(); // ultimate fallback
+          }
         }
-      }));
+        
+        return {
+          discord_id: v.id,
+          ic_name: v.name + ' (อาสา)',
+          avatar_url: null,
+          is_current_user: false,
+          is_volunteer: true,
+          volunteer_added_at: addedAt,
+          status_record: {
+            discord_id: v.id,
+            status: v.status,
+            manager_start_time: null,
+            story_target_time: null,
+            story_gang_1: null,
+            story_gang_2: null,
+            story_type: null,
+            story_locked: false,
+            story_premium: null,
+            updated_at: new Date().toISOString()
+          }
+        };
+      });
 
       users = [...users, ...volunteerUsers];
 
@@ -104,16 +118,17 @@ export function useQueue(currentUserId: string | undefined) {
         if (aUnavail && !bUnavail) return 1;
         if (!aUnavail && bUnavail) return -1;
 
-        // 2. Keep original clock_in ascending order (or volunteers at bottom if tie)
-        if (a.is_volunteer && !b.is_volunteer) return 1;
-        if (!a.is_volunteer && b.is_volunteer) return -1;
-        
-        if (!a.is_volunteer && !b.is_volunteer) {
-          const idxA = dutyLogs.findIndex(l => l.discord_id === a.discord_id);
-          const idxB = dutyLogs.findIndex(l => l.discord_id === b.discord_id);
-          return idxA - idxB;
-        }
-        return 0;
+        // 2. Sort chronologically by "join time"
+        const getJoinTime = (user: QueueUser) => {
+          if (user.is_volunteer) {
+            return user.volunteer_added_at ? new Date(user.volunteer_added_at).getTime() : 0;
+          } else {
+            const log = dutyLogs.find(l => l.discord_id === user.discord_id);
+            return log ? new Date(log.clock_in).getTime() : 0;
+          }
+        };
+
+        return getJoinTime(a) - getJoinTime(b);
       });
 
       return users;
