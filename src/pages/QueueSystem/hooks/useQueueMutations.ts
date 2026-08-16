@@ -273,7 +273,7 @@ export function useQueueMutations() {
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['queue_users'] });
-      forceSync();
+      
     }
   });
 
@@ -446,7 +446,7 @@ export function useQueueMutations() {
         type: 'json'
       });
     },
-    onSuccess: () => { queryClient.invalidateQueries({ queryKey: ['queue_users'] }); forceSync(); }
+    onSuccess: () => { queryClient.invalidateQueries({ queryKey: ['queue_users'] });  }
   });
 
   const updateVolunteerMutation = useMutation({
@@ -472,7 +472,7 @@ export function useQueueMutations() {
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['queue_users'] });
-      forceSync();
+      
     }
   });
 
@@ -490,7 +490,7 @@ export function useQueueMutations() {
         type: 'json'
       });
     },
-    onSuccess: () => { queryClient.invalidateQueries({ queryKey: ['queue_users'] }); forceSync(); }
+    onSuccess: () => { queryClient.invalidateQueries({ queryKey: ['queue_users'] });  }
   });
 
   return {

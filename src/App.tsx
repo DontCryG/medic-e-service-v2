@@ -1,8 +1,8 @@
 import React from 'react';
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
-import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
+import { QueryClient, QueryClientProvider, MutationCache } from '@tanstack/react-query';
 import { useAuthStore } from './store/authStore';
-import { useAppRealtime } from './hooks/useAppRealtime';
+import { useAppRealtime, globalBroadcastChannel } from './hooks/useAppRealtime';
 
 import Portal from './pages/Portal';
 import MainLayout from './layouts/MainLayout';
@@ -23,6 +23,11 @@ const queryClient = new QueryClient({
       staleTime: 0,
     },
   },
+  mutationCache: new MutationCache({
+    onSuccess: () => {
+      globalBroadcastChannel.send({ type: 'broadcast', event: 'force_sync', payload: {} });
+    }
+  })
 });
 
 // Protected Route Wrapper
