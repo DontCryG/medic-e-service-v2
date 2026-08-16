@@ -24,6 +24,9 @@ function GangSettings() {
   const [isAdding, setIsAdding] = useState(false);
   const [editingId, setEditingId] = useState<string | null>(null);
   const [name, setName] = useState('');
+  const [search, setSearch] = useState('');
+
+  const filteredGangs = gangs.filter(g => g.name.toLowerCase().includes(search.toLowerCase()));
 
   const handleEdit = (gang: Gang) => {
     setEditingId(gang.id);
@@ -73,13 +76,22 @@ function GangSettings() {
     <div>
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1.5rem' }}>
         <h2 style={{ fontSize: '1.25rem', fontWeight: '600', color: '#0f172a' }}>รายชื่อ Gang</h2>
-        <button 
-          onClick={handleAdd}
-          disabled={isAdding || !!editingId}
-          style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', padding: '0.5rem 1rem', background: '#3b82f6', color: 'white', border: 'none', borderRadius: '8px', cursor: (isAdding || !!editingId) ? 'not-allowed' : 'pointer', opacity: (isAdding || !!editingId) ? 0.6 : 1 }}
-        >
-          <Plus size={16} /> เพิ่ม
-        </button>
+        <div style={{ display: 'flex', gap: '0.5rem' }}>
+          <input 
+            type="text"
+            placeholder="ค้นหาชื่อแก๊ง..."
+            value={search}
+            onChange={(e) => setSearch(e.target.value)}
+            style={{ padding: '0.5rem', borderRadius: '8px', border: '1px solid #cbd5e1', outline: 'none' }}
+          />
+          <button 
+            onClick={handleAdd}
+            disabled={isAdding || !!editingId}
+            style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', padding: '0.5rem 1rem', background: '#3b82f6', color: 'white', border: 'none', borderRadius: '8px', cursor: (isAdding || !!editingId) ? 'not-allowed' : 'pointer', opacity: (isAdding || !!editingId) ? 0.6 : 1 }}
+          >
+            <Plus size={16} /> เพิ่ม
+          </button>
+        </div>
       </div>
 
       {isLoading ? <p>กำลังโหลด...</p> : (
@@ -111,7 +123,7 @@ function GangSettings() {
                   </td>
                 </tr>
               )}
-              {gangs.map(gang => (
+              {filteredGangs.map(gang => (
                 <tr key={gang.id} style={{ borderBottom: '1px solid #e2e8f0' }}>
                   <td style={{ padding: '0.75rem' }}>
                     {editingId === gang.id ? (
@@ -140,7 +152,7 @@ function GangSettings() {
                   </td>
                 </tr>
               ))}
-              {gangs.length === 0 && !isAdding && (
+              {filteredGangs.length === 0 && !isAdding && (
                 <tr>
                   <td colSpan={2} style={{ padding: '2rem', textAlign: 'center', color: '#94a3b8' }}>ไม่มีข้อมูล</td>
                 </tr>
@@ -162,6 +174,9 @@ function FamilySettings() {
   const [isAdding, setIsAdding] = useState(false);
   const [editingId, setEditingId] = useState<string | null>(null);
   const [name, setName] = useState('');
+  const [search, setSearch] = useState('');
+
+  const filteredFamilies = families.filter(f => f.name.toLowerCase().includes(search.toLowerCase()));
 
   const handleEdit = (family: Family) => {
     setEditingId(family.id);
@@ -211,13 +226,22 @@ function FamilySettings() {
     <div>
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1.5rem' }}>
         <h2 style={{ fontSize: '1.25rem', fontWeight: '600', color: '#0f172a' }}>รายชื่อ Family</h2>
-        <button 
-          onClick={handleAdd}
-          disabled={isAdding || !!editingId}
-          style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', padding: '0.5rem 1rem', background: '#3b82f6', color: 'white', border: 'none', borderRadius: '8px', cursor: (isAdding || !!editingId) ? 'not-allowed' : 'pointer', opacity: (isAdding || !!editingId) ? 0.6 : 1 }}
-        >
-          <Plus size={16} /> เพิ่ม
-        </button>
+        <div style={{ display: 'flex', gap: '0.5rem' }}>
+          <input 
+            type="text"
+            placeholder="ค้นหาชื่อแฟมิลี่..."
+            value={search}
+            onChange={(e) => setSearch(e.target.value)}
+            style={{ padding: '0.5rem', borderRadius: '8px', border: '1px solid #cbd5e1', outline: 'none' }}
+          />
+          <button 
+            onClick={handleAdd}
+            disabled={isAdding || !!editingId}
+            style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', padding: '0.5rem 1rem', background: '#3b82f6', color: 'white', border: 'none', borderRadius: '8px', cursor: (isAdding || !!editingId) ? 'not-allowed' : 'pointer', opacity: (isAdding || !!editingId) ? 0.6 : 1 }}
+          >
+            <Plus size={16} /> เพิ่ม
+          </button>
+        </div>
       </div>
 
       {isLoading ? <p>กำลังโหลด...</p> : (
@@ -249,7 +273,7 @@ function FamilySettings() {
                   </td>
                 </tr>
               )}
-              {families.map(family => (
+              {filteredFamilies.map(family => (
                 <tr key={family.id} style={{ borderBottom: '1px solid #e2e8f0' }}>
                   <td style={{ padding: '0.75rem' }}>
                     {editingId === family.id ? (
@@ -278,7 +302,7 @@ function FamilySettings() {
                   </td>
                 </tr>
               ))}
-              {families.length === 0 && !isAdding && (
+              {filteredFamilies.length === 0 && !isAdding && (
                 <tr>
                   <td colSpan={2} style={{ padding: '2rem', textAlign: 'center', color: '#94a3b8' }}>ไม่มีข้อมูล</td>
                 </tr>
