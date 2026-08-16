@@ -262,7 +262,7 @@ export function QueueRow({ user }: QueueRowProps) {
         {user.is_volunteer ? (
           <span style={{ color: '#cbd5e1' }}>-</span>
         ) : (
-          <label className={`custom-checkbox ${currentStatus === 'story' && isLocked ? 'checked-story' : ''} ${(!isLocked && !statusRecord?.story_target_time) ? 'disabled' : ''}`}>
+          <label className={`custom-checkbox ${currentStatus === 'story' && isLocked ? 'checked-story' : ''} ${(!isLocked && !targetTime) ? 'disabled' : ''}`}>
             <input 
               type="checkbox" 
               checked={currentStatus === 'story' && isLocked} 
@@ -295,11 +295,11 @@ export function QueueRow({ user }: QueueRowProps) {
                       saveToHistory: true
                     });
                   }
-                } else if (statusRecord?.story_target_time) {
+                } else if (targetTime) {
                   lockStory(user.discord_id);
                 }
               }} 
-              disabled={!isLocked && !statusRecord?.story_target_time}
+              disabled={!isLocked && !targetTime}
             />
             <Check size={16} />
           </label>
