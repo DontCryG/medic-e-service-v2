@@ -4,6 +4,9 @@ import { supabase } from '@/lib/supabase';
 import { dutyKeys } from '@/pages/DutySystem/hooks/useDutyQueries';
 import { useAuthStore } from '@/store/authStore';
 
+// Global broadcast channel for manual syncs
+export const globalBroadcastChannel = supabase.channel('global_sync_broadcast');
+
 export function useAppRealtime() {
   const queryClient = useQueryClient();
 
@@ -63,11 +66,19 @@ export function useAppRealtime() {
       })
       .subscribe((status) => { if (status === 'SUBSCRIBED') { queryClient.invalidateQueries(); } });
 
+    // Listen to manual broadcasts
+    globalBroadcastChannel
+      .on('broadcast', { event: 'force_sync' }, () => {
+        queryClient.invalidateQueries();
+      })
+      .subscribe();
+
     return () => {
       supabase.removeChannel(dutyLogsSubscription);
       supabase.removeChannel(usersSubscription);
       supabase.removeChannel(positionsSubscription);
       supabase.removeChannel(settingsSubscription);
+      supabase.removeChannel(globalBroadcastChannel);
     };
   }, [queryClient]);
 }

@@ -1,6 +1,11 @@
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { supabase } from '@/lib/supabase';
+import { globalBroadcastChannel } from '@/hooks/useAppRealtime';
 import type { QueueStatusType, QueueStatus } from '../types';
+
+const forceSync = () => {
+  globalBroadcastChannel.send({ type: 'broadcast', event: 'force_sync', payload: {} });
+};
 
 async function saveManagerHistory(discord_id: string, manager_start_time: string) {
   console.log("SAVING MANAGER LOG...");
@@ -268,6 +273,7 @@ export function useQueueMutations() {
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['queue_users'] });
+      forceSync();
     }
   });
 
@@ -440,7 +446,7 @@ export function useQueueMutations() {
         type: 'json'
       });
     },
-    onSuccess: () => queryClient.invalidateQueries({ queryKey: ['queue_users'] })
+    onSuccess: () => { queryClient.invalidateQueries({ queryKey: ['queue_users'] }); forceSync(); }
   });
 
   const updateVolunteerMutation = useMutation({
@@ -464,7 +470,10 @@ export function useQueueMutations() {
         });
       }
     },
-    onSuccess: () => queryClient.invalidateQueries({ queryKey: ['queue_users'] })
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['queue_users'] });
+      forceSync();
+    }
   });
 
   const removeVolunteerMutation = useMutation({
@@ -481,7 +490,7 @@ export function useQueueMutations() {
         type: 'json'
       });
     },
-    onSuccess: () => queryClient.invalidateQueries({ queryKey: ['queue_users'] })
+    onSuccess: () => { queryClient.invalidateQueries({ queryKey: ['queue_users'] }); forceSync(); }
   });
 
   return {
