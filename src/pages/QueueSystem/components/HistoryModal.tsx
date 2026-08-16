@@ -489,7 +489,7 @@ export function HistoryModal({ isOpen, onClose, isAdmin = false }: HistoryModalP
                         onFocus={() => setShowDoctorDropdown(true)}
                         onBlur={() => setTimeout(() => setShowDoctorDropdown(false), 200)}
                         placeholder="ค้นหาชื่อแพทย์"
-                        style={{ width: '100%', padding: '0.35rem 0.5rem', borderRadius: '8px', border: '1px solid #cbd5e1', fontSize: '0.85rem', boxSizing: 'border-box' }}
+                        style={{ width: '100%', maxWidth: '220px', padding: '0.35rem 0.5rem', borderRadius: '8px', border: '1px solid #cbd5e1', fontSize: '0.85rem', boxSizing: 'border-box' }}
                       />
                       {showDoctorDropdown && allDoctors.length > 0 && (
                         <div style={{ position: 'absolute', top: '100%', left: '0.75rem', right: '0.75rem', marginTop: '2px', background: '#ffffff', border: '1px solid #e2e8f0', borderRadius: '8px', boxShadow: '0 10px 15px -3px rgba(0, 0, 0, 0.1)', maxHeight: '180px', overflowY: 'auto', zIndex: 50 }}>
@@ -613,7 +613,7 @@ export function HistoryModal({ isOpen, onClose, isAdmin = false }: HistoryModalP
                               onFocus={() => setShowDoctorDropdown(true)}
                               onBlur={() => setTimeout(() => setShowDoctorDropdown(false), 200)}
                               placeholder="ค้นหาชื่อแพทย์"
-                              style={{ width: '100%', padding: '0.35rem 0.5rem', borderRadius: '8px', border: '1px solid #cbd5e1', fontSize: '0.85rem', boxSizing: 'border-box' }}
+                              style={{ width: '100%', maxWidth: '220px', padding: '0.35rem 0.5rem', borderRadius: '8px', border: '1px solid #cbd5e1', fontSize: '0.85rem', boxSizing: 'border-box' }}
                             />
                             {showDoctorDropdown && allDoctors.length > 0 && (
                               <div style={{ position: 'absolute', top: '100%', left: '0', right: '0', marginTop: '2px', background: '#ffffff', border: '1px solid #e2e8f0', borderRadius: '8px', boxShadow: '0 10px 15px -3px rgba(0, 0, 0, 0.1)', maxHeight: '180px', overflowY: 'auto', zIndex: 50 }}>
