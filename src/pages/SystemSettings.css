@@ -1,0 +1,356 @@
+/* SystemSettings.css */
+.settings-container {
+  display: flex;
+  flex-direction: column;
+  gap: 2rem;
+  width: 100%;
+  animation: fade-in 0.4s ease-out;
+}
+
+.settings-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 1.5rem;
+}
+
+.settings-tabs {
+  display: flex;
+  gap: 0.5rem;
+  background: white;
+  padding: 0.5rem;
+  border-radius: 16px;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05);
+  border: 1px solid var(--border-color);
+  overflow-x: auto;
+}
+
+.settings-tab-btn {
+  padding: 0.75rem 1.5rem;
+  border-radius: 12px;
+  font-size: 0.95rem;
+  font-weight: 600;
+  cursor: pointer;
+  border: none;
+  background: transparent;
+  color: var(--text-secondary);
+  transition: all 0.2s;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  white-space: nowrap;
+}
+
+.settings-tab-btn.active {
+  background: #f1f5f9;
+  color: #0f172a;
+}
+.settings-tab-btn.active.reports { background: #f3e8ff; color: #7c3aed; }
+.settings-tab-btn.active.positions { background: #e0e7ff; color: #4f46e5; }
+.settings-tab-btn.active.general { background: #ffedd5; color: #ea580c; }
+
+.settings-card {
+  background: white;
+  border-radius: 24px;
+  padding: 2.5rem;
+  box-shadow: 0 10px 40px -10px rgba(0, 0, 0, 0.05);
+  border: 1px solid var(--border-color);
+}
+
+/* Reports Section */
+.report-controls {
+  display: flex;
+  gap: 1.5rem;
+  margin-bottom: 2rem;
+  align-items: center;
+  flex-wrap: wrap;
+}
+
+.export-btn {
+  background: #7c3aed;
+  color: white;
+  border: none;
+  padding: 1rem 2rem;
+  border-radius: 12px;
+  font-weight: 600;
+  font-size: 1rem;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  transition: all 0.2s;
+}
+
+.export-btn:hover { background: #6d28d9; }
+.export-btn:disabled { opacity: 0.7; cursor: not-allowed; }
+
+.pdf-preview-container {
+  border: 1px solid #e2e8f0;
+  border-radius: 16px;
+  padding: 2rem;
+  background: #f8fafc;
+  overflow-x: auto;
+}
+
+.pdf-document {
+  background: white;
+  width: 210mm;
+  min-height: 297mm;
+  padding: 20mm;
+  margin: 0 auto;
+  box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+  color: #000; /* Ensure black text for print */
+  font-family: 'Sarabun', 'Roboto', sans-serif;
+}
+
+.pdf-header {
+  text-align: center;
+  margin-bottom: 2rem;
+  border-bottom: 2px solid #000;
+  padding-bottom: 1rem;
+}
+
+.pdf-title {
+  font-size: 24px;
+  font-weight: bold;
+  margin: 0 0 10px 0;
+}
+
+.pdf-subtitle {
+  font-size: 16px;
+  margin: 0;
+  color: #333;
+}
+
+.pdf-table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-bottom: 2rem;
+}
+
+.pdf-table th, .pdf-table td {
+  border: 1px solid #000;
+  padding: 8px 12px;
+  font-size: 14px;
+}
+
+.pdf-table th {
+  background-color: #f3f4f6;
+  font-weight: bold;
+  text-align: center;
+}
+
+.pdf-summary {
+  margin-top: 2rem;
+  text-align: right;
+  font-size: 16px;
+}
+
+/* Positions Section */
+.position-list {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.position-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 1rem 1.5rem;
+  background: #f8fafc;
+  border-radius: 12px;
+  border: 1px solid #e2e8f0;
+}
+
+.position-name {
+  font-weight: 600;
+  font-size: 1.1rem;
+  color: #1e293b;
+}
+
+/* Announcements */
+.announcement-form {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+  max-width: 1000px;
+}
+
+.toggle-switch {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  cursor: pointer;
+}
+
+.toggle-slider {
+  width: 50px;
+  height: 26px;
+  background-color: #cbd5e1;
+  border-radius: 34px;
+  position: relative;
+  transition: .4s;
+}
+
+.toggle-slider:before {
+  position: absolute;
+  content: "";
+  height: 18px;
+  width: 18px;
+  left: 4px;
+  bottom: 4px;
+  background-color: white;
+  border-radius: 50%;
+  transition: .4s;
+}
+
+input:checked + .toggle-slider {
+  background-color: #10b981;
+}
+
+input:checked + .toggle-slider:before {
+  transform: translateX(24px);
+}
+
+/* Custom Dropdown */
+.custom-dropdown-container {
+  position: relative;
+  width: 220px;
+}
+
+.custom-dropdown-trigger {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  cursor: pointer;
+  background: white;
+  user-select: none;
+}
+
+.custom-dropdown-menu {
+  position: absolute;
+  top: calc(100% + 5px);
+  left: 0;
+  width: 100%;
+  background: white;
+  border-radius: 12px;
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+  border: 1px solid #e2e8f0;
+  z-index: 100;
+  overflow: hidden;
+  animation: fade-in 0.2s ease-out;
+}
+
+.custom-dropdown-item {
+  padding: 0.75rem 1rem;
+  cursor: pointer;
+  transition: 0.2s;
+  color: #334155;
+}
+
+.custom-dropdown-item:hover {
+  background: #f8fafc;
+}
+
+.custom-dropdown-item.active {
+  background: #eff6ff;
+  color: #2563eb;
+  font-weight: 600;
+}
+
+.agency-tag {
+  padding: 0.25rem 0.75rem;
+  border-radius: 9999px;
+  font-size: 0.75rem;
+  font-weight: 600;
+  text-transform: uppercase;
+}
+
+.agency-tag.gang {
+  background-color: #fef2f2;
+  color: #ef4444;
+  border: 1px solid #fecaca;
+}
+
+.agency-tag.family {
+  background-color: #eff6ff;
+  color: #3b82f6;
+  border: 1px solid #bfdbfe;
+}
+.agency-grid-container {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+  gap: 2rem;
+  align-items: start;
+}
+
+@media (max-width: 768px) {
+  .settings-card {
+    padding: 1rem;
+  }
+  
+  .pdf-preview-container {
+    padding: 1rem;
+  }
+  
+  .report-controls {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 1rem;
+  }
+
+  .report-controls .filter-group {
+    width: 100%;
+    justify-content: space-between;
+  }
+  
+  .report-controls > button, .report-controls > div.custom-dropdown-container {
+    width: 100%;
+    justify-content: center;
+  }
+  
+  .agency-add-container {
+    flex-direction: column;
+    align-items: stretch;
+  }
+  
+  .agency-add-container > * {
+    width: 100% !important;
+  }
+  
+  .agency-list-header {
+    flex-direction: column;
+    align-items: flex-start !important;
+  }
+  
+  .agency-list-header > div {
+    max-width: 100% !important;
+  }
+  
+  .position-item {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 1rem;
+    padding: 1rem;
+  }
+  
+  .position-item > div:first-child {
+    width: 100%;
+    flex-wrap: wrap;
+  }
+}
+.settings-container {
+  min-width: 0;
+}
+.settings-card {
+  min-width: 0;
+}
+.position-item > div:first-child {
+  flex: 1;
+  min-width: 0;
+}
+.position-name {
+  word-break: break-word;
+}

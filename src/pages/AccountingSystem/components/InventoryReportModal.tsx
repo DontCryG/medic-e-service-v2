@@ -1,0 +1,287 @@
+import { Printer, X } from 'lucide-react';
+import { useInventoryLogs } from '../hooks/useAccountingQueries';
+
+interface InventoryReportModalProps {
+  isOpen?: boolean;
+  onClose: () => void;
+  startDate?: string;
+  endDate?: string;
+}
+
+export default function InventoryReportModal({ onClose, startDate, endDate }: InventoryReportModalProps) {
+  const { data: logs = [] } = useInventoryLogs();
+  
+
+  // Filter logs by date range for the report
+  const filteredLogs = logs.filter(log => {
+    if (!startDate && !endDate) return true;
+    const logDate = new Date(log.created_at);
+    logDate.setHours(0, 0, 0, 0);
+    
+    if (startDate) {
+      const start = new Date(startDate);
+      start.setHours(0, 0, 0, 0);
+      if (logDate < start) return false;
+    }
+    if (endDate) {
+      const end = new Date(endDate);
+      end.setHours(0, 0, 0, 0);
+      if (logDate > end) return false;
+    }
+    return true;
+  });
+
+  // Calculate stock up to endDate (for the stock balance table)
+  const reportStocksMap: Record<string, number> = {};
+  logs.forEach(log => {
+    const logDate = new Date(log.created_at);
+    logDate.setHours(0, 0, 0, 0);
+    
+    if (endDate) {
+      const end = new Date(endDate);
+      end.setHours(0, 0, 0, 0);
+      if (logDate > end) return;
+    }
+
+    const name = log.item_name.trim();
+    if (!reportStocksMap[name]) {
+      reportStocksMap[name] = 0;
+    }
+    
+    if (log.type === 'receive') {
+      reportStocksMap[name] += log.quantity;
+    } else if (log.type === 'disburse') {
+      reportStocksMap[name] -= log.quantity;
+    }
+  });
+
+  const reportStocks = Object.entries(reportStocksMap)
+    .map(([name, quantity]) => ({ name, quantity }))
+    .sort((a, b) => b.quantity - a.quantity);
+
+  const handlePrint = () => {
+    window.print();
+  };
+
+  // Group by item for disburse summary
+  const disburseSummary = filteredLogs
+    .filter(l => l.type === 'disburse')
+    .reduce((acc, log) => {
+      const name = log.item_name;
+      if (!acc[name]) {
+        acc[name] = { total: 0, count: 0, times: 0 };
+      }
+      acc[name].total += log.quantity;
+      acc[name].times += 1;
+      if (log.metadata?.people_count) {
+        acc[name].count += log.metadata.people_count;
+      }
+      return acc;
+    }, {} as Record<string, { total: number, count: number, times: number }>);
+
+  return (
+    <div className="modal-overlay" onClick={onClose} style={{ zIndex: 9999 }}>
+      <style>
+        {`
+          @media print {
+            body * {
+              visibility: hidden;
+            }
+            .print-area, .print-area * {
+              visibility: visible;
+            }
+            .modal-overlay {
+              position: absolute !important;
+              left: 0 !important;
+              top: 0 !important;
+              background: transparent !important;
+              display: block !important;
+              padding: 0 !important;
+              overflow: visible !important;
+              height: auto !important;
+            }
+            .print-area {
+              position: static !important;
+              width: 100% !important;
+              max-width: 100% !important;
+              padding: 0 !important;
+              margin: 0 !important;
+              display: block !important;
+              max-height: none !important;
+              overflow: visible !important;
+              box-shadow: none !important;
+              border: none !important;
+            }
+            .no-print {
+              display: none !important;
+            }
+            @page { size: portrait; margin: 1cm; }
+          }
+
+          .report-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-bottom: 2rem;
+            font-size: 0.85rem;
+          }
+          
+          .report-table th, .report-table td {
+            border: 1px solid #1e293b;
+            padding: 0.5rem;
+            color: #0f172a;
+          }
+          
+          .report-table th {
+            background-color: #f8fafc;
+            font-weight: bold;
+            text-align: center;
+          }
+
+          .text-right { text-align: right; }
+          .text-center { text-align: center; }
+
+          .close-btn {
+            background: none;
+            border: none;
+            color: #64748b;
+            cursor: pointer;
+            padding: 0.5rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 50%;
+            transition: all 0.2s;
+          }
+          .close-btn:hover {
+            background: #f1f5f9;
+            color: #0f172a;
+          }
+          
+          .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 1px solid #e2e8f0;
+            padding-bottom: 1rem;
+            margin-bottom: 2rem;
+          }
+
+          .signature-box {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            width: 200px;
+          }
+          
+          .signature-line {
+            width: 100%;
+            border-bottom: 1px solid #0f172a;
+            margin-bottom: 0.5rem;
+            height: 40px;
+          }
+        `}
+      </style>
+      
+      <div 
+        className="print-area" 
+        style={{ width: '100%', maxWidth: '900px', padding: '2.5rem', background: '#fff', maxHeight: '90vh', overflowY: 'auto', borderRadius: '16px' }}
+        onClick={e => e.stopPropagation()}
+      >
+        <div className="modal-header no-print">
+          <h2 style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', color: '#1e293b', margin: 0 }}>
+            <Printer size={24} /> ตัวอย่างก่อนพิมพ์ (รายงานคลังสิ่งของ)
+          </h2>
+          <div style={{ display: 'flex', gap: '1rem' }}>
+            <button 
+              onClick={handlePrint}
+              style={{ background: '#3b82f6', color: 'white', border: 'none', padding: '0.5rem 1.5rem', borderRadius: '8px', cursor: 'pointer', fontWeight: 600, display: 'flex', alignItems: 'center', gap: '0.5rem' }}
+            >
+              <Printer size={18} /> พิมพ์รายงาน
+            </button>
+            <button className="close-btn" onClick={onClose}><X size={24} /></button>
+          </div>
+        </div>
+
+        {/* Print Document Content */}
+        <div style={{ color: '#0f172a' }}>
+          <div style={{ textAlign: 'center', marginBottom: '2rem' }}>
+            <h1 style={{ fontSize: '1.5rem', margin: '0 0 0.5rem 0' }}>หน่วยงานแพทย์ (Medic Services)</h1>
+            <h2 style={{ fontSize: '1.25rem', margin: '0 0 0.5rem 0', fontWeight: 'normal' }}>รายงานสรุปคลังสิ่งของหน่วยงานแพทย์</h2>
+            <p style={{ margin: 0, fontSize: '1rem' }}>
+              {(startDate || endDate) 
+                ? `ข้อมูลสรุปตั้งแต่วันที่ ${startDate ? new Date(startDate).toLocaleDateString('th-TH') : '-'} ถึง ${endDate ? new Date(endDate).toLocaleDateString('th-TH') : 'ปัจจุบัน'}`
+                : `ข้อมูลสรุปประจำวันที่ ${new Date().toLocaleDateString('th-TH', { year: 'numeric', month: 'long', day: 'numeric' })}`
+              }
+            </p>
+          </div>
+
+          {/* Section 1 */}
+          <table className="report-table" style={{ marginBottom: '3rem' }}>
+            <thead>
+              <tr>
+                <th colSpan={3}>
+                  {endDate ? `สรุปยอดคงเหลือ (ณ วันที่ ${new Date(endDate).toLocaleDateString('th-TH')})` : 'สรุปยอดคงเหลือปัจจุบัน'}
+                </th>
+              </tr>
+              <tr>
+                <th style={{ width: '10%' }}>ลำดับ</th>
+                <th>ชื่อรายการ</th>
+                <th style={{ width: '30%' }}>จำนวนคงเหลือ (ชิ้น)</th>
+              </tr>
+            </thead>
+            <tbody>
+              {reportStocks.length === 0 ? (
+                <tr>
+                  <td colSpan={3} style={{ textAlign: 'center', padding: '2rem', color: '#94a3b8' }}>ไม่มีรายการสิ่งของในคลัง</td>
+                </tr>
+              ) : (
+                reportStocks.map((s, idx) => (
+                  <tr key={s.name}>
+                    <td className="text-center">{idx + 1}</td>
+                    <td style={{ fontWeight: 600 }}>{s.name}</td>
+                    <td className="text-right" style={{ fontWeight: 600 }}>
+                      {s.quantity.toLocaleString()}
+                    </td>
+                  </tr>
+                ))
+              )}
+            </tbody>
+          </table>
+
+          {/* Section 2 */}
+          <table className="report-table">
+            <thead>
+              <tr>
+                <th colSpan={4}>สรุปการเบิกจ่ายสะสม</th>
+              </tr>
+              <tr>
+                <th>ชื่อรายการ</th>
+                <th style={{ width: '20%' }}>เบิก (ครั้ง)</th>
+                <th style={{ width: '20%' }}>จำนวนคนรับ (คน)</th>
+                <th style={{ width: '20%' }}>รวมที่แจก (ชิ้น)</th>
+              </tr>
+            </thead>
+            <tbody>
+              {Object.keys(disburseSummary).length === 0 ? (
+                <tr>
+                  <td colSpan={4} style={{ textAlign: 'center', padding: '2rem', color: '#94a3b8' }}>ไม่มีข้อมูลการแจกจ่าย</td>
+                </tr>
+              ) : (
+                Object.entries(disburseSummary).map(([name, stat]: [string, any]) => (
+                  <tr key={name}>
+                    <td style={{ fontWeight: 600 }}>{name}</td>
+                    <td className="text-right">{stat.times.toLocaleString()}</td>
+                    <td className="text-right">{stat.count > 0 ? stat.count.toLocaleString() : '-'}</td>
+                    <td className="text-right" style={{ fontWeight: 600 }}>{stat.total.toLocaleString()}</td>
+                  </tr>
+                ))
+              )}
+            </tbody>
+          </table>
+          
+          <div style={{ marginTop: '2rem' }}></div>
+        </div>
+      </div>
+    </div>
+  );
+}

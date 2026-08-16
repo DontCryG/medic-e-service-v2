@@ -1,0 +1,136 @@
+.smart-select-container {
+  position: relative;
+  width: 100%;
+  font-family: inherit;
+}
+
+.smart-select-trigger {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
+  padding: 0.75rem 1rem;
+  background-color: white;
+  border: 1px solid var(--border-color, #e2e8f0);
+  border-radius: 8px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  min-height: 48px;
+  outline: none;
+}
+
+.smart-select-trigger:focus,
+.smart-select-trigger.open {
+  border-color: #8b5cf6;
+  box-shadow: 0 0 0 3px rgba(139, 92, 246, 0.1);
+}
+
+.smart-select-trigger.disabled {
+  background-color: #f8fafc;
+  cursor: not-allowed;
+  opacity: 0.7;
+}
+
+.smart-select-value {
+  color: var(--text-color, #1e293b);
+  font-size: 0.95rem;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.smart-select-placeholder {
+  color: #94a3b8;
+  font-size: 0.95rem;
+}
+
+.smart-select-icon {
+  color: #64748b;
+  transition: transform 0.2s ease;
+  flex-shrink: 0;
+}
+
+.smart-select-trigger.open .smart-select-icon {
+  transform: rotate(180deg);
+}
+
+.smart-select-dropdown {
+  position: absolute;
+  top: calc(100% + 4px);
+  left: 0;
+  width: 100%;
+  background-color: white;
+  border: 1px solid var(--border-color, #e2e8f0);
+  border-radius: 8px;
+  box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1), 0 8px 10px -6px rgba(0, 0, 0, 0.1);
+  z-index: 50;
+  max-height: 300px;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  animation: dropdownFadeIn 0.2s ease;
+}
+
+@keyframes dropdownFadeIn {
+  from { opacity: 0; transform: translateY(-4px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.smart-select-search-container {
+  padding: 0.5rem;
+  border-bottom: 1px solid var(--border-color, #e2e8f0);
+  background-color: #f8fafc;
+}
+
+.smart-select-search-input {
+  width: 100%;
+  padding: 0.5rem 0.75rem;
+  border: 1px solid var(--border-color, #e2e8f0);
+  border-radius: 6px;
+  font-size: 0.9rem;
+  outline: none;
+  transition: border-color 0.2s;
+}
+
+.smart-select-search-input:focus {
+  border-color: #8b5cf6;
+}
+
+.smart-select-options {
+  overflow-y: auto;
+  padding: 0.25rem;
+}
+
+.smart-select-option {
+  padding: 0.6rem 0.75rem;
+  border-radius: 6px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  font-size: 0.95rem;
+  color: var(--text-color, #1e293b);
+  transition: background-color 0.15s ease;
+}
+
+.smart-select-option:hover {
+  background-color: #f1f5f9;
+}
+
+.smart-select-option.highlighted {
+  background-color: #f1f5f9;
+  color: #8b5cf6;
+}
+
+.smart-select-option.selected {
+  background-color: #f3e8ff;
+  color: #7c3aed;
+  font-weight: 500;
+}
+
+.smart-select-empty {
+  padding: 1rem;
+  text-align: center;
+  color: #94a3b8;
+  font-size: 0.9rem;
+}

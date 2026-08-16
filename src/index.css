@@ -1,0 +1,430 @@
+@import url('https://fonts.googleapis.com/css2?family=Prompt:wght@300;400;500;600;700&family=Kanit:wght@300;400;500;600;700&display=swap');
+
+/* Hide scrollbar for Chrome, Safari and Opera */
+::-webkit-scrollbar {
+  display: none;
+}
+
+/* Hide scrollbar for IE, Edge and Firefox */
+* {
+  -ms-overflow-style: none;  /* IE and Edge */
+  scrollbar-width: none;  /* Firefox */
+}
+
+/* Hide dates from outside the current month in react-datepicker */
+.react-datepicker__day--outside-month {
+  visibility: hidden;
+}
+:root {
+  /* Brand Colors */
+  --primary: #7e22ce;
+  --primary-hover: #9333ea;
+  --discord: #5865F2;
+  --discord-hover: #4752C4;
+  
+  /* Semantic Colors */
+  --success: #22c55e;
+  --success-hover: #16a34a;
+  --danger: #ef4444;
+  --danger-hover: #dc2626;
+  --warning: #f59e0b;
+  --warning-hover: #d97706;
+  
+  /* Neutral Colors */
+  --bg-color: #f8fafc;
+  --surface-color: #ffffff;
+  --text-primary: #1e293b;
+  --text-secondary: #64748b;
+  --border-color: #e2e8f0;
+  
+  /* Typography */
+  --font-main: 'Prompt', 'Kanit', sans-serif;
+  
+  /* Shadows */
+  --shadow-sm: 0 1px 2px 0 rgb(0 0 0 / 0.05);
+  --shadow-md: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
+  --shadow-lg: 0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1);
+  --shadow-glass: 0 8px 32px 0 rgba(126, 34, 206, 0.1);
+  
+  /* Border Radius */
+  --radius-md: 0.5rem;
+  --radius-lg: 1rem;
+  --radius-full: 9999px;
+  
+  /* Transitions */
+  --transition-normal: all 0.3s ease;
+}
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+body {
+  font-family: var(--font-main);
+  background-color: var(--bg-color);
+  color: var(--text-primary);
+  line-height: 1.5;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* Typography */
+h1, h2, h3, h4, h5, h6 {
+  font-family: var(--font-main);
+  font-weight: 600;
+  color: var(--text-primary);
+  line-height: 1.2;
+}
+
+/* Ensure SweetAlert is always above other modals */
+.swal2-container {
+  z-index: 100000 !important;
+}
+
+/* Fix SweetAlert2 Input Overflow */
+.swal2-input, .swal2-textarea, .swal2-select {
+  width: 100% !important;
+  max-width: 90% !important;
+  margin: 1rem auto !important;
+  box-sizing: border-box !important;
+}
+
+/* Animations */
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes slideUp {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.animate-fade-in {
+  animation: fadeIn 0.5s ease-out forwards;
+}
+
+.animate-slide-up {
+  animation: slideUp 0.5s ease-out forwards;
+}
+
+/* Utilities */
+.glass-panel {
+  background: rgba(255, 255, 255, 0.7);
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  box-shadow: var(--shadow-glass);
+}
+
+/* Global Form Styles */
+.form-group, .modal-form-group {
+  margin-bottom: 1.5rem;
+}
+
+.form-label, .modal-form-group label {
+  display: block;
+  font-weight: 600;
+  color: var(--text-secondary);
+  margin-bottom: 0.5rem;
+}
+
+.form-input, .form-textarea, input[type="text"], input[type="number"], input[type="password"], textarea, select, .modal-input, .modal-select {
+  width: 100%;
+  padding: 1rem;
+  border: 1px solid var(--border-color);
+  border-radius: 12px;
+  font-family: inherit;
+  font-size: 1rem;
+  outline: none;
+  transition: border-color 0.2s;
+  background-color: var(--surface-color);
+  color: var(--text-primary);
+}
+
+.form-input:focus, .form-textarea:focus, input:focus, textarea:focus, select:focus, .modal-input:focus, .modal-select:focus {
+  border-color: var(--primary);
+}
+
+.form-textarea, textarea {
+  min-height: 120px;
+  resize: vertical;
+}
+
+.form-row {
+  display: flex;
+  gap: 1rem;
+  margin-bottom: 1.5rem;
+}
+
+
+
+
+
+@keyframes spin {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
+
+.animate-spin {
+  animation: spin 1s linear infinite;
+}
+
+/* Global Button Styles */
+.action-btn {
+  padding: 0.5rem;
+  border-radius: 8px;
+  border: none;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.2s;
+  background: transparent;
+}
+
+.action-btn.edit {
+  color: #3b82f6;
+}
+.action-btn.edit:hover {
+  background: #eff6ff;
+}
+
+.action-btn.delete {
+  color: #ef4444;
+}
+.action-btn.delete:hover {
+  background: #fef2f2;
+}
+
+.action-btn.add-duty {
+  color: #10b981;
+}
+.action-btn.add-duty:hover {
+  background: #d1fae5;
+}
+
+.btn-approve, .btn-reject {
+  padding: 0.5rem 1rem;
+  border-radius: 8px;
+  font-weight: 600;
+  font-size: 0.9rem;
+  cursor: pointer;
+  border: none;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  transition: all 0.2s;
+}
+
+.btn-approve {
+  background: #10b981;
+  color: white;
+}
+.btn-approve:hover {
+  background: #059669;
+}
+
+.btn-reject {
+  background: #ef4444;
+  color: white;
+}
+.btn-reject:hover {
+  background: #dc2626;
+}
+
+.btn-approve:disabled, .btn-reject:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+/* UI Proportions (Desktop) */
+:root {
+  --font-size-h1: 3rem;      /* 48px */
+  --font-size-h2: 2.25rem;   /* 36px */
+  --font-size-body: 1rem;    /* 16px */
+  --button-height: 44px;
+  --icon-size: 24px;
+  --section-gap: 5rem;       /* 80px */
+  --card-padding: 1.5rem;    /* 24px */
+}
+
+@media (max-width: 768px) {
+  :root {
+    /* Mobile Proportions */
+    --font-size-h1: 2.25rem; /* 36px */
+    --font-size-h2: 1.75rem; /* 28px */
+    --button-height: 48px;   
+    --icon-size: 20px;
+    --section-gap: 3rem;     /* 48px */
+    --card-padding: 1rem;    /* 16px */
+  }
+}
+
+/* Apply Responsive Proportions */
+body { font-size: var(--font-size-body); }
+h1 { font-size: var(--font-size-h1); }
+h2 { font-size: var(--font-size-h2); }
+button { min-height: var(--button-height); }
+.card-padding { padding: var(--card-padding); }
+
+/* Custom Tooltip */
+[data-tooltip] {
+  position: relative;
+}
+[data-tooltip]::after {
+  content: attr(data-tooltip);
+  position: absolute;
+  bottom: 100%;
+  left: 50%;
+  transform: translateX(-50%) translateY(-8px);
+  background: #1e293b;
+  color: white;
+  padding: 4px 8px;
+  border-radius: 6px;
+  font-size: 12px;
+  white-space: nowrap;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.2s, transform 0.2s;
+  z-index: 1000;
+}
+[data-tooltip]:hover::after {
+  opacity: 1;
+  transform: translateX(-50%) translateY(-4px);
+}
+
+@media (max-width: 768px) {
+  .modal-overlay {
+    align-items: flex-end !important;
+  }
+  .modal-content, .personnel-modal-content {
+    position: absolute !important;
+    bottom: 0 !important;
+    left: 0 !important;
+    right: 0 !important;
+    width: 100% !important;
+    max-width: 100% !important;
+    border-radius: 24px 24px 0 0 !important;
+    margin: 0 !important;
+    max-height: 90vh !important;
+    animation: slideUpBottom 0.3s ease-out forwards !important;
+    overflow-y: auto !important;
+  }
+}
+@keyframes slideUpBottom {
+  from { transform: translateY(100%); opacity: 0; }
+  to { transform: translateY(0); opacity: 1; }
+}
+
+/* Fix react-datepicker popup z-index to always be on top of modals */
+.react-datepicker-popper {
+  z-index: 9999 !important;
+}
+
+/* Custom Dropdown (Global) */
+.custom-dropdown {
+  position: relative;
+  width: 100%;
+}
+
+.dropdown-selected {
+  width: 100%;
+  padding: 1rem;
+  border: 1px solid var(--border-color);
+  border-radius: 12px;
+  font-family: inherit;
+  font-size: 1rem;
+  background: var(--surface-color);
+  cursor: pointer;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  transition: all 0.2s;
+  color: var(--text-primary);
+}
+
+.dropdown-selected:hover {
+  border-color: #cbd5e1;
+}
+
+.dropdown-selected.open {
+  border-color: var(--primary);
+  box-shadow: 0 0 0 3px rgba(124, 58, 237, 0.1);
+}
+
+.dropdown-options {
+  position: absolute;
+  top: calc(100% + 8px);
+  left: 0;
+  width: 100%;
+  background: var(--surface-color);
+  border: 1px solid var(--border-color);
+  border-radius: 12px;
+  box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1);
+  max-height: 180px;
+  overflow-y: auto;
+  z-index: 10000;
+  animation: fade-in 0.2s ease-out;
+}
+
+.dropdown-option {
+  padding: 0.75rem 1rem;
+  cursor: pointer;
+  transition: background 0.2s;
+  color: var(--text-primary);
+  font-size: 0.95rem;
+}
+
+.dropdown-option:hover {
+  background: #f8fafc;
+}
+
+.dropdown-option.selected {
+  background: #f1f5f9;
+  font-weight: 600;
+  color: var(--primary);
+}
+
+/* --- Added UI Enhancements & Animations --- */
+
+/* Shimmer Skeleton Loading */
+@keyframes shimmer {
+  0% { background-position: -1000px 0; }
+  100% { background-position: 1000px 0; }
+}
+
+.skeleton {
+  background: #f1f5f9;
+  background-image: linear-gradient(to right, #f1f5f9 0%, #e2e8f0 20%, #f1f5f9 40%, #f1f5f9 100%);
+  background-repeat: no-repeat;
+  background-size: 1000px 100%;
+  animation-duration: 1.5s;
+  animation-fill-mode: forwards;
+  animation-iteration-count: infinite;
+  animation-name: shimmer;
+  animation-timing-function: linear;
+  border-radius: 8px;
+}
+
+/* Global Button Click Feedback */
+button:active:not(:disabled) {
+  transform: scale(0.96);
+  transition: transform 0.1s;
+}
+
+.btn-approve:active:not(:disabled),
+.btn-reject:active:not(:disabled),
+.menu-card-button:active:not(:disabled) {
+  transform: scale(0.95);
+}
