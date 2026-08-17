@@ -3,6 +3,7 @@ import { X, Pencil, Trash2, Save, Clock } from 'lucide-react';
 import { useUserDutyLogs } from '../hooks/useSalaryQueries';
 import { useUpdateDutyLog, useDeleteDutyLog } from '../hooks/useSalaryMutations';
 import Swal from 'sweetalert2';
+import toast from 'react-hot-toast';
 import SmartDateTimePicker from '../../../components/common/SmartDateTimePicker';
 
 function DateTimeInput({ value, onChange, placeholder }: any) {
@@ -55,7 +56,12 @@ export default function DutyLogEditModal({ user, startDate, endDate, onClose }: 
     if (editForm.clock_in && editForm.clock_out) {
       const diffMs = editForm.clock_out.getTime() - editForm.clock_in.getTime();
       const breakMins = parseInt(editForm.total_break_minutes as any) || 0;
-      totalDutyMinutes = Math.max(0, (diffMs / 60000) - breakMins);
+      totalDutyMinutes = Math.floor(Math.max(0, (diffMs / 60000) - breakMins));
+    }
+
+    if (totalDutyMinutes === 0) {
+      toast.error('เวลาเข้าเวรต้องมากกว่า 0 นาที (หากต้องการลบ ให้ใช้ปุ่มลบประวัติแทน)');
+      return;
     }
 
     updateLog({

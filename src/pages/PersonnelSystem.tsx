@@ -167,7 +167,12 @@ export default function PersonnelSystem({ profile }: PersonnelSystemProps) {
     setIsSaving(true);
     try {
       const diffMs = dutyClockOut.getTime() - dutyClockIn.getTime();
-      const totalDutyMinutes = Math.max(0, diffMs / 60000);
+      const totalDutyMinutes = Math.floor(Math.max(0, diffMs / 60000));
+
+      if (totalDutyMinutes === 0) {
+        toast.error('ไม่สามารถบันทึกเวลาเข้าเวร 0 นาทีได้');
+        return;
+      }
 
       const { error } = await supabase
         .from('duty_logs')

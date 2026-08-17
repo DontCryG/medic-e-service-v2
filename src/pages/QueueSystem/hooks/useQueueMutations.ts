@@ -12,7 +12,12 @@ async function saveManagerHistory(discord_id: string, manager_start_time: string
   console.log("SAVING MANAGER LOG...");
   const start = new Date(manager_start_time);
   const end = new Date();
-  const durationMins = (end.getTime() - start.getTime()) / 60000; // Keep decimal for exact accumulation
+  const durationMins = Math.floor((end.getTime() - start.getTime()) / 60000); 
+
+  if (durationMins === 0) {
+    console.log("MANAGER LOG ABORTED: duration is 0 mins");
+    return;
+  }
   
   const { error: insertErr } = await supabase.from('queue_manager_logs').insert([{
     discord_id,

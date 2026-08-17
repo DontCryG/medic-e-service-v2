@@ -50,7 +50,7 @@ export function useToggleBreak() {
       } else {
         const breakStart = new Date(currentSession.last_break_start).getTime();
         const now = new Date().getTime();
-        const breakMinutes = (now - breakStart) / 60000;
+        const breakMinutes = Math.floor((now - breakStart) / 60000);
         
         const { error } = await supabase
           .from('duty_logs')
@@ -86,11 +86,17 @@ export function useClockOut() {
       
       if (currentSession.status === 'on_break') {
         const breakStart = new Date(currentSession.last_break_start).getTime();
-        finalBreakMinutes += (clockOutTime.getTime() - breakStart) / 60000;
+        finalBreakMinutes += Math.floor((clockOutTime.getTime() - breakStart) / 60000);
       }
 
       const clockInTime = new Date(currentSession.clock_in).getTime();
-      const totalDutyMinutes = Math.max(0, (clockOutTime.getTime() - clockInTime) / 60000 - finalBreakMinutes);
+      const totalDutyMinutes = Math.floor(Math.max(0, (clockOutTime.getTime() - clockInTime) / 60000 - finalBreakMinutes));
+
+      if (totalDutyMinutes === 0) {
+        const { error } = await supabase.from('duty_logs').delete().eq('id', currentSession.id);
+        if (error) throw error;
+        return { deleted: true };
+      }
 
       const { error } = await supabase
         .from('duty_logs')
@@ -103,9 +109,14 @@ export function useClockOut() {
         .eq('id', currentSession.id);
       
       if (error) throw error;
+      return { deleted: false };
     },
-    onSuccess: () => {
-      toast.success('ออกเวรสำเร็จ');
+    onSuccess: (data) => {
+      if (data?.deleted) {
+        toast.success('ยกเลิกการเข้าเวรเนื่องจากเวลาไม่ถึง 1 นาที');
+      } else {
+        toast.success('ออกเวรสำเร็จ');
+      }
       queryClient.invalidateQueries({ queryKey: dutyKeys.all });
       queryClient.invalidateQueries({ queryKey: salaryKeys.all });
       queryClient.invalidateQueries({ queryKey: ['queue_users'] });
@@ -167,11 +178,17 @@ export function useAdminClockOut() {
       
       if (session.status === 'on_break') {
         const breakStart = new Date(session.last_break_start).getTime();
-        finalBreakMinutes += (clockOutTime.getTime() - breakStart) / 60000;
+        finalBreakMinutes += Math.floor((clockOutTime.getTime() - breakStart) / 60000);
       }
 
       const clockInTime = new Date(session.clock_in).getTime();
-      const totalDutyMinutes = Math.max(0, (clockOutTime.getTime() - clockInTime) / 60000 - finalBreakMinutes);
+      const totalDutyMinutes = Math.floor(Math.max(0, (clockOutTime.getTime() - clockInTime) / 60000 - finalBreakMinutes));
+
+      if (totalDutyMinutes === 0) {
+        const { error } = await supabase.from('duty_logs').delete().eq('id', session.id);
+        if (error) throw error;
+        return { deleted: true };
+      }
 
       const { error } = await supabase
         .from('duty_logs')
@@ -182,10 +199,16 @@ export function useAdminClockOut() {
           total_duty_minutes: totalDutyMinutes
         })
         .eq('id', session.id);
+        
       if (error) throw error;
+      return { deleted: false };
     },
-    onSuccess: () => {
-      toast.success('บังคับออกเวรสำเร็จ');
+    onSuccess: (data) => {
+      if (data?.deleted) {
+        toast.success('ลบการเข้าเวรของแอดมินเนื่องจากเวลาไม่ถึง 1 นาที');
+      } else {
+        toast.success('บังคับออกเวรสำเร็จ');
+      }
       queryClient.invalidateQueries({ queryKey: dutyKeys.all });
       queryClient.invalidateQueries({ queryKey: salaryKeys.all });
       queryClient.invalidateQueries({ queryKey: ['queue_users'] });
