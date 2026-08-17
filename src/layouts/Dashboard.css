@@ -252,7 +252,6 @@
 /* Content Container */
 .dashboard-content {
   padding: 2rem;
-  animation: fade-in 0.4s ease-out;
 }
 
 @keyframes fade-in {
