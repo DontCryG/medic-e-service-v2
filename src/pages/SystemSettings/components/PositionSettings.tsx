@@ -50,7 +50,7 @@ export default function PositionSettings() {
       setEditingId(null);
     } catch (err) {
       console.error('Failed to save position:', err);
-      alert('เกิดข้อผิดพลาดในการบันทึกข้อมูล');
+      Swal.fire({ icon: 'error', title: 'แจ้งเตือน', text: 'เกิดข้อผิดพลาดในการบันทึกข้อมูล' });
     }
   };
 
@@ -70,7 +70,7 @@ export default function PositionSettings() {
         await deleteMutation.mutateAsync(id);
       } catch (err) {
         console.error('Failed to delete position:', err);
-        alert('เกิดข้อผิดพลาดในการลบข้อมูล');
+        Swal.fire({ icon: 'error', title: 'แจ้งเตือน', text: 'เกิดข้อผิดพลาดในการลบข้อมูล' });
       }
     }
   };

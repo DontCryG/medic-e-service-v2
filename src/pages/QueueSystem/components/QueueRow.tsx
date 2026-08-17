@@ -61,7 +61,7 @@ export function QueueRow({ user, isStoryQueue = false }: QueueRowProps) {
       if (user.is_volunteer) {
         updateVolunteer({ id: user.discord_id, newStatus: null }).catch(err => {
           setLocalStatus(statusRecord?.status || null);
-          alert("Error: " + err.message);
+          Swal.fire({ icon: 'error', title: 'แจ้งเตือน', text: "Error: " + err.message });
         });
       } else {
         updateStatus({
@@ -70,7 +70,7 @@ export function QueueRow({ user, isStoryQueue = false }: QueueRowProps) {
           currentStatusRecord: statusRecord
         }).catch(err => {
           setLocalStatus(statusRecord?.status || null);
-          alert("Error in updateStatus (null): " + err.message);
+          Swal.fire({ icon: 'error', title: 'แจ้งเตือน', text: "Error in updateStatus (null): " + err.message });
         });
       }
       return;
@@ -81,7 +81,7 @@ export function QueueRow({ user, isStoryQueue = false }: QueueRowProps) {
     if (user.is_volunteer) {
       updateVolunteer({ id: user.discord_id, newStatus }).catch(err => {
         setLocalStatus(statusRecord?.status || null);
-        alert("Error: " + err.message);
+        Swal.fire({ icon: 'error', title: 'แจ้งเตือน', text: "Error: " + err.message });
       });
     } else {
       updateStatus({
@@ -90,7 +90,7 @@ export function QueueRow({ user, isStoryQueue = false }: QueueRowProps) {
         currentStatusRecord: statusRecord
       }).catch(err => {
         setLocalStatus(statusRecord?.status || null);
-        alert("Error in updateStatus: " + err.message);
+        Swal.fire({ icon: 'error', title: 'แจ้งเตือน', text: "Error in updateStatus: " + err.message });
       });
     }
   };

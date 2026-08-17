@@ -53,7 +53,7 @@ function GangSettings() {
       setEditingId(null);
     } catch (err) {
       console.error(err);
-      alert('เกิดข้อผิดพลาดในการบันทึกข้อมูล');
+      Swal.fire({ icon: 'error', title: 'แจ้งเตือน', text: 'เกิดข้อผิดพลาดในการบันทึกข้อมูล' });
     }
   };
 
@@ -73,7 +73,7 @@ function GangSettings() {
         await deleteMutation.mutateAsync(id);
       } catch (err) {
         console.error(err);
-        alert('เกิดข้อผิดพลาดในการลบข้อมูล');
+        Swal.fire({ icon: 'error', title: 'แจ้งเตือน', text: 'เกิดข้อผิดพลาดในการลบข้อมูล' });
       }
     }
   };
@@ -213,7 +213,7 @@ function FamilySettings() {
       setEditingId(null);
     } catch (err) {
       console.error(err);
-      alert('เกิดข้อผิดพลาดในการบันทึกข้อมูล');
+      Swal.fire({ icon: 'error', title: 'แจ้งเตือน', text: 'เกิดข้อผิดพลาดในการบันทึกข้อมูล' });
     }
   };
 
@@ -233,7 +233,7 @@ function FamilySettings() {
         await deleteMutation.mutateAsync(id);
       } catch (err) {
         console.error(err);
-        alert('เกิดข้อผิดพลาดในการลบข้อมูล');
+        Swal.fire({ icon: 'error', title: 'แจ้งเตือน', text: 'เกิดข้อผิดพลาดในการลบข้อมูล' });
       }
     }
   };

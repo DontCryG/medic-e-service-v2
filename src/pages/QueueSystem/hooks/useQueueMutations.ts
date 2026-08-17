@@ -1,4 +1,5 @@
 import { useMutation, useQueryClient } from '@tanstack/react-query';
+import Swal from 'sweetalert2';
 import { supabase } from '@/lib/supabase';
 import { globalBroadcastChannel } from '@/hooks/useAppRealtime';
 import type { QueueStatusType, QueueStatus } from '../types';
@@ -155,7 +156,7 @@ export function useQueueMutations() {
     },
     onError: (err: any) => {
       console.error('Failed to update status:', err);
-      alert('Error updating status: ' + err.message);
+      Swal.fire({ icon: 'error', title: 'แจ้งเตือน', text: 'Error updating status: ' + err.message });
     }
   });
 
@@ -379,7 +380,7 @@ export function useQueueMutations() {
     },
     onError: (err: any) => {
       console.error('Failed to add story log:', err);
-      alert('Error adding story log: ' + err.message);
+      Swal.fire({ icon: 'error', title: 'แจ้งเตือน', text: 'Error adding story log: ' + err.message });
     }
   });
 
@@ -409,7 +410,7 @@ export function useQueueMutations() {
     },
     onError: (err: any) => {
       console.error('Failed to update story log:', err);
-      alert('Error updating story log: ' + err.message);
+      Swal.fire({ icon: 'error', title: 'แจ้งเตือน', text: 'Error updating story log: ' + err.message });
     }
   });
 

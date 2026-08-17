@@ -229,7 +229,7 @@ export function HistoryModal({ isOpen, onClose, isAdmin = false }: HistoryModalP
 
   const handleSaveStory = async () => {
     if (!editForm.discord_id || !editForm.start_time) {
-      alert('กรุณากรอกข้อมูลให้ครบถ้วน');
+      Swal.fire({ icon: 'error', title: 'แจ้งเตือน', text: 'กรุณากรอกข้อมูลให้ครบถ้วน' });
       return;
     }
     
@@ -253,7 +253,7 @@ export function HistoryModal({ isOpen, onClose, isAdmin = false }: HistoryModalP
       fetchLogs(); // refresh
     } catch (err: any) {
       console.error(err);
-      alert('เกิดข้อผิดพลาด: ' + err.message);
+      Swal.fire({ icon: 'error', title: 'แจ้งเตือน', text: 'เกิดข้อผิดพลาด: ' + err.message });
     }
   };
 

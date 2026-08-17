@@ -33,7 +33,7 @@ export default function PricingSettings() {
 
   const handleSave = async () => {
     if (!formData.key.trim() || !formData.value.trim()) {
-      alert('กรุณากรอก Key และ Value ให้ครบถ้วน');
+      Swal.fire({ icon: 'error', title: 'แจ้งเตือน', text: 'กรุณากรอก Key และ Value ให้ครบถ้วน' });
       return;
     }
     
@@ -43,7 +43,7 @@ export default function PricingSettings() {
       setEditingKey(null);
     } catch (err) {
       console.error(err);
-      alert('เกิดข้อผิดพลาดในการบันทึกข้อมูล');
+      Swal.fire({ icon: 'error', title: 'แจ้งเตือน', text: 'เกิดข้อผิดพลาดในการบันทึกข้อมูล' });
     }
   };
 
@@ -63,7 +63,7 @@ export default function PricingSettings() {
         await deleteMutation.mutateAsync(key);
       } catch (err) {
         console.error(err);
-        alert('เกิดข้อผิดพลาดในการลบข้อมูล');
+        Swal.fire({ icon: 'error', title: 'แจ้งเตือน', text: 'เกิดข้อผิดพลาดในการลบข้อมูล' });
       }
     }
   };
