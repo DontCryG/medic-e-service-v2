@@ -58,7 +58,7 @@ export default function Sidebar({ isMobileMenuOpen, setIsMobileMenuOpen, isColla
       )}
       <aside className={`dashboard-sidebar ${isMobileMenuOpen ? 'mobile-open' : ''} ${isCollapsed ? 'sidebar-is-collapsed' : ''}`}>
         
-        {/* Logo + Collapse Toggle */}
+        {/* Logo */}
         <div className="sidebar-logo">
           {!isCollapsed && (
             <>
@@ -69,13 +69,6 @@ export default function Sidebar({ isMobileMenuOpen, setIsMobileMenuOpen, isColla
           {isCollapsed && (
             <img src="/logo.png" alt="Logo" style={{ margin: '0 auto' }} />
           )}
-          <button
-            className="sidebar-collapse-btn"
-            onClick={() => setIsCollapsed(!isCollapsed)}
-            title={isCollapsed ? 'ขยาย Sidebar' : 'ย่อ Sidebar'}
-          >
-            {isCollapsed ? <ChevronRight size={16} /> : <ChevronLeft size={16} />}
-          </button>
         </div>
       
         <nav className="sidebar-nav">

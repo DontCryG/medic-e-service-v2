@@ -88,12 +88,35 @@ export default function Header({ setIsMobileMenuOpen, isSidebarCollapsed, setIsS
   return (
     <header className="dashboard-header">
       <div className="header-left-actions">
-        {/* Hamburger for mobile, collapse toggle for desktop */}
+        {/* Hamburger for mobile */}
         <button 
           className="mobile-menu-btn mobile-only"
           onClick={() => setIsMobileMenuOpen(true)}
         >
           <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><line x1="3" y1="12" x2="21" y2="12"></line><line x1="3" y1="6" x2="21" y2="6"></line><line x1="3" y1="18" x2="21" y2="18"></line></svg>
+        </button>
+
+        {/* Sidebar collapse toggle — desktop only */}
+        <button
+          className="sidebar-toggle-btn desktop-only"
+          onClick={() => setIsSidebarCollapsed(!isSidebarCollapsed)}
+          title={isSidebarCollapsed ? 'ขยาย Sidebar' : 'ย่อ Sidebar'}
+        >
+          <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+            {isSidebarCollapsed ? (
+              <>
+                <line x1="3" y1="12" x2="21" y2="12"/>
+                <line x1="3" y1="6" x2="21" y2="6"/>
+                <line x1="3" y1="18" x2="21" y2="18"/>
+              </>
+            ) : (
+              <>
+                <line x1="3" y1="12" x2="21" y2="12"/>
+                <line x1="3" y1="6" x2="21" y2="6"/>
+                <line x1="3" y1="18" x2="21" y2="18"/>
+              </>
+            )}
+          </svg>
         </button>
         
         {/* Search Bar Container */}
