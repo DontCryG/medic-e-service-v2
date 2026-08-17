@@ -9,7 +9,7 @@ import type { Gang, Family } from '../hooks/useGangsFamilies';
 
 export default function GangFamilySettings() {
   return (
-    <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '2rem' }}>
+    <div className="agency-grid-container">
       <GangSettings />
       <FamilySettings />
     </div>
@@ -106,8 +106,8 @@ function GangSettings() {
       </div>
 
       {isLoading ? <p>กำลังโหลด...</p> : (
-        <div style={{ border: '1px solid #e2e8f0', borderRadius: '12px', overflow: 'hidden' }}>
-          <table style={{ width: '100%', borderCollapse: 'collapse', textAlign: 'left' }}>
+        <div style={{ border: '1px solid #e2e8f0', borderRadius: '12px', overflowX: 'auto' }}>
+          <table style={{ width: '100%', minWidth: '300px', borderCollapse: 'collapse', textAlign: 'left' }}>
             <thead style={{ background: '#f8fafc' }}>
               <tr style={{ color: '#64748b' }}>
                 <th style={{ padding: '1rem' }}>ชื่อแก๊ง</th>
@@ -266,8 +266,8 @@ function FamilySettings() {
       </div>
 
       {isLoading ? <p>กำลังโหลด...</p> : (
-        <div style={{ border: '1px solid #e2e8f0', borderRadius: '12px', overflow: 'hidden' }}>
-          <table style={{ width: '100%', borderCollapse: 'collapse', textAlign: 'left' }}>
+        <div style={{ border: '1px solid #e2e8f0', borderRadius: '12px', overflowX: 'auto' }}>
+          <table style={{ width: '100%', minWidth: '300px', borderCollapse: 'collapse', textAlign: 'left' }}>
             <thead style={{ background: '#f8fafc' }}>
               <tr style={{ color: '#64748b' }}>
                 <th style={{ padding: '1rem' }}>ชื่อแฟมิลี่</th>

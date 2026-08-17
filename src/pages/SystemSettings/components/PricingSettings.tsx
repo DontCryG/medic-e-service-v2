@@ -91,8 +91,8 @@ export default function PricingSettings() {
         </button>
       </div>
 
-      <div style={{ border: '1px solid #e2e8f0', borderRadius: '12px', overflow: 'hidden' }}>
-        <table style={{ width: '100%', borderCollapse: 'collapse', textAlign: 'left' }}>
+      <div style={{ border: '1px solid #e2e8f0', borderRadius: '12px', overflowX: 'auto' }}>
+        <table style={{ width: '100%', minWidth: '600px', borderCollapse: 'collapse', textAlign: 'left' }}>
           <thead style={{ background: '#f8fafc' }}>
             <tr style={{ color: '#64748b' }}>
               <th style={{ padding: '1rem', width: '25%' }}>Key (รหัสอ้างอิง)</th>

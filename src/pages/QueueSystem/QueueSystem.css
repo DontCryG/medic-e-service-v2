@@ -88,12 +88,15 @@
 }
 
 .queue-table-wrapper {
-  overflow: visible; /* Changed to visible so dropdown doesn't clip */
+  overflow-x: auto;
   width: 100%;
+  padding-bottom: 120px; /* space for dropdown menus on last rows */
+  margin-bottom: -120px; /* compensate the padding to avoid extra whitespace */
 }
 
 .queue-table {
   width: 100%;
+  min-width: 900px;
   border-collapse: separate;
   border-spacing: 0;
   text-align: left;

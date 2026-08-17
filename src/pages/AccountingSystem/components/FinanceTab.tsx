@@ -142,7 +142,7 @@ export default function FinanceTab() {
         </button>
       </div>
 
-      <div className="summary-cards" style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '1.5rem' }}>
+      <div className="summary-cards">
         
         {/* Income Card */}
         <div style={{ display: 'flex', flexDirection: 'column', overflow: 'hidden', borderRadius: '8px', boxShadow: '0 1px 3px rgba(0,0,0,0.1)' }}>
@@ -178,7 +178,7 @@ export default function FinanceTab() {
         </div>
       </div>
 
-      <div className="content-grid" style={{ gridTemplateColumns: '1fr 2fr' }}>
+      <div className="content-grid">
         <div className="form-card">
           <h2 style={{ fontSize: '1.25rem', marginBottom: '1.5rem', color: 'var(--text-primary)' }}>บันทึกรายรับ-รายจ่าย</h2>
           

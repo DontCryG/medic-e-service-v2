@@ -176,7 +176,7 @@ export default function InventoryTab() {
         </button>
       </div>
 
-      <div className="summary-cards" style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '1.5rem' }}>
+      <div className="summary-cards">
         
         {/* Total Items Card */}
         <div style={{ display: 'flex', flexDirection: 'column', overflow: 'hidden', borderRadius: '8px', boxShadow: '0 1px 3px rgba(0,0,0,0.1)' }}>
