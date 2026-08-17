@@ -199,10 +199,12 @@ export default function FinanceTab() {
                   display: 'flex',
                   alignItems: 'center',
                   justifyContent: 'center',
-                  gap: '0.5rem'
+                  gap: '0.5rem',
+                  whiteSpace: 'nowrap',
+                  fontSize: '0.9rem'
                 }}
               >
-                <ArrowDown size={18} /> รายรับ
+                <ArrowDown size={16} /> รายรับ
               </button>
               <button
                 type="button"
@@ -218,10 +220,12 @@ export default function FinanceTab() {
                   display: 'flex',
                   alignItems: 'center',
                   justifyContent: 'center',
-                  gap: '0.5rem'
+                  gap: '0.5rem',
+                  whiteSpace: 'nowrap',
+                  fontSize: '0.9rem'
                 }}
               >
-                <ArrowUp size={18} /> รายจ่าย
+                <ArrowUp size={16} /> รายจ่าย
               </button>
             </div>
 
