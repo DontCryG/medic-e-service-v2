@@ -118,6 +118,13 @@
   min-width: 0;
 }
 
+.form-card h2, .table-card h2 {
+  font-size: clamp(1rem, 4vw, 1.25rem);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
 /* form-group classes moved to index.css */
 
 .type-selector {

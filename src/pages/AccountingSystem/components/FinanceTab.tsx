@@ -184,11 +184,11 @@ export default function FinanceTab() {
           
           <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
             
-            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem' }}>
+            <div className="type-selector">
               <button
                 type="button"
                 onClick={() => setType('income')}
-                className={`modal-btn ${type === 'income' ? 'save' : 'cancel'}`}
+                className={`type-btn receive ${type === 'income' ? 'active' : ''}`}
                 style={{ 
                   background: type === 'income' ? '#ecfdf5' : 'transparent',
                   color: type === 'income' ? '#059669' : '#64748b',
@@ -199,17 +199,15 @@ export default function FinanceTab() {
                   display: 'flex',
                   alignItems: 'center',
                   justifyContent: 'center',
-                  gap: '0.5rem',
-                  whiteSpace: 'nowrap',
-                  fontSize: '0.9rem'
+                  gap: '0.5rem'
                 }}
               >
-                <ArrowDown size={16} /> รายรับ
+                <ArrowDown size={18} /> รายรับ
               </button>
               <button
                 type="button"
                 onClick={() => setType('expense')}
-                className={`modal-btn ${type === 'expense' ? 'cancel' : 'save'}`}
+                className={`type-btn disburse ${type === 'expense' ? 'active' : ''}`}
                 style={{ 
                   background: type === 'expense' ? '#fef2f2' : 'transparent',
                   color: type === 'expense' ? '#dc2626' : '#64748b',
@@ -220,12 +218,10 @@ export default function FinanceTab() {
                   display: 'flex',
                   alignItems: 'center',
                   justifyContent: 'center',
-                  gap: '0.5rem',
-                  whiteSpace: 'nowrap',
-                  fontSize: '0.9rem'
+                  gap: '0.5rem'
                 }}
               >
-                <ArrowUp size={16} /> รายจ่าย
+                <ArrowUp size={18} /> รายจ่าย
               </button>
             </div>
 
