@@ -6,6 +6,8 @@ import { motion, AnimatePresence } from 'framer-motion';
 
 interface HeaderProps {
   setIsMobileMenuOpen: (open: boolean) => void;
+  isSidebarCollapsed: boolean;
+  setIsSidebarCollapsed: (collapsed: boolean) => void;
 }
 
 const searchIndex = [
@@ -20,7 +22,7 @@ const searchIndex = [
   { path: '/settings', title: 'ตั้งค่าระบบ', icon: <Settings size={16} />, keywords: ['ตั้งค่า', 'settings', 'ระบบ', 'config'], requireAdmin: true },
 ];
 
-export default function Header({ setIsMobileMenuOpen }: HeaderProps) {
+export default function Header({ setIsMobileMenuOpen, isSidebarCollapsed, setIsSidebarCollapsed }: HeaderProps) {
   const { user } = useAuthStore();
   const navigate = useNavigate();
   const getInitial = (name?: string) => name ? name.charAt(0).toUpperCase() : 'M';
@@ -86,8 +88,9 @@ export default function Header({ setIsMobileMenuOpen }: HeaderProps) {
   return (
     <header className="dashboard-header">
       <div className="header-left-actions">
+        {/* Hamburger for mobile, collapse toggle for desktop */}
         <button 
-          className="mobile-menu-btn"
+          className="mobile-menu-btn mobile-only"
           onClick={() => setIsMobileMenuOpen(true)}
         >
           <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><line x1="3" y1="12" x2="21" y2="12"></line><line x1="3" y1="6" x2="21" y2="6"></line><line x1="3" y1="18" x2="21" y2="18"></line></svg>
