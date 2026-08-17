@@ -40,24 +40,25 @@
   align-items: center;
   justify-content: center;
   position: absolute;
-  right: -14px;
-  top: 26px;
-  width: 28px;
-  height: 28px;
-  border-radius: 50%;
+  right: -1px;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 24px;
+  height: 48px;
+  border-radius: 24px 0 0 24px;
   border: 1px solid var(--border-color);
+  border-right: none;
   background: white;
   color: var(--text-secondary);
   cursor: pointer;
   z-index: 20;
   transition: all 0.2s;
-  box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+  box-shadow: -2px 0 5px rgba(0,0,0,0.05);
 }
 
 .sidebar-collapse-btn:hover {
-  background: var(--primary);
-  color: white;
-  border-color: var(--primary);
+  background: #f8fafc;
+  color: var(--primary);
 }
 
 .sidebar-is-collapsed .sidebar-logo {
