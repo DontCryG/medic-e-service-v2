@@ -40,20 +40,20 @@
   align-items: center;
   justify-content: center;
   position: absolute;
-  right: -1px;
+  right: -24px;
   top: 50%;
   transform: translateY(-50%);
   width: 24px;
   height: 48px;
-  border-radius: 24px 0 0 24px;
+  border-radius: 0 24px 24px 0;
   border: 1px solid var(--border-color);
-  border-right: none;
+  border-left: none;
   background: white;
   color: var(--text-secondary);
   cursor: pointer;
   z-index: 20;
   transition: all 0.2s;
-  box-shadow: -2px 0 5px rgba(0,0,0,0.05);
+  box-shadow: 4px 0 8px rgba(0,0,0,0.05);
 }
 
 .sidebar-collapse-btn:hover {
