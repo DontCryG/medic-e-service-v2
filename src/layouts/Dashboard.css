@@ -88,6 +88,10 @@
   overflow-x: hidden;
 }
 
+.sidebar-is-collapsed .sidebar-nav {
+  padding: 1rem 0.5rem;
+}
+
 .nav-item {
   display: flex;
   align-items: center;
@@ -104,10 +108,14 @@
   overflow: hidden;
 }
 
+.nav-item svg {
+  flex-shrink: 0;
+}
+
 /* Icon-only nav item when collapsed */
 .sidebar-is-collapsed .nav-item {
   justify-content: center;
-  padding: 0.875rem;
+  padding: 0.75rem;
 }
 
 .nav-item:hover {
