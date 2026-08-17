@@ -1,7 +1,7 @@
 -- 1. Create table for queue status of active duty users
 CREATE TABLE queue_status (
   discord_id text PRIMARY KEY REFERENCES users(discord_id) ON DELETE CASCADE,
-  status text NOT NULL CHECK (status IN ('unavailable', 'queued', 'manager', 'story')),
+  status text CHECK (status IN ('unavailable', 'queued', 'manager', 'story')),
   
   -- Manager specific fields
   manager_start_time timestamp with time zone,
