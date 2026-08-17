@@ -118,13 +118,6 @@
   min-width: 0;
 }
 
-.form-card h2, .table-card h2 {
-  font-size: clamp(1rem, 4vw, 1.25rem);
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-}
-
 /* form-group classes moved to index.css */
 
 .type-selector {
@@ -141,14 +134,12 @@
   background: transparent;
   color: #64748b;
   font-weight: 600;
-  font-size: 0.9rem;
   cursor: pointer;
   transition: all 0.2s;
   display: flex;
   align-items: center;
   justify-content: center;
   gap: 0.5rem;
-  white-space: nowrap;
 }
 
 .type-btn.income.active {
