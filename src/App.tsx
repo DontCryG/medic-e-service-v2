@@ -3,6 +3,7 @@ import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 import { QueryClient, QueryClientProvider, MutationCache } from '@tanstack/react-query';
 import { useAuthStore } from './store/authStore';
 import { useAppRealtime, globalBroadcastChannel } from './hooks/useAppRealtime';
+import { setSentryUser, clearSentryUser } from './lib/sentry';
 
 import Portal from './pages/Portal';
 import MainLayout from './layouts/MainLayout';
@@ -61,6 +62,15 @@ function AppEffects() {
 
 export default function App() {
   const { user } = useAuthStore();
+
+  // Sync user identity to Sentry whenever auth state changes
+  React.useEffect(() => {
+    if (user) {
+      setSentryUser(user.discord_id, user.ic_name);
+    } else {
+      clearSentryUser();
+    }
+  }, [user]);
 
   return (
     <QueryClientProvider client={queryClient}>
