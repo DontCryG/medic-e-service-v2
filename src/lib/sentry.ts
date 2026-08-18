@@ -7,8 +7,8 @@ export function initSentry() {
     dsn: SENTRY_DSN,
     environment: import.meta.env.MODE, // 'development' or 'production'
 
-    // Only send errors in production to avoid noise
-    enabled: import.meta.env.PROD,
+    // Always enabled so errors are captured
+    enabled: true,
 
     // Capture 100% of errors, 10% of performance traces
     tracesSampleRate: 0.1,
@@ -46,6 +46,9 @@ export function initSentry() {
       return event;
     },
   });
+
+  // Expose Sentry globally for console debugging
+  (window as any).Sentry = Sentry;
 }
 
 /**
