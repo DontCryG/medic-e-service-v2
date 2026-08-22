@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useRef } from 'react';
 import DutyControls from './DutySystem/components/DutyControls';
 import LiveUsersList from './DutySystem/components/LiveUsersList';
 import DutyHistoryTable from './DutySystem/components/DutyHistoryTable';
@@ -53,18 +53,27 @@ export default function DutySystem({ profile }: DutySystemProps) {
   const adminToggleBreakMutation = useAdminToggleBreak();
   const adminClockOutMutation = useAdminClockOut();
 
+  const processingRef = useRef(false);
+
   const handleClockIn = () => {
-    if (clockInMutation.isPending) return;
-    clockInMutation.mutate(profile.discord_id);
+    if (clockInMutation.isPending || processingRef.current) return;
+    processingRef.current = true;
+    clockInMutation.mutate(profile.discord_id, {
+      onSettled: () => { processingRef.current = false; }
+    });
   };
 
   const handleBreak = () => {
-    if (toggleBreakMutation.isPending) return;
-    toggleBreakMutation.mutate(currentSession);
+    if (toggleBreakMutation.isPending || processingRef.current) return;
+    processingRef.current = true;
+    toggleBreakMutation.mutate(currentSession, {
+      onSettled: () => { processingRef.current = false; }
+    });
   };
   
   const handleClockOut = async () => {
-    if (!currentSession || clockOutMutation.isPending) return;
+    if (!currentSession || clockOutMutation.isPending || processingRef.current) return;
+    processingRef.current = true;
     
     try {
       // Check queue status first
@@ -82,15 +91,17 @@ export default function DutySystem({ profile }: DutySystemProps) {
             icon: 'warning',
             confirmButtonColor: '#ef4444'
           });
+          processingRef.current = false;
           return;
         }
         if (queueData.status === 'manager') {
           Swal.fire({
             title: 'ไม่สามารถออกเวรได้',
-            text: 'คุณกำลังทำหน้าที่ "หมอรันคิว" อยู่ กรุณาไปที่หน้าคิวและติ๊กปลดสถานะหมอรันคิวออกก่อนครับ',
+            text: 'คุณกำลังเข้าเวรในคิว หรือกำลังจัดการคิวอยู่ กรุณาออกจากการจัดการคิว หรือปิดสตอรี่ก่อนออกเวรครับ',
             icon: 'warning',
             confirmButtonColor: '#ef4444'
           });
+          processingRef.current = false;
           return;
         }
       }
@@ -98,7 +109,9 @@ export default function DutySystem({ profile }: DutySystemProps) {
       console.error('Error checking queue status:', err);
     }
     
-    clockOutMutation.mutate(currentSession);
+    clockOutMutation.mutate(currentSession, {
+      onSettled: () => { processingRef.current = false; }
+    });
   };
 
   const handleAdminToggleBreak = async (session: any) => {
@@ -212,3 +225,4 @@ export default function DutySystem({ profile }: DutySystemProps) {
     </div>
   );
 }
+
