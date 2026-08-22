@@ -1,4 +1,4 @@
-import { useState } from 'react';
+﻿import { useState } from 'react';
 import Swal from 'sweetalert2';
 import { Plus, Edit2, Trash2, AlertTriangle, Save, X } from 'lucide-react';
 import { usePositions, useAddPosition, useUpdatePosition, useDeletePosition } from '../../../hooks/usePositions';
@@ -37,8 +37,7 @@ export default function PositionSettings() {
     setFormData({ name: '', rank: 1, ic_rate: 0, oc_rate: 0 });
   };
 
-  const handleSave = async () => {
-    if (!formData.name.trim()) return;
+  const handleSave = async () => { if (!formData.name.trim() || addMutation.isPending || updateMutation.isPending) return;
 
     try {
       if (editingId) {
@@ -54,7 +53,7 @@ export default function PositionSettings() {
     }
   };
 
-  const handleDelete = async (id: string) => {
+  const handleDelete = async (id: string) => { if (deleteMutation.isPending) return;
     const result = await Swal.fire({
       title: 'คุณแน่ใจหรือไม่ว่าต้องการลบตำแหน่งนี้?',
       icon: 'warning',
@@ -259,3 +258,5 @@ export default function PositionSettings() {
     </div>
   );
 }
+
+

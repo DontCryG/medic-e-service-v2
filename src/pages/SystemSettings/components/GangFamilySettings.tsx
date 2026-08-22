@@ -1,4 +1,4 @@
-import { useState } from 'react';
+﻿import { useState } from 'react';
 import { Plus, Edit2, Trash2, Save, X } from 'lucide-react';
 import { 
   useGangs, useAddGang, useUpdateGang, useDeleteGang, 
@@ -41,8 +41,7 @@ function GangSettings() {
     setName('');
   };
 
-  const handleSave = async () => {
-    if (!name.trim()) return;
+  const handleSave = async () => { if (!name.trim() || addMutation.isPending || updateMutation.isPending) return;
     try {
       if (editingId) {
         await updateMutation.mutateAsync({ id: editingId, name });
@@ -57,7 +56,7 @@ function GangSettings() {
     }
   };
 
-  const handleDelete = async (id: string) => {
+  const handleDelete = async (id: string) => { if (deleteMutation.isPending) return;
     const result = await Swal.fire({
       title: 'คุณแน่ใจหรือไม่ว่าต้องการลบรายชื่อนี้?',
       icon: 'warning',
@@ -201,8 +200,7 @@ function FamilySettings() {
     setName('');
   };
 
-  const handleSave = async () => {
-    if (!name.trim()) return;
+  const handleSave = async () => { if (!name.trim() || addMutation.isPending || updateMutation.isPending) return;
     try {
       if (editingId) {
         await updateMutation.mutateAsync({ id: editingId, name });
@@ -217,7 +215,7 @@ function FamilySettings() {
     }
   };
 
-  const handleDelete = async (id: string) => {
+  const handleDelete = async (id: string) => { if (deleteMutation.isPending) return;
     const result = await Swal.fire({
       title: 'คุณแน่ใจหรือไม่ว่าต้องการลบรายชื่อนี้?',
       icon: 'warning',
@@ -335,3 +333,5 @@ function FamilySettings() {
     </div>
   );
 }
+
+

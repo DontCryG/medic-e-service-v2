@@ -12,10 +12,12 @@ export default function LeaveList({ leaves, isAdmin }: LeaveListProps) {
   const deleteLeaveMutation = useDeleteLeave();
 
   const handleUpdateStatus = (id: string, status: 'approved' | 'rejected') => {
+    if (updateStatusMutation.isPending || deleteLeaveMutation.isPending) return;
     updateStatusMutation.mutate({ id, status });
   };
 
   const handleDeleteLeave = async (id: string) => {
+    if (updateStatusMutation.isPending || deleteLeaveMutation.isPending) return;
     const result = await Swal.fire({
       title: 'ยืนยันการยกเลิก?',
       text: 'คุณต้องการยกเลิกการลานี้ใช่หรือไม่?',
@@ -115,14 +117,16 @@ export default function LeaveList({ leaves, isAdmin }: LeaveListProps) {
                     <>
                       <button 
                         onClick={() => handleUpdateStatus(leave.id, 'approved')}
-                        style={{ padding: '6px', borderRadius: '6px', background: '#dcfce7', color: '#166534', border: 'none', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center' }}
+                        disabled={updateStatusMutation.isPending || deleteLeaveMutation.isPending}
+                        style={{ padding: '6px', borderRadius: '6px', background: '#dcfce7', color: '#166534', border: 'none', cursor: updateStatusMutation.isPending ? 'not-allowed' : 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', opacity: updateStatusMutation.isPending ? 0.5 : 1 }}
                         title="อนุมัติ"
                       >
                         <Check size={18} />
                       </button>
                       <button 
                         onClick={() => handleUpdateStatus(leave.id, 'rejected')}
-                        style={{ padding: '6px', borderRadius: '6px', background: '#fee2e2', color: '#991b1b', border: 'none', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center' }}
+                        disabled={updateStatusMutation.isPending || deleteLeaveMutation.isPending}
+                        style={{ padding: '6px', borderRadius: '6px', background: '#fee2e2', color: '#991b1b', border: 'none', cursor: updateStatusMutation.isPending ? 'not-allowed' : 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', opacity: updateStatusMutation.isPending ? 0.5 : 1 }}
                         title="ไม่อนุมัติ"
                       >
                         <X size={18} />
@@ -131,7 +135,8 @@ export default function LeaveList({ leaves, isAdmin }: LeaveListProps) {
                   )}
                   <button 
                     onClick={() => handleDeleteLeave(leave.id)}
-                    style={{ padding: '6px', borderRadius: '6px', background: '#f1f5f9', color: '#64748b', border: 'none', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center' }}
+                    disabled={updateStatusMutation.isPending || deleteLeaveMutation.isPending}
+                    style={{ padding: '6px', borderRadius: '6px', background: '#f1f5f9', color: '#64748b', border: 'none', cursor: deleteLeaveMutation.isPending ? 'not-allowed' : 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', opacity: deleteLeaveMutation.isPending ? 0.5 : 1 }}
                     title="ลบข้อมูลการลา"
                   >
                     <Trash2 size={18} />
@@ -142,7 +147,8 @@ export default function LeaveList({ leaves, isAdmin }: LeaveListProps) {
               {!isAdmin && leave.status === 'pending' && (
                 <button 
                   onClick={() => handleDeleteLeave(leave.id)}
-                  style={{ padding: '6px 12px', borderRadius: '6px', background: '#fee2e2', color: '#991b1b', border: 'none', cursor: 'pointer', fontSize: '0.85rem', fontWeight: 600, transition: 'all 0.2s' }}
+                  disabled={updateStatusMutation.isPending || deleteLeaveMutation.isPending}
+                  style={{ padding: '6px 12px', borderRadius: '6px', background: '#fee2e2', color: '#991b1b', border: 'none', cursor: deleteLeaveMutation.isPending ? 'not-allowed' : 'pointer', fontSize: '0.85rem', fontWeight: 600, transition: 'all 0.2s', opacity: deleteLeaveMutation.isPending ? 0.5 : 1 }}
                   title="ยกเลิกการลานี้"
                 >
                   ยกเลิก

@@ -30,7 +30,8 @@ export function QueueRow({ user, isStoryQueue = false }: QueueRowProps) {
   const [targetTime, setTargetTime] = useState(statusRecord?.story_target_time || '');
   const [gang1, setGang1] = useState(statusRecord?.story_gang_1 || '');
   const [gang2, setGang2] = useState(statusRecord?.story_gang_2 || '');
-  const [storyType, setStoryType] = useState(statusRecord?.story_type || 'ไฟต์ตรง (1 คน)');
+  const [storyType, setStoryType] = useState(statusRecord?.story_type || 'ทั่วไป (1 คน)');
+  const [isProcessing, setIsProcessing] = useState(false);
 
   // Sync local state when external data changes
   useEffect(() => {
@@ -39,59 +40,62 @@ export function QueueRow({ user, isStoryQueue = false }: QueueRowProps) {
       setTargetTime(statusRecord.story_target_time || '');
       setGang1(statusRecord.story_gang_1 || '');
       setGang2(statusRecord.story_gang_2 || '');
-      setStoryType(statusRecord.story_type || 'ไฟต์ตรง (1 คน)');
+      setStoryType(statusRecord.story_type || 'ทั่วไป (1 คน)');
     } else {
       setTargetTime('');
       setGang1('');
       setGang2('');
-      setStoryType('ไฟต์ตรง (1 คน)');
+      setStoryType('ทั่วไป (1 คน)');
     }
   }, [statusRecord]);
 
   const currentStatus = localStatus;
 
   // Handle Checkbox Changes
-  const handleStatusChange = (newStatus: QueueStatusType) => {
+  const handleStatusChange = async (newStatus: QueueStatusType) => {
     // If story is locked, prevent changing status
-    if (statusRecord?.story_locked) return;
+    if (statusRecord?.story_locked || isProcessing) return;
 
+    setIsProcessing(true);
     // If clicking the currently checked status, untick it by setting to null
     if (currentStatus === newStatus) {
       setLocalStatus(null);
-      if (user.is_volunteer) {
-        updateVolunteer({ id: user.discord_id, newStatus: null }).catch(err => {
-          setLocalStatus(statusRecord?.status || null);
-          Swal.fire({ icon: 'error', title: 'แจ้งเตือน', text: "Error: " + err.message });
-        });
-      } else {
-        updateStatus({
-          discord_id: user.discord_id,
-          newStatus: null,
-          currentStatusRecord: statusRecord
-        }).catch(err => {
-          setLocalStatus(statusRecord?.status || null);
-          Swal.fire({ icon: 'error', title: 'แจ้งเตือน', text: "Error in updateStatus (null): " + err.message });
-        });
+      try {
+        if (user.is_volunteer) {
+          await updateVolunteer({ id: user.discord_id, newStatus: null });
+        } else {
+          await updateStatus({
+            discord_id: user.discord_id,
+            newStatus: null,
+            currentStatusRecord: statusRecord
+          });
+        }
+      } catch (err: any) {
+        setLocalStatus(statusRecord?.status || null);
+        Swal.fire({ icon: 'error', title: 'ผิดพลาด', text: "Error: " + err.message });
+      } finally {
+        setIsProcessing(false);
       }
       return;
     }
 
     setLocalStatus(newStatus);
     
-    if (user.is_volunteer) {
-      updateVolunteer({ id: user.discord_id, newStatus }).catch(err => {
-        setLocalStatus(statusRecord?.status || null);
-        Swal.fire({ icon: 'error', title: 'แจ้งเตือน', text: "Error: " + err.message });
-      });
-    } else {
-      updateStatus({
-        discord_id: user.discord_id,
-        newStatus,
-        currentStatusRecord: statusRecord
-      }).catch(err => {
-        setLocalStatus(statusRecord?.status || null);
-        Swal.fire({ icon: 'error', title: 'แจ้งเตือน', text: "Error in updateStatus: " + err.message });
-      });
+    try {
+      if (user.is_volunteer) {
+        await updateVolunteer({ id: user.discord_id, newStatus });
+      } else {
+        await updateStatus({
+          discord_id: user.discord_id,
+          newStatus,
+          currentStatusRecord: statusRecord
+        });
+      }
+    } catch (err: any) {
+      setLocalStatus(currentStatus);
+      Swal.fire({ icon: 'error', title: 'ผิดพลาด', text: "Error: " + err.message });
+    } finally {
+      setIsProcessing(false);
     }
   };
 
@@ -192,15 +196,26 @@ export function QueueRow({ user, isStoryQueue = false }: QueueRowProps) {
           {user.is_current_user && <span className="badge-me">(คุณ)</span>}
           {user.is_volunteer && (
             <button 
-              onClick={() => removeVolunteer(user.discord_id)}
+              onClick={async () => {
+                if (isProcessing) return;
+                setIsProcessing(true);
+                try {
+                  await removeVolunteer(user.discord_id);
+                } finally {
+                  setIsProcessing(false);
+                }
+              }}
+              disabled={isProcessing}
               style={{
                 background: 'none',
                 border: 'none',
                 color: '#ef4444',
-                cursor: 'pointer',
+                cursor: isProcessing ? 'not-allowed' : 'pointer',
+                padding: '2px',
                 display: 'flex',
                 alignItems: 'center',
-                padding: '4px',
+                justifyContent: 'center',
+                opacity: isProcessing ? 0.5 : 1,
                 marginLeft: '8px',
                 borderRadius: '4px'
               }}
@@ -391,13 +406,20 @@ export function QueueRow({ user, isStoryQueue = false }: QueueRowProps) {
                 {/* Cancel Button - clears everything without history */}
                 <button 
                   className="cancel-story-btn" 
-                  onClick={() => {
-                    endStory({
-                      discord_id: user.discord_id,
-                      statusRecord: statusRecord!,
-                      saveToHistory: false
-                    });
+                  onClick={async () => {
+                    if (isProcessing) return;
+                    setIsProcessing(true);
+                    try {
+                      await endStory({
+                        discord_id: user.discord_id,
+                        statusRecord: statusRecord!,
+                        saveToHistory: false
+                      });
+                    } finally {
+                      setIsProcessing(false);
+                    }
                   }}
+                  disabled={isProcessing}
                   title="ยกเลิกสตอรี่ (ไม่บันทึกประวัติ)"
                 >
                   <X size={14} />

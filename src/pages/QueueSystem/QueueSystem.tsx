@@ -1,4 +1,4 @@
-import { useState } from 'react';
+﻿import { useState } from 'react';
 import { History, RefreshCw, UserPlus } from 'lucide-react';
 import { useAuthStore } from '@/store/authStore';
 import { useQueue } from './hooks/useQueue';
@@ -13,13 +13,19 @@ export function QueueSystem() {
   const { queueUsers, isLoading, realtimeConnected, error } = useQueue(user?.discord_id);
   const { addVolunteer } = useQueueMutations();
   
-  const [isHistoryOpen, setIsHistoryOpen] = useState(false);
   const [volunteerName, setVolunteerName] = useState('');
+  const [isProcessing, setIsProcessing] = useState(false);
+  const [isHistoryOpen, setIsHistoryOpen] = useState(false);
   
   const handleAddVolunteer = async () => {
-    if (!volunteerName.trim()) return;
-    await addVolunteer(volunteerName.trim());
-    setVolunteerName('');
+    if (!volunteerName.trim() || isProcessing) return;
+    setIsProcessing(true);
+    try {
+      await addVolunteer(volunteerName.trim());
+      setVolunteerName('');
+    } finally {
+      setIsProcessing(false);
+    }
   };
 
   const storyLockedUsers = queueUsers.filter(u => u.status_record?.status === 'story' && u.status_record?.story_locked === true);
@@ -55,7 +61,7 @@ export function QueueSystem() {
             />
             <button 
               onClick={handleAddVolunteer}
-              disabled={!volunteerName.trim()}
+              disabled={!volunteerName.trim() || isProcessing}
               style={{
                 display: 'flex',
                 alignItems: 'center',
@@ -163,3 +169,4 @@ export function QueueSystem() {
     </div>
   );
 }
+

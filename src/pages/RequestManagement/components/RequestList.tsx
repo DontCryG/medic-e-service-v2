@@ -12,10 +12,12 @@ export default function RequestList({ requests, isAdmin }: RequestListProps) {
   const deleteRequestMutation = useDeleteRequest();
 
   const handleApprove = async (id: string) => {
+    if (updateStatusMutation.isPending || deleteRequestMutation.isPending) return;
     updateStatusMutation.mutate({ id, status: 'approved' });
   };
 
   const handleReject = async (id: string) => {
+    if (updateStatusMutation.isPending || deleteRequestMutation.isPending) return;
     const { value: comment } = await Swal.fire({
       title: 'เหตุผลที่ปฏิเสธ',
       input: 'textarea',
@@ -32,6 +34,7 @@ export default function RequestList({ requests, isAdmin }: RequestListProps) {
   };
 
   const handleDelete = async (id: string) => {
+    if (updateStatusMutation.isPending || deleteRequestMutation.isPending) return;
     const result = await Swal.fire({
       title: 'ยืนยันการลบ?',
       text: 'คุณต้องการลบคำร้องนี้ใช่หรือไม่?',
@@ -107,14 +110,16 @@ export default function RequestList({ requests, isAdmin }: RequestListProps) {
                     <>
                       <button 
                         onClick={() => handleApprove(req.id)}
-                        style={{ padding: '6px', borderRadius: '6px', background: '#dcfce7', color: '#166534', border: 'none', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center' }}
+                        disabled={updateStatusMutation.isPending || deleteRequestMutation.isPending}
+                        style={{ padding: '6px', borderRadius: '6px', background: '#dcfce7', color: '#166534', border: 'none', cursor: updateStatusMutation.isPending ? 'not-allowed' : 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', opacity: updateStatusMutation.isPending ? 0.5 : 1 }}
                         title="อนุมัติ"
                       >
                         <Check size={18} />
                       </button>
                       <button 
                         onClick={() => handleReject(req.id)}
-                        style={{ padding: '6px', borderRadius: '6px', background: '#fee2e2', color: '#991b1b', border: 'none', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center' }}
+                        disabled={updateStatusMutation.isPending || deleteRequestMutation.isPending}
+                        style={{ padding: '6px', borderRadius: '6px', background: '#fee2e2', color: '#991b1b', border: 'none', cursor: updateStatusMutation.isPending ? 'not-allowed' : 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', opacity: updateStatusMutation.isPending ? 0.5 : 1 }}
                         title="ไม่อนุมัติ"
                       >
                         <X size={18} />
@@ -123,7 +128,8 @@ export default function RequestList({ requests, isAdmin }: RequestListProps) {
                   )}
                   <button 
                     onClick={() => handleDelete(req.id)}
-                    style={{ padding: '6px', borderRadius: '6px', background: '#f1f5f9', color: '#64748b', border: 'none', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center' }}
+                    disabled={updateStatusMutation.isPending || deleteRequestMutation.isPending}
+                    style={{ padding: '6px', borderRadius: '6px', background: '#f1f5f9', color: '#64748b', border: 'none', cursor: deleteRequestMutation.isPending ? 'not-allowed' : 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', opacity: deleteRequestMutation.isPending ? 0.5 : 1 }}
                     title="ลบคำร้อง"
                   >
                     <Trash2 size={18} />

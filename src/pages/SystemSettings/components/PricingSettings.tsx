@@ -1,4 +1,4 @@
-import { useState } from 'react';
+﻿import { useState } from 'react';
 import Swal from 'sweetalert2';
 import { Plus, Edit2, Trash2, Save, X } from 'lucide-react';
 import { useSystemSettings, useSaveSystemSetting, useDeleteSystemSetting } from '../hooks/useSystemSettings';
@@ -31,7 +31,7 @@ export default function PricingSettings() {
     setFormData({ key: '', value: '', description: '', type: 'number' });
   };
 
-  const handleSave = async () => {
+  const handleSave = async () => { if (addMutation.isPending || updateMutation.isPending) return;
     if (!formData.key.trim() || !formData.value.trim()) {
       Swal.fire({ icon: 'error', title: 'แจ้งเตือน', text: 'กรุณากรอก Key และ Value ให้ครบถ้วน' });
       return;
@@ -47,7 +47,7 @@ export default function PricingSettings() {
     }
   };
 
-  const handleDelete = async (key: string) => {
+  const handleDelete = async (key: string) => { if (deleteMutation.isPending) return;
     const result = await Swal.fire({
       title: 'คุณแน่ใจหรือไม่ว่าต้องการลบการตั้งค่า ${key}?',
       icon: 'warning',
@@ -234,3 +234,5 @@ export default function PricingSettings() {
     </div>
   );
 }
+
+
