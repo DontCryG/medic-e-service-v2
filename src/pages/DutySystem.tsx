@@ -53,11 +53,18 @@ export default function DutySystem({ profile }: DutySystemProps) {
   const adminToggleBreakMutation = useAdminToggleBreak();
   const adminClockOutMutation = useAdminClockOut();
 
-  const handleClockIn = () => clockInMutation.mutate(profile.discord_id);
-  const handleBreak = () => toggleBreakMutation.mutate(currentSession);
+  const handleClockIn = () => {
+    if (clockInMutation.isPending) return;
+    clockInMutation.mutate(profile.discord_id);
+  };
+
+  const handleBreak = () => {
+    if (toggleBreakMutation.isPending) return;
+    toggleBreakMutation.mutate(currentSession);
+  };
   
   const handleClockOut = async () => {
-    if (!currentSession) return;
+    if (!currentSession || clockOutMutation.isPending) return;
     
     try {
       // Check queue status first
