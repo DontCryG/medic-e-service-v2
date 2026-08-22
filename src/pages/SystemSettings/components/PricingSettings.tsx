@@ -31,7 +31,7 @@ export default function PricingSettings() {
     setFormData({ key: '', value: '', description: '', type: 'number' });
   };
 
-  const handleSave = async () => { if (addMutation.isPending || updateMutation.isPending) return;
+  const handleSave = async () => { if (saveMutation.isPending) return;
     if (!formData.key.trim() || !formData.value.trim()) {
       Swal.fire({ icon: 'error', title: 'แจ้งเตือน', text: 'กรุณากรอก Key และ Value ให้ครบถ้วน' });
       return;
@@ -234,5 +234,6 @@ export default function PricingSettings() {
     </div>
   );
 }
+
 
 
