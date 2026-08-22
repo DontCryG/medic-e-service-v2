@@ -1,4 +1,4 @@
-﻿import { useState } from 'react';
+﻿import { useState, useRef } from 'react';
 import Swal from 'sweetalert2';
 import { Plus, Edit2, Trash2, AlertTriangle, Save, X } from 'lucide-react';
 import { usePositions, useAddPosition, useUpdatePosition, useDeletePosition } from '../../../hooks/usePositions';
@@ -9,6 +9,7 @@ export default function PositionSettings() {
   const addMutation = useAddPosition();
   const updateMutation = useUpdatePosition();
   const deleteMutation = useDeletePosition();
+  const processingRef = useRef(false);
 
   const [isAdding, setIsAdding] = useState(false);
   const [editingId, setEditingId] = useState<string | null>(null);
@@ -37,8 +38,9 @@ export default function PositionSettings() {
     setFormData({ name: '', rank: 1, ic_rate: 0, oc_rate: 0 });
   };
 
-  const handleSave = async () => { if (!formData.name.trim() || addMutation.isPending || updateMutation.isPending) return;
-
+  const handleSave = async () => { 
+    if (!formData.name.trim() || addMutation.isPending || updateMutation.isPending || processingRef.current) return;
+    processingRef.current = true;
     try {
       if (editingId) {
         await updateMutation.mutateAsync({ id: editingId, ...formData });
@@ -47,15 +49,19 @@ export default function PositionSettings() {
       }
       setIsAdding(false);
       setEditingId(null);
-    } catch (err) {
+    } catch (err: any) {
       console.error('Failed to save position:', err);
-      Swal.fire({ icon: 'error', title: 'แจ้งเตือน', text: 'เกิดข้อผิดพลาดในการบันทึกข้อมูล' });
+      Swal.fire({ icon: 'error', title: 'ผิดพลาด', text: err.message });
+    } finally {
+      processingRef.current = false;
     }
   };
 
-  const handleDelete = async (id: string) => { if (deleteMutation.isPending) return;
+  const handleDelete = async (id: string) => { 
+    if (deleteMutation.isPending || processingRef.current) return;
+    processingRef.current = true;
     const result = await Swal.fire({
-      title: 'คุณแน่ใจหรือไม่ว่าต้องการลบตำแหน่งนี้?',
+      title: 'ยืนยันการลบตำแหน่งนี้?',
       icon: 'warning',
       showCancelButton: true,
       confirmButtonColor: '#ef4444',
@@ -67,10 +73,14 @@ export default function PositionSettings() {
     if (result.isConfirmed) {
       try {
         await deleteMutation.mutateAsync(id);
-      } catch (err) {
+      } catch (err: any) {
         console.error('Failed to delete position:', err);
-        Swal.fire({ icon: 'error', title: 'แจ้งเตือน', text: 'เกิดข้อผิดพลาดในการลบข้อมูล' });
+        Swal.fire({ icon: 'error', title: 'ผิดพลาด', text: err.message });
+      } finally {
+        processingRef.current = false;
       }
+    } else {
+      processingRef.current = false;
     }
   };
 
@@ -258,5 +268,7 @@ export default function PositionSettings() {
     </div>
   );
 }
+
+
 
 

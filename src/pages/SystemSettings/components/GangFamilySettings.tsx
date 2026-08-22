@@ -1,4 +1,4 @@
-﻿import { useState } from 'react';
+﻿import { useState, useRef } from 'react';
 import { Plus, Edit2, Trash2, Save, X } from 'lucide-react';
 import { 
   useGangs, useAddGang, useUpdateGang, useDeleteGang, 
@@ -21,6 +21,7 @@ function GangSettings() {
   const addMutation = useAddGang();
   const updateMutation = useUpdateGang();
   const deleteMutation = useDeleteGang();
+  const processingRef = useRef(false);
 
   const [isAdding, setIsAdding] = useState(false);
   const [editingId, setEditingId] = useState<string | null>(null);
@@ -41,8 +42,7 @@ function GangSettings() {
     setName('');
   };
 
-  const handleSave = async () => { if (!name.trim() || addMutation.isPending || updateMutation.isPending) return;
-    try {
+  const handleSave = async () => { if (!name.trim() || addMutation.isPending || updateMutation.isPending || processingRef.current) return; processingRef.current = true; try {
       if (editingId) {
         await updateMutation.mutateAsync({ id: editingId, name });
       } else {
@@ -50,14 +50,10 @@ function GangSettings() {
       }
       setIsAdding(false);
       setEditingId(null);
-    } catch (err) {
-      console.error(err);
-      Swal.fire({ icon: 'error', title: 'แจ้งเตือน', text: 'เกิดข้อผิดพลาดในการบันทึกข้อมูล' });
-    }
+    } catch (err: any) { console.error(err); Swal.fire({ icon: 'error', title: 'Error', text: err.message }); } finally { processingRef.current = false; }
   };
 
-  const handleDelete = async (id: string) => { if (deleteMutation.isPending) return;
-    const result = await Swal.fire({
+  const handleDelete = async (id: string) => { if (deleteMutation.isPending || processingRef.current) return; processingRef.current = true; const result = await Swal.fire({
       title: 'คุณแน่ใจหรือไม่ว่าต้องการลบรายชื่อนี้?',
       icon: 'warning',
       showCancelButton: true,
@@ -69,13 +65,9 @@ function GangSettings() {
 
     if (result.isConfirmed) {
       try {
-        await deleteMutation.mutateAsync(id);
-      } catch (err) {
+        await deleteMutation.mutateAsync(id); } catch (err: any) {
         console.error(err);
-        Swal.fire({ icon: 'error', title: 'แจ้งเตือน', text: 'เกิดข้อผิดพลาดในการลบข้อมูล' });
-      }
-    }
-  };
+        Swal.fire({ icon: 'error', title: 'Error', text: 'Failed to delete' }); } finally { processingRef.current = false; } } else { processingRef.current = false; } };
 
   const cancelEdit = () => {
     setIsAdding(false);
@@ -180,6 +172,7 @@ function FamilySettings() {
   const addMutation = useAddFamily();
   const updateMutation = useUpdateFamily();
   const deleteMutation = useDeleteFamily();
+  const processingRef = useRef(false);
 
   const [isAdding, setIsAdding] = useState(false);
   const [editingId, setEditingId] = useState<string | null>(null);
@@ -200,8 +193,7 @@ function FamilySettings() {
     setName('');
   };
 
-  const handleSave = async () => { if (!name.trim() || addMutation.isPending || updateMutation.isPending) return;
-    try {
+  const handleSave = async () => { if (!name.trim() || addMutation.isPending || updateMutation.isPending || processingRef.current) return; processingRef.current = true; try {
       if (editingId) {
         await updateMutation.mutateAsync({ id: editingId, name });
       } else {
@@ -209,14 +201,10 @@ function FamilySettings() {
       }
       setIsAdding(false);
       setEditingId(null);
-    } catch (err) {
-      console.error(err);
-      Swal.fire({ icon: 'error', title: 'แจ้งเตือน', text: 'เกิดข้อผิดพลาดในการบันทึกข้อมูล' });
-    }
+    } catch (err: any) { console.error(err); Swal.fire({ icon: 'error', title: 'Error', text: err.message }); } finally { processingRef.current = false; }
   };
 
-  const handleDelete = async (id: string) => { if (deleteMutation.isPending) return;
-    const result = await Swal.fire({
+  const handleDelete = async (id: string) => { if (deleteMutation.isPending || processingRef.current) return; processingRef.current = true; const result = await Swal.fire({
       title: 'คุณแน่ใจหรือไม่ว่าต้องการลบรายชื่อนี้?',
       icon: 'warning',
       showCancelButton: true,
@@ -228,13 +216,9 @@ function FamilySettings() {
 
     if (result.isConfirmed) {
       try {
-        await deleteMutation.mutateAsync(id);
-      } catch (err) {
+        await deleteMutation.mutateAsync(id); } catch (err: any) {
         console.error(err);
-        Swal.fire({ icon: 'error', title: 'แจ้งเตือน', text: 'เกิดข้อผิดพลาดในการลบข้อมูล' });
-      }
-    }
-  };
+        Swal.fire({ icon: 'error', title: 'Error', text: 'Failed to delete' }); } finally { processingRef.current = false; } } else { processingRef.current = false; } };
 
   const cancelEdit = () => {
     setIsAdding(false);
@@ -333,5 +317,9 @@ function FamilySettings() {
     </div>
   );
 }
+
+
+
+
 
 

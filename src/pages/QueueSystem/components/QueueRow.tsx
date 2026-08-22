@@ -1,4 +1,4 @@
-import { useEffect, useState, useMemo } from 'react';
+﻿import { useEffect, useState, useMemo, useRef } from 'react';
 import { Check, X } from 'lucide-react';
 import type { QueueUser, QueueStatusType } from '../types';
 import { useQueueMutations } from '../hooks/useQueueMutations';
@@ -31,7 +31,7 @@ export function QueueRow({ user, isStoryQueue = false }: QueueRowProps) {
   const [gang1, setGang1] = useState(statusRecord?.story_gang_1 || '');
   const [gang2, setGang2] = useState(statusRecord?.story_gang_2 || '');
   const [storyType, setStoryType] = useState(statusRecord?.story_type || 'ทั่วไป (1 คน)');
-  const [isProcessing, setIsProcessing] = useState(false);
+  const [isProcessing, setIsProcessing] = useState(false); const processingRef = useRef(false);
 
   // Sync local state when external data changes
   useEffect(() => {
@@ -54,7 +54,7 @@ export function QueueRow({ user, isStoryQueue = false }: QueueRowProps) {
   // Handle Checkbox Changes
   const handleStatusChange = async (newStatus: QueueStatusType) => {
     // If story is locked, prevent changing status
-    if (statusRecord?.story_locked || isProcessing) return;
+    if (statusRecord?.story_locked || isProcessing || processingRef.current) return; processingRef.current = true;
 
     setIsProcessing(true);
     // If clicking the currently checked status, untick it by setting to null
@@ -74,7 +74,7 @@ export function QueueRow({ user, isStoryQueue = false }: QueueRowProps) {
         setLocalStatus(statusRecord?.status || null);
         Swal.fire({ icon: 'error', title: 'ผิดพลาด', text: "Error: " + err.message });
       } finally {
-        setIsProcessing(false);
+        setIsProcessing(false); processingRef.current = false;
       }
       return;
     }
@@ -95,7 +95,7 @@ export function QueueRow({ user, isStoryQueue = false }: QueueRowProps) {
       setLocalStatus(currentStatus);
       Swal.fire({ icon: 'error', title: 'ผิดพลาด', text: "Error: " + err.message });
     } finally {
-      setIsProcessing(false);
+      setIsProcessing(false); processingRef.current = false;
     }
   };
 
@@ -197,12 +197,12 @@ export function QueueRow({ user, isStoryQueue = false }: QueueRowProps) {
           {user.is_volunteer && (
             <button 
               onClick={async () => {
-                if (isProcessing) return;
+                if (isProcessing || processingRef.current) return; processingRef.current = true;
                 setIsProcessing(true);
                 try {
                   await removeVolunteer(user.discord_id);
                 } finally {
-                  setIsProcessing(false);
+                  setIsProcessing(false); processingRef.current = false;
                 }
               }}
               disabled={isProcessing}
@@ -407,7 +407,7 @@ export function QueueRow({ user, isStoryQueue = false }: QueueRowProps) {
                 <button 
                   className="cancel-story-btn" 
                   onClick={async () => {
-                    if (isProcessing) return;
+                    if (isProcessing || processingRef.current) return; processingRef.current = true;
                     setIsProcessing(true);
                     try {
                       await endStory({
@@ -416,7 +416,7 @@ export function QueueRow({ user, isStoryQueue = false }: QueueRowProps) {
                         saveToHistory: false
                       });
                     } finally {
-                      setIsProcessing(false);
+                      setIsProcessing(false); processingRef.current = false;
                     }
                   }}
                   disabled={isProcessing}
@@ -432,3 +432,4 @@ export function QueueRow({ user, isStoryQueue = false }: QueueRowProps) {
     </tr>
   );
 }
+

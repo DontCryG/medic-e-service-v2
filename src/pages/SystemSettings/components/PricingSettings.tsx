@@ -1,4 +1,4 @@
-﻿import { useState } from 'react';
+﻿import { useState, useRef } from 'react';
 import Swal from 'sweetalert2';
 import { Plus, Edit2, Trash2, Save, X } from 'lucide-react';
 import { useSystemSettings, useSaveSystemSetting, useDeleteSystemSetting } from '../hooks/useSystemSettings';
@@ -8,6 +8,7 @@ export default function PricingSettings() {
   const { data: settings = [], isLoading } = useSystemSettings();
   const saveMutation = useSaveSystemSetting();
   const deleteMutation = useDeleteSystemSetting();
+  const processingRef = useRef(false);
 
   const [isAdding, setIsAdding] = useState(false);
   const [editingKey, setEditingKey] = useState<string | null>(null);
@@ -47,9 +48,12 @@ export default function PricingSettings() {
     }
   };
 
-  const handleDelete = async (key: string) => { if (deleteMutation.isPending) return;
+  const handleDelete = async (key: string) => { 
+    if (deleteMutation.isPending || processingRef.current) return;
+    processingRef.current = true;
+    
     const result = await Swal.fire({
-      title: 'คุณแน่ใจหรือไม่ว่าต้องการลบการตั้งค่า ${key}?',
+      title: `ยืนยันการลบค่าบริการ ${key}?`,
       icon: 'warning',
       showCancelButton: true,
       confirmButtonColor: '#ef4444',
@@ -61,10 +65,14 @@ export default function PricingSettings() {
     if (result.isConfirmed) {
       try {
         await deleteMutation.mutateAsync(key);
-      } catch (err) {
+      } catch (err: any) {
         console.error(err);
-        Swal.fire({ icon: 'error', title: 'แจ้งเตือน', text: 'เกิดข้อผิดพลาดในการลบข้อมูล' });
+        Swal.fire({ icon: 'error', title: 'ผิดพลาด', text: err.message });
+      } finally {
+        processingRef.current = false;
       }
+    } else {
+      processingRef.current = false;
     }
   };
 
@@ -234,6 +242,8 @@ export default function PricingSettings() {
     </div>
   );
 }
+
+
 
 
 

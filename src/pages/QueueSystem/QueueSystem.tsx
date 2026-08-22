@@ -1,4 +1,4 @@
-﻿import { useState } from 'react';
+﻿import { useState, useRef } from 'react';
 import { History, RefreshCw, UserPlus } from 'lucide-react';
 import { useAuthStore } from '@/store/authStore';
 import { useQueue } from './hooks/useQueue';
@@ -17,14 +17,14 @@ export function QueueSystem() {
   const [isProcessing, setIsProcessing] = useState(false);
   const [isHistoryOpen, setIsHistoryOpen] = useState(false);
   
-  const handleAddVolunteer = async () => {
-    if (!volunteerName.trim() || isProcessing) return;
+  const processingRef = useRef(false); const handleAddVolunteer = async () => {
+    if (!volunteerName.trim() || isProcessing || processingRef.current) return; processingRef.current = true;
     setIsProcessing(true);
     try {
       await addVolunteer(volunteerName.trim());
       setVolunteerName('');
     } finally {
-      setIsProcessing(false);
+      setIsProcessing(false); processingRef.current = false;
     }
   };
 
@@ -169,4 +169,5 @@ export function QueueSystem() {
     </div>
   );
 }
+
 

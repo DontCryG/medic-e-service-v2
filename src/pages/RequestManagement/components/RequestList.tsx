@@ -1,3 +1,4 @@
+﻿import { useRef } from 'react';
 import { Check, X, Clock, User, FileText, Trash2, MessageSquare } from 'lucide-react';
 import { useUpdateRequestStatus, useDeleteRequest } from '../hooks/useRequestMutations';
 import Swal from 'sweetalert2';
@@ -10,14 +11,19 @@ interface RequestListProps {
 export default function RequestList({ requests, isAdmin }: RequestListProps) {
   const updateStatusMutation = useUpdateRequestStatus();
   const deleteRequestMutation = useDeleteRequest();
+  const processingRef = useRef(false);
 
   const handleApprove = async (id: string) => {
-    if (updateStatusMutation.isPending || deleteRequestMutation.isPending) return;
-    updateStatusMutation.mutate({ id, status: 'approved' });
+    if (processingRef.current) return;
+    processingRef.current = true;
+    updateStatusMutation.mutate({ id, status: 'approved' }, {
+      onSettled: () => { processingRef.current = false; }
+    });
   };
 
   const handleReject = async (id: string) => {
-    if (updateStatusMutation.isPending || deleteRequestMutation.isPending) return;
+    if (processingRef.current) return;
+    processingRef.current = true;
     const { value: comment } = await Swal.fire({
       title: 'เหตุผลที่ปฏิเสธ',
       input: 'textarea',
@@ -29,12 +35,17 @@ export default function RequestList({ requests, isAdmin }: RequestListProps) {
     });
 
     if (comment !== undefined) {
-      updateStatusMutation.mutate({ id, status: 'rejected', adminComment: comment });
+      updateStatusMutation.mutate({ id, status: 'rejected', adminComment: comment }, {
+        onSettled: () => { processingRef.current = false; }
+      });
+    } else {
+      processingRef.current = false;
     }
   };
 
   const handleDelete = async (id: string) => {
-    if (updateStatusMutation.isPending || deleteRequestMutation.isPending) return;
+    if (processingRef.current) return;
+    processingRef.current = true;
     const result = await Swal.fire({
       title: 'ยืนยันการลบ?',
       text: 'คุณต้องการลบคำร้องนี้ใช่หรือไม่?',
@@ -46,7 +57,7 @@ export default function RequestList({ requests, isAdmin }: RequestListProps) {
     });
     
     if (result.isConfirmed) {
-      deleteRequestMutation.mutate(id);
+      deleteRequestMutation.mutate(id, { onSettled: () => { processingRef.current = false; } }); } else { processingRef.current = false;
     }
   };
 
@@ -171,3 +182,5 @@ export default function RequestList({ requests, isAdmin }: RequestListProps) {
     </div>
   );
 }
+
+

@@ -1,3 +1,4 @@
+import { useRef } from 'react';
 import { Check, X, Clock, User, Calendar, FileText, Trash2 } from 'lucide-react';
 import { useUpdateLeaveStatus, useDeleteLeave } from '../hooks/useLeaveMutations';
 import Swal from 'sweetalert2';
@@ -10,26 +11,35 @@ interface LeaveListProps {
 export default function LeaveList({ leaves, isAdmin }: LeaveListProps) {
   const updateStatusMutation = useUpdateLeaveStatus();
   const deleteLeaveMutation = useDeleteLeave();
+  const processingRef = useRef(false);
 
   const handleUpdateStatus = (id: string, status: 'approved' | 'rejected') => {
-    if (updateStatusMutation.isPending || deleteLeaveMutation.isPending) return;
-    updateStatusMutation.mutate({ id, status });
+    if (processingRef.current) return;
+    processingRef.current = true;
+    updateStatusMutation.mutate({ id, status }, {
+      onSettled: () => { processingRef.current = false; }
+    });
   };
 
   const handleDeleteLeave = async (id: string) => {
-    if (updateStatusMutation.isPending || deleteLeaveMutation.isPending) return;
+    if (processingRef.current) return;
+    processingRef.current = true;
     const result = await Swal.fire({
       title: 'ยืนยันการยกเลิก?',
       text: 'คุณต้องการยกเลิกการลานี้ใช่หรือไม่?',
       icon: 'warning',
       showCancelButton: true,
       confirmButtonText: 'ยืนยัน',
-      cancelButtonText: 'ปิด',
+      cancelButtonText: 'ยกเลิก',
       confirmButtonColor: '#ef4444'
     });
     
     if (result.isConfirmed) {
-      deleteLeaveMutation.mutate(id);
+      deleteLeaveMutation.mutate(id, {
+        onSettled: () => { processingRef.current = false; }
+      });
+    } else {
+      processingRef.current = false;
     }
   };
 
