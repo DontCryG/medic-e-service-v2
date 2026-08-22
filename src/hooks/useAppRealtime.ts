@@ -1,4 +1,4 @@
-import { useEffect } from 'react';
+﻿import { useEffect } from 'react';
 import { useQueryClient } from '@tanstack/react-query';
 import { supabase } from '@/lib/supabase';
 import { dutyKeys } from '@/pages/DutySystem/hooks/useDutyQueries';
@@ -6,8 +6,12 @@ import { useAuthStore } from '@/store/authStore';
 
 export const broadcastForceSync = () => {
   const channel = supabase.channel('global_sync_broadcast_emitter');
-  channel.send({ type: 'broadcast', event: 'force_sync', payload: {} });
-  supabase.removeChannel(channel);
+  channel.subscribe((status) => {
+    if (status === 'SUBSCRIBED') {
+      channel.send({ type: 'broadcast', event: 'force_sync', payload: {} });
+      setTimeout(() => supabase.removeChannel(channel), 500);
+    }
+  });
 };
 
 export function useAppRealtime() {
@@ -89,3 +93,4 @@ export function useAppRealtime() {
     };
   }, [queryClient]);
 }
+
