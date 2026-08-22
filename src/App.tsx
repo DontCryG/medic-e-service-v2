@@ -4,6 +4,7 @@ import { QueryClient, QueryClientProvider, MutationCache } from '@tanstack/react
 import { useAuthStore } from './store/authStore';
 import { useAppRealtime, broadcastForceSync } from './hooks/useAppRealtime';
 import { setSentryUser, clearSentryUser } from './lib/sentry';
+import { supabase } from './lib/supabase';
 
 const Portal = lazy(() => import('./pages/Portal'));
 const MainLayout = lazy(() => import('./layouts/MainLayout'));
@@ -70,6 +71,21 @@ const FallbackLoader = () => (
 
 export default function App() {
   const { user } = useAuthStore();
+
+  // Force Logout Check (v2.2)
+  React.useEffect(() => {
+    const checkVersionAndLogout = async () => {
+      const FORCE_LOGOUT_VERSION = 'v2.2'; 
+      const currentVersion = localStorage.getItem('app_force_logout_version');
+      if (currentVersion !== FORCE_LOGOUT_VERSION) {
+        await supabase.auth.signOut();
+        useAuthStore.getState().logout();
+        localStorage.setItem('app_force_logout_version', FORCE_LOGOUT_VERSION);
+        window.location.href = '/';
+      }
+    };
+    checkVersionAndLogout();
+  }, []);
 
   // Sync user identity to Sentry whenever auth state changes
   React.useEffect(() => {
