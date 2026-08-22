@@ -7,10 +7,11 @@ export default defineConfig({
   plugins: [react()],
   resolve: {
     alias: {
-      '@': path.resolve(__dirname, './src'),
+      '@': path.resolve(import.meta.dirname, './src'),
     },
   },
   build: {
-    sourcemap: false, // ปิดการสร้าง Source Map เพื่อซ่อน Source Code
+    sourcemap: false, // ปิดการสร้าง Source Map เพื่อป้องกันการถูกแกะ Source Code
+    cssCodeSplit: false, // บังคับรวม CSS ทั้งหมดเป็นไฟล์เดียว ป้องกัน UI พังเวลาทำ Lazy Load
   },
 })
