@@ -3,13 +3,17 @@ import { supabase } from '@/lib/supabase';
 import { calculateSalary } from '../utils/salaryCalculations';
 import { fetchAllRows } from '@/utils/supabasePagination';
 
+import { useAuthStore } from '@/store/authStore';
+
 export const salaryKeys = {
   all: ['salary'],
   summary: (startDate: Date, endDate: Date) => [...salaryKeys.all, 'summary', startDate.toISOString(), endDate.toISOString()],
 };
 
 export function useSalaryData(startDate: Date, endDate: Date) {
+  const { user } = useAuthStore();
   return useQuery({
+    enabled: !!user && !!startDate && !!endDate,
     queryKey: salaryKeys.summary(startDate, endDate),
     queryFn: async () => {
       // 1. Fetch all users with positions
@@ -81,8 +85,7 @@ export function useSalaryData(startDate: Date, endDate: Date) {
       const results = calculateSalary(typedUsers as any, logs || [], leaveLogs || [], storyLogs || [], queueLogs || [], settingsMap);
       return results;
     },
-    enabled: !!startDate && !!endDate,
-  });
+    });
 }
 
 export function useUserDutyLogs(discordId: string | null, startDate: Date, endDate: Date) {
@@ -103,3 +106,4 @@ export function useUserDutyLogs(discordId: string | null, startDate: Date, endDa
     enabled: !!discordId && !!startDate && !!endDate,
   });
 }
+

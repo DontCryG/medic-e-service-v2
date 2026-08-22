@@ -1,21 +1,21 @@
-import React from 'react';
+import React, { lazy, Suspense } from 'react';
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 import { QueryClient, QueryClientProvider, MutationCache } from '@tanstack/react-query';
 import { useAuthStore } from './store/authStore';
 import { useAppRealtime, broadcastForceSync } from './hooks/useAppRealtime';
 import { setSentryUser, clearSentryUser } from './lib/sentry';
 
-import Portal from './pages/Portal';
-import MainLayout from './layouts/MainLayout';
-import Dashboard from './pages/Dashboard';
-import PersonnelSystem from './pages/PersonnelSystem';
-import DutySystem from './pages/DutySystem';
-import SalarySystem from './pages/SalarySystem';
-import LeaveSystem from './pages/LeaveSystem';
-import { QueueSystem } from './pages/QueueSystem/QueueSystem';
-import { RequestManagement } from './pages/RequestManagement/RequestManagement';
-import { AccountingSystem } from './pages/AccountingSystem/AccountingSystem';
-import SystemSettings from './pages/SystemSettings';
+const Portal = lazy(() => import('./pages/Portal'));
+const MainLayout = lazy(() => import('./layouts/MainLayout'));
+const Dashboard = lazy(() => import('./pages/Dashboard'));
+const PersonnelSystem = lazy(() => import('./pages/PersonnelSystem'));
+const DutySystem = lazy(() => import('./pages/DutySystem'));
+const SalarySystem = lazy(() => import('./pages/SalarySystem'));
+const LeaveSystem = lazy(() => import('./pages/LeaveSystem'));
+const QueueSystem = lazy(() => import('./pages/QueueSystem/QueueSystem').then(m => ({ default: m.QueueSystem })));
+const RequestManagement = lazy(() => import('./pages/RequestManagement/RequestManagement').then(m => ({ default: m.RequestManagement })));
+const AccountingSystem = lazy(() => import('./pages/AccountingSystem/AccountingSystem').then(m => ({ default: m.AccountingSystem })));
+const SystemSettings = lazy(() => import('./pages/SystemSettings'));
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -60,6 +60,14 @@ function AppEffects() {
   return null;
 }
 
+const FallbackLoader = () => (
+  <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '100vh', background: 'var(--bg-main)' }}>
+    <div style={{ padding: '20px', borderRadius: '12px', background: 'var(--bg-secondary)', color: 'var(--text-primary)', boxShadow: '0 4px 12px rgba(0,0,0,0.1)' }}>
+      ?????????????... (Loading System)
+    </div>
+  </div>
+);
+
 export default function App() {
   const { user } = useAuthStore();
 
@@ -77,7 +85,7 @@ export default function App() {
       <AppEffects />
       <BrowserRouter>
 
-          <Routes>
+          <Suspense fallback={<FallbackLoader />}><Routes>
             {/* Public Portal Route */}
             <Route path="/" element={user ? <Navigate to="/dashboard" replace /> : <Portal />} />
 
@@ -107,9 +115,10 @@ export default function App() {
 
             {/* Fallback */}
             <Route path="*" element={<Navigate to="/" replace />} />
-          </Routes>
+          </Routes></Suspense>
 
       </BrowserRouter>
     </QueryClientProvider>
   );
 }
+

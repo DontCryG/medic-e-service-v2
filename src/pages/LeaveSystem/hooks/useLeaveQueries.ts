@@ -1,5 +1,6 @@
 import { useQuery } from '@tanstack/react-query';
 import { supabase } from '@/lib/supabase';
+import { useAuthStore } from '@/store/authStore';
 
 export const leaveKeys = {
   all: ['leaves'],
@@ -8,8 +9,11 @@ export const leaveKeys = {
 };
 
 export function useMyLeaves(discordId: string | undefined) {
+  const { user } = useAuthStore();
+
   return useQuery({
     queryKey: leaveKeys.myLeaves(discordId || ''),
+    enabled: !!user,
     queryFn: async () => {
       const { data, error } = await supabase
         .from('leave_requests')
@@ -20,13 +24,16 @@ export function useMyLeaves(discordId: string | undefined) {
       if (error) throw error;
       return data;
     },
-    enabled: !!discordId,
+    enabled: !!discordId && !!user,
   });
 }
 
 export function useAllLeaves() {
+  const { user } = useAuthStore();
+
   return useQuery({
     queryKey: leaveKeys.allLeaves(),
+    enabled: !!user,
     queryFn: async () => {
       const { data, error } = await supabase
         .from('leave_requests')
@@ -53,3 +60,4 @@ export function useAllLeaves() {
     }
   });
 }
+

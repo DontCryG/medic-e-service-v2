@@ -143,8 +143,9 @@ export function useQueue(currentUserId: string | undefined) {
   useEffect(() => {
     if (!currentUserId) return;
 
+    const suffix = Date.now().toString() + Math.random().toString().slice(2, 6);
     const channel = supabase
-      .channel('queue_status_changes')
+      .channel(`queue_status_changes_${suffix}`)
       .on(
         'postgres_changes',
         { event: '*', schema: 'public', table: 'queue_status' },

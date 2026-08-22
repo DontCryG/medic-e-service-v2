@@ -12,6 +12,7 @@ export function useGeneralRequests() {
   const isAdmin = user?.role === 'admin' || user?.role === 'director' || user?.role === 'management';
 
   return useQuery({
+    enabled: !!user,
     queryKey: isAdmin ? requestKeys.all : requestKeys.user(user?.discord_id || ''),
     queryFn: async () => {
       let query = supabase

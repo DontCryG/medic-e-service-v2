@@ -1,5 +1,6 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { supabase } from '@/lib/supabase';
+import { useAuthStore } from '@/store/authStore';
 
 export interface Position {
   id: string;
@@ -10,7 +11,9 @@ export interface Position {
 }
 
 export const usePositions = () => {
+  const { user } = useAuthStore();
   return useQuery({
+    enabled: !!user,
     queryKey: ['positions'],
     queryFn: async () => {
       const { data, error } = await supabase
@@ -89,3 +92,4 @@ export const useDeletePosition = () => {
     }
   });
 };
+
