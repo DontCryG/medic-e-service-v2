@@ -24,8 +24,7 @@ export function useMyLeaves(discordId: string | undefined) {
       if (error) throw error;
       return data;
     },
-    enabled: !!discordId && !!user,
-  });
+    });
 }
 
 export function useAllLeaves() {
@@ -60,4 +59,5 @@ export function useAllLeaves() {
     }
   });
 }
+
 

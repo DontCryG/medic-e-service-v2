@@ -49,6 +49,6 @@ export function useGeneralRequests() {
       
       return cleanedData || [];
     },
-    enabled: !!user,
-  });
+    });
 }
+
