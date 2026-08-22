@@ -4,16 +4,22 @@ import { supabase } from '@/lib/supabase';
 import { dutyKeys } from '@/pages/DutySystem/hooks/useDutyQueries';
 import { useAuthStore } from '@/store/authStore';
 
-// Global broadcast channel for manual syncs
-export const globalBroadcastChannel = supabase.channel('global_sync_broadcast');
+export const broadcastForceSync = () => {
+  const channel = supabase.channel('global_sync_broadcast_emitter');
+  channel.send({ type: 'broadcast', event: 'force_sync', payload: {} });
+  supabase.removeChannel(channel);
+};
 
 export function useAppRealtime() {
   const queryClient = useQueryClient();
 
   useEffect(() => {
+    // Use unique channel names to prevent remount conflicts in React Strict Mode
+    const suffix = Date.now().toString() + Math.random().toString().slice(2, 6);
+    
     // Listen to changes on duty_logs
     const dutyLogsSubscription = supabase
-      .channel('public:duty_logs')
+      .channel(`public:duty_logs_${suffix}`)
       .on('postgres_changes', { event: '*', schema: 'public', table: 'duty_logs' }, () => {
         queryClient.invalidateQueries({ queryKey: dutyKeys.all });
         queryClient.invalidateQueries({ queryKey: ['queue_users'] });
@@ -22,7 +28,7 @@ export function useAppRealtime() {
 
     // Listen to changes on users (Personnel System)
     const usersSubscription = supabase
-      .channel('public:users')
+      .channel(`public:users_${suffix}`)
       .on('postgres_changes', { event: '*', schema: 'public', table: 'users' }, async (payload) => {
         queryClient.invalidateQueries(); // Invalidate all queries globally for users
         
@@ -51,7 +57,7 @@ export function useAppRealtime() {
 
     // Listen to changes on positions
     const positionsSubscription = supabase
-      .channel('public:positions')
+      .channel(`public:positions_${suffix}`)
       .on('postgres_changes', { event: '*', schema: 'public', table: 'positions' }, () => {
         queryClient.invalidateQueries();
       })
@@ -59,7 +65,7 @@ export function useAppRealtime() {
 
     // Listen to changes on system_settings
     const settingsSubscription = supabase
-      .channel('public:system_settings')
+      .channel(`public:system_settings_${suffix}`)
       .on('postgres_changes', { event: '*', schema: 'public', table: 'system_settings' }, () => {
         queryClient.invalidateQueries({ queryKey: ['system_settings'] });
         queryClient.invalidateQueries({ queryKey: ['queue_users'] });
@@ -67,6 +73,7 @@ export function useAppRealtime() {
       .subscribe((status) => { if (status === 'SUBSCRIBED') { queryClient.invalidateQueries(); } });
 
     // Listen to manual broadcasts
+    const globalBroadcastChannel = supabase.channel(`global_sync_broadcast_${suffix}`);
     globalBroadcastChannel
       .on('broadcast', { event: 'force_sync' }, () => {
         queryClient.invalidateQueries();

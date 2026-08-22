@@ -1,8 +1,9 @@
 import React from 'react';
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 import { QueryClient, QueryClientProvider, MutationCache } from '@tanstack/react-query';
+import { CustomThemeProvider } from './theme/CustomThemeProvider';
 import { useAuthStore } from './store/authStore';
-import { useAppRealtime, globalBroadcastChannel } from './hooks/useAppRealtime';
+import { useAppRealtime, broadcastForceSync } from './hooks/useAppRealtime';
 import { setSentryUser, clearSentryUser } from './lib/sentry';
 
 import Portal from './pages/Portal';
@@ -26,7 +27,7 @@ const queryClient = new QueryClient({
   },
   mutationCache: new MutationCache({
     onSuccess: () => {
-      globalBroadcastChannel.send({ type: 'broadcast', event: 'force_sync', payload: {} });
+      broadcastForceSync();
     }
   })
 });

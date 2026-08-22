@@ -7,8 +7,9 @@ export function useRequestRealtime() {
   const queryClient = useQueryClient();
 
   useEffect(() => {
+    const suffix = Date.now().toString() + Math.random().toString().slice(2, 6);
     const channel = supabase
-      .channel('realtime_general_requests')
+      .channel(`realtime_general_requests_${suffix}`)
       .on('postgres_changes', { event: '*', schema: 'public', table: 'general_requests' }, () => {
         queryClient.invalidateQueries({ queryKey: requestKeys.all });
       })

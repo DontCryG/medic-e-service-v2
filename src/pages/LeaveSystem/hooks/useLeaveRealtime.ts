@@ -7,8 +7,9 @@ export function useLeaveRealtime() {
   const queryClient = useQueryClient();
 
   useEffect(() => {
+    const suffix = Date.now().toString() + Math.random().toString().slice(2, 6);
     const subscription = supabase
-      .channel('leave-system-changes')
+      .channel(`leave-system-changes-${suffix}`)
       .on('postgres_changes', { 
         event: '*', 
         schema: 'public', 

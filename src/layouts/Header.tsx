@@ -140,6 +140,7 @@ export default function Header({ setIsMobileMenuOpen, isSidebarCollapsed, setIsS
           <AnimatePresence>
             {isOpen && query.length > 0 && (
               <motion.div 
+                key="search-dropdown"
                 className="search-dropdown"
                 initial={{ opacity: 0, y: 10, scale: 0.95 }}
                 animate={{ opacity: 1, y: 0, scale: 1 }}

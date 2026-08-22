@@ -7,8 +7,9 @@ export function useSalaryRealtime() {
   const queryClient = useQueryClient();
 
   useEffect(() => {
+    const suffix = Date.now().toString() + Math.random().toString().slice(2, 6);
     const channel = supabase
-      .channel('salary-system-changes')
+      .channel(`salary-system-changes-${suffix}`)
       .on('postgres_changes', { 
         event: '*', 
         schema: 'public', 

@@ -1,5 +1,6 @@
 import { useQuery } from '@tanstack/react-query';
 import { supabase } from '@/lib/supabase';
+import { useAuthStore } from '@/store/authStore';
 
 // Query keys
 export const dutyKeys = {
@@ -35,6 +36,8 @@ export function useCurrentSession(discordId: string | undefined) {
 
 // Hook: Fetch Live Users (Everyone on duty or break)
 export function useLiveUsers() {
+  const { user } = useAuthStore();
+  
   return useQuery({
     queryKey: dutyKeys.liveUsers(),
     queryFn: async () => {
@@ -53,8 +56,6 @@ export function useLiveUsers() {
         .in('status', ['on_duty', 'on_break'])
         .order('clock_in', { ascending: false });
 
-      console.log('useLiveUsers query result:', data, error);
-
       if (error) throw error;
       
       // Transform data so UI gets user.position instead of user.positions.name
@@ -67,6 +68,7 @@ export function useLiveUsers() {
         } : null
       }));
     },
+    enabled: !!user,
   });
 }
 

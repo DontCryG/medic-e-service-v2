@@ -7,8 +7,9 @@ export function useDutyRealtime() {
   const queryClient = useQueryClient();
 
   useEffect(() => {
+    const suffix = Date.now().toString() + Math.random().toString().slice(2, 6);
     const subscription = supabase
-      .channel('live-duty')
+      .channel(`live-duty-${suffix}`)
       .on('postgres_changes', { 
         event: '*', 
         schema: 'public', 

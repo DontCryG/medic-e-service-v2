@@ -1,11 +1,11 @@
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import Swal from 'sweetalert2';
 import { supabase } from '@/lib/supabase';
-import { globalBroadcastChannel } from '@/hooks/useAppRealtime';
+import { broadcastForceSync } from '@/hooks/useAppRealtime';
 import type { QueueStatusType, QueueStatus } from '../types';
 
 const forceSync = () => {
-  globalBroadcastChannel.send({ type: 'broadcast', event: 'force_sync', payload: {} });
+  broadcastForceSync();
 };
 
 async function saveManagerHistory(discord_id: string, manager_start_time: string) {
