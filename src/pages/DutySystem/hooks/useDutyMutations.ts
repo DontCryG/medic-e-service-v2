@@ -1,4 +1,4 @@
-import { useMutation, useQueryClient } from '@tanstack/react-query';
+﻿import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { supabase } from '@/lib/supabase';
 import Swal from 'sweetalert2';
 import toast from 'react-hot-toast';
@@ -10,9 +10,7 @@ export function useClockIn() {
 
   return useMutation({
     mutationFn: async (discordId: string) => {
-      const { error } = await supabase
-        .from('duty_logs')
-        .insert([{
+      const { data: existing } = await supabase.from('duty_logs').select('id').eq('discord_id', discordId).in('status', ['on_duty', 'on_break']).limit(1); if (existing && existing.length > 0) throw new Error('You already have an active duty session.'); const { error } = await supabase.from('duty_logs').insert([{
           discord_id: discordId,
           status: 'on_duty',
           clock_in: new Date().toISOString()
@@ -218,3 +216,4 @@ export function useAdminClockOut() {
     }
   });
 }
+

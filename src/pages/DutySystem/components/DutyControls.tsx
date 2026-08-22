@@ -1,4 +1,4 @@
-import { Play, Pause, Square, Clock, RefreshCw, Loader2 } from 'lucide-react';
+﻿import { Play, Pause, Square, Clock, RefreshCw, Loader2 } from 'lucide-react';
 import { formatTime, getInitial } from '../utils/dutyUtils';
 import { useDutyTimer } from '../hooks/useDutyTimer';
 
@@ -7,9 +7,9 @@ interface DutyControlsProps {
   avatarUrl: string | null;
   currentSession: any;
   loading: boolean;
-  onClockIn: () => void;
-  onBreak: () => void;
-  onClockOut: () => void;
+  onClockIn: (e?: any) => void;
+  onBreak: (e?: any) => void;
+  onClockOut: (e?: any) => void;
 }
 
 export default function DutyControls({ 
@@ -49,7 +49,7 @@ export default function DutyControls({
         {!currentSession ? (
           <button 
             className="duty-btn btn-clock-in" 
-            onClick={onClockIn} 
+            onClick={(e) => { e.currentTarget.disabled = true; onClockIn(e); }} 
             disabled={loading}
           >
             {loading ? <><Loader2 size={20} className="animate-spin"/> กำลังดำเนินการ...</> : <><Play size={20} /> เข้าเวร</>}
@@ -58,7 +58,7 @@ export default function DutyControls({
           <>
             <button 
               className="duty-btn btn-break" 
-              onClick={onBreak} 
+              onClick={(e) => { e.currentTarget.disabled = true; onBreak(e); }} 
               disabled={loading}
             >
               {loading ? (
@@ -71,7 +71,7 @@ export default function DutyControls({
             </button>
             <button 
               className="duty-btn btn-clock-out" 
-              onClick={onClockOut} 
+              onClick={(e) => { e.currentTarget.disabled = true; onClockOut(e); }} 
               disabled={loading}
             >
               {loading ? <><Loader2 size={20} className="animate-spin"/> กำลังดำเนินการ...</> : <><Square size={20} /> ออกเวร</>}
@@ -82,3 +82,4 @@ export default function DutyControls({
     </div>
   );
 }
+

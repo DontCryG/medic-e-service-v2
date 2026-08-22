@@ -60,7 +60,7 @@ export function QueueSystem() {
               }}
             />
             <button 
-              onClick={handleAddVolunteer}
+              onClick={(e) => { e.currentTarget.disabled = true; handleAddVolunteer(); }}
               disabled={!volunteerName.trim() || isProcessing}
               style={{
                 display: 'flex',
@@ -169,5 +169,6 @@ export function QueueSystem() {
     </div>
   );
 }
+
 
 
