@@ -1,7 +1,6 @@
 import React from 'react';
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 import { QueryClient, QueryClientProvider, MutationCache } from '@tanstack/react-query';
-import { CustomThemeProvider } from './theme/CustomThemeProvider';
 import { useAuthStore } from './store/authStore';
 import { useAppRealtime, broadcastForceSync } from './hooks/useAppRealtime';
 import { setSentryUser, clearSentryUser } from './lib/sentry';
