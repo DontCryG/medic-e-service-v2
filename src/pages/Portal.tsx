@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+﻿import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { supabase } from '../lib/supabase';
 import { useAuthStore } from '../store/authStore';
@@ -19,6 +19,12 @@ export default function Portal() {
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   useEffect(() => {
+    const params = new URLSearchParams(window.location.hash.substring(1));
+    const errorDesc = params.get('error_description') || params.get('error');
+    if (errorDesc) {
+      Swal.fire('Discord Login Error', decodeURIComponent(errorDesc).replace(/\+/g, ' '), 'error');
+      window.history.replaceState(null, '', window.location.pathname);
+    }
     const checkSession = async () => {
       const { data: { session } } = await supabase.auth.getSession();
       if (session) {
@@ -97,9 +103,10 @@ export default function Portal() {
         position: userData.positions
       });
       navigate('/dashboard');
-    } catch (err) {
+    } catch (err: any) {
       console.error(err);
       await supabase.auth.signOut();
+      Swal.fire('เกิดข้อผิดพลาดไม่ทราบสาเหตุ', err.message || 'Error during login flow', 'error');
       setIsCheckingAuth(false);
     }
   };
@@ -275,3 +282,4 @@ export default function Portal() {
     </div>
   );
 }
+
