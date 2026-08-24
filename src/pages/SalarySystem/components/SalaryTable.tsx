@@ -52,7 +52,6 @@ export default function SalaryTable({ data, onOpenDutyLogModal, onPrintPayslip }
               <th style={{ textAlign: 'center' }}>สตอรี่ (เคส)</th>
               <th style={{ textAlign: 'right' }}>เงินสตอรี่</th>
               <th style={{ textAlign: 'right' }}>เงินพี่เลี้ยง</th>
-              <th style={{ textAlign: 'right' }}>รวมสุทธิ (IC)</th>
               <th style={{ textAlign: 'right' }}>เงิน OC</th>
               <th style={{ textAlign: 'center' }}>กาชา IC</th>
               <th style={{ textAlign: 'center' }}>กาชาหน่วยงาน</th>
@@ -86,9 +85,6 @@ export default function SalaryTable({ data, onOpenDutyLogModal, onPrintPayslip }
                 </td>
                 <td style={{ textAlign: 'right', color: item.mentor_money > 0 ? '#3b82f6' : 'inherit', fontWeight: 'bold' }}>
                   {item.mentor_money > 0 ? item.mentor_money.toLocaleString() : '-'}
-                </td>
-                <td style={{ textAlign: 'right', color: '#10b981', fontWeight: 'bold' }}>
-                  {(item.ic_salary + item.story_money + (item.mentor_money || 0)).toLocaleString()}
                 </td>
                 <td style={{ textAlign: 'right', color: item.oc_money > 0 ? '#ea580c' : 'inherit', fontWeight: 'bold' }}>
                   {item.oc_money > 0 ? item.oc_money.toLocaleString() : '-'}
