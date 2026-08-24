@@ -27,7 +27,8 @@ export default function SystemSettings() {
 
     if (result.isConfirmed) {
       broadcastForceReload();
-      Swal.fire('สำเร็จ!', 'ส่งคำสั่ง Refresh ไปยังทุกคนแล้ว', 'success');
+      await Swal.fire('สำเร็จ!', 'ส่งคำสั่ง Refresh ไปยังทุกคนแล้ว', 'success');
+      window.location.reload();
     }
   };
 
