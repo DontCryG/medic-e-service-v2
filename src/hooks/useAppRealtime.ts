@@ -1,4 +1,4 @@
-﻿import { useEffect } from 'react';
+import { useEffect } from 'react';
 import { useQueryClient } from '@tanstack/react-query';
 import { supabase } from '@/lib/supabase';
 import { dutyKeys } from '@/pages/DutySystem/hooks/useDutyQueries';
@@ -14,13 +14,23 @@ export const broadcastForceSync = () => {
   });
 };
 
+export const broadcastForceReload = () => {
+  const channel = supabase.channel('global_reload_emitter');
+  channel.subscribe((status) => {
+    if (status === 'SUBSCRIBED') {
+      channel.send({ type: 'broadcast', event: 'force_reload', payload: { by: 'admin', at: new Date().toISOString() } });
+      setTimeout(() => supabase.removeChannel(channel), 500);
+    }
+  });
+};
+
 export function useAppRealtime() {
   const queryClient = useQueryClient();
 
   useEffect(() => {
     // Use unique channel names to prevent remount conflicts in React Strict Mode
     const suffix = Date.now().toString() + Math.random().toString().slice(2, 6);
-    
+
     // Listen to changes on duty_logs
     const dutyLogsSubscription = supabase
       .channel(`public:duty_logs_${suffix}`)
@@ -35,7 +45,7 @@ export function useAppRealtime() {
       .channel(`public:users_${suffix}`)
       .on('postgres_changes', { event: '*', schema: 'public', table: 'users' }, async (payload) => {
         queryClient.invalidateQueries(); // Invalidate all queries globally for users
-        
+
         // Check if the current user was updated
         const { user: currentUser } = useAuthStore.getState();
         if (currentUser && payload.new && (payload.new as any).discord_id === currentUser.discord_id) {
@@ -45,7 +55,7 @@ export function useAppRealtime() {
             .select('*, positions(*)')
             .eq('discord_id', currentUser.discord_id)
             .maybeSingle();
-            
+
           if (data) {
             useAuthStore.getState().login({
               discord_id: data.discord_id,
@@ -76,11 +86,15 @@ export function useAppRealtime() {
       })
       .subscribe((status) => { if (status === 'SUBSCRIBED') { queryClient.invalidateQueries(); } });
 
-    // Listen to manual broadcasts
+    // Listen to manual broadcasts (force_sync and force_reload)
     const globalBroadcastChannel = supabase.channel(`global_sync_broadcast_${suffix}`);
     globalBroadcastChannel
       .on('broadcast', { event: 'force_sync' }, () => {
         queryClient.invalidateQueries();
+      })
+      .on('broadcast', { event: 'force_reload' }, () => {
+        // Hard reload triggered by admin
+        window.location.reload();
       })
       .subscribe();
 
@@ -93,4 +107,3 @@ export function useAppRealtime() {
     };
   }, [queryClient]);
 }
-

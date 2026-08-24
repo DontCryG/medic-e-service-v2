@@ -1,8 +1,9 @@
 import { useState, useRef, useEffect } from 'react';
-import { Search, LayoutGrid, Clock, CalendarDays, Users, UserCog, Banknote, Wallet, Settings } from 'lucide-react';
+import { Search, LayoutGrid, Clock, CalendarDays, Users, UserCog, Banknote, Wallet, Settings, RefreshCw } from 'lucide-react';
 import { useAuthStore } from '../store/authStore';
 import { useNavigate } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
+import { broadcastForceReload } from '../hooks/useAppRealtime';
 
 interface HeaderProps {
   setIsMobileMenuOpen: (open: boolean) => void;
@@ -209,6 +210,44 @@ export default function Header({ setIsMobileMenuOpen, isSidebarCollapsed, setIsS
       </div>
 
       <div className="header-actions">
+        {isAdmin && (
+          <button
+            onClick={() => {
+              if (window.confirm('บังคับให้ทุกคน Refresh หน้าจอ?')) {
+                broadcastForceReload();
+              }
+            }}
+            title="บังคับ Refresh ทุกคน (Admin)"
+            style={{
+              display: 'flex',
+              alignItems: 'center',
+              gap: '0.4rem',
+              padding: '0.45rem 0.9rem',
+              background: 'transparent',
+              border: '1.5px solid var(--border-color)',
+              borderRadius: '8px',
+              color: 'var(--text-secondary)',
+              fontSize: '0.82rem',
+              fontWeight: 500,
+              cursor: 'pointer',
+              transition: 'all 0.2s ease',
+              whiteSpace: 'nowrap',
+            }}
+            onMouseEnter={e => {
+              (e.currentTarget as HTMLButtonElement).style.borderColor = 'var(--primary)';
+              (e.currentTarget as HTMLButtonElement).style.color = 'var(--primary)';
+              (e.currentTarget as HTMLButtonElement).style.background = 'rgba(126,34,206,0.06)';
+            }}
+            onMouseLeave={e => {
+              (e.currentTarget as HTMLButtonElement).style.borderColor = 'var(--border-color)';
+              (e.currentTarget as HTMLButtonElement).style.color = 'var(--text-secondary)';
+              (e.currentTarget as HTMLButtonElement).style.background = 'transparent';
+            }}
+          >
+            <RefreshCw size={14} />
+            Force Refresh
+          </button>
+        )}
         <div className="user-profile">
           <div className="user-info">
             <div className="user-name">{user?.ic_name || 'Guest'}</div>

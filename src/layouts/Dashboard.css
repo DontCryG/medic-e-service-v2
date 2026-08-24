@@ -263,9 +263,6 @@
 }
 
 
-  to { opacity: 1; transform: translateY(0); }
-}
-
 .page-header {
   margin-bottom: 2rem;
 }

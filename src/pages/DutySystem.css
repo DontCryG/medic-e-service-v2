@@ -149,40 +149,6 @@
 .duty-card-title {
   font-size: 1.25rem;
   font-weight: 700;
-  color: #1e293b;
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
-}
-
-.live-badge {
-  background: #fee2e2;
-  color: #ef4444;
-  font-size: 0.75rem;
-  padding: 2px 8px;
-  border-radius: 12px;
-  font-weight: 600;
-  animation: pulse 2s infinite;
-}
-
-
-  50% { opacity: 0.6; }
-  100% { opacity: 1; }
-}
-
-/* Tables */
-.table-responsive {
-  width: 100%;
-  overflow-x: auto;
-  -webkit-overflow-scrolling: touch;
-}
-
-
-
-
-
-
-
 
 
 .status-badge {
