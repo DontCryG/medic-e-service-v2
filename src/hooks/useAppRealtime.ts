@@ -5,23 +5,35 @@ import { dutyKeys } from '@/pages/DutySystem/hooks/useDutyQueries';
 import { useAuthStore } from '@/store/authStore';
 
 export const broadcastForceSync = () => {
-  const channel = supabase.channel('global_broadcast_channel');
-  channel.subscribe((status) => {
-    if (status === 'SUBSCRIBED') {
-      channel.send({ type: 'broadcast', event: 'force_sync', payload: {} });
-      setTimeout(() => supabase.removeChannel(channel), 500);
-    }
-  });
+  const channels = supabase.getChannels();
+  let channel = channels.find(c => c.topic === 'realtime:global_broadcast_channel');
+  
+  if (channel && channel.state === 'joined') {
+    channel.send({ type: 'broadcast', event: 'force_sync', payload: {} });
+  } else {
+    channel = supabase.channel('global_broadcast_channel');
+    channel.subscribe((status) => {
+      if (status === 'SUBSCRIBED') {
+        channel.send({ type: 'broadcast', event: 'force_sync', payload: {} });
+      }
+    });
+  }
 };
 
 export const broadcastForceReload = () => {
-  const channel = supabase.channel('global_broadcast_channel');
-  channel.subscribe((status) => {
-    if (status === 'SUBSCRIBED') {
-      channel.send({ type: 'broadcast', event: 'force_reload', payload: { by: 'admin', at: new Date().toISOString() } });
-      setTimeout(() => supabase.removeChannel(channel), 500);
-    }
-  });
+  const channels = supabase.getChannels();
+  let channel = channels.find(c => c.topic === 'realtime:global_broadcast_channel');
+  
+  if (channel && channel.state === 'joined') {
+    channel.send({ type: 'broadcast', event: 'force_reload', payload: { by: 'admin', at: new Date().toISOString() } });
+  } else {
+    channel = supabase.channel('global_broadcast_channel');
+    channel.subscribe((status) => {
+      if (status === 'SUBSCRIBED') {
+        channel.send({ type: 'broadcast', event: 'force_reload', payload: { by: 'admin', at: new Date().toISOString() } });
+      }
+    });
+  }
 };
 
 export function useAppRealtime() {
