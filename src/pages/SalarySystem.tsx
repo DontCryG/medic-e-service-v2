@@ -79,7 +79,7 @@ export default function SalarySystem({ profile: _profile }: SalarySystemProps) {
   };
 
   return (
-    <div className="salary-system-container animate-fade-in" style={{ display: 'flex', flexDirection: 'column', gap: '2rem' }}>
+    <div className="salary-system-container " style={{ display: 'flex', flexDirection: 'column', gap: '2rem' }}>
       {/* Header and Controls */}
       <div className="salary-controls-header" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '1.5rem' }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: '1rem', background: 'white', padding: '1rem 1.5rem', borderRadius: '16px', boxShadow: '0 4px 15px rgba(0,0,0,0.05)', border: '1px solid var(--border-color)', flexWrap: 'wrap' }}>

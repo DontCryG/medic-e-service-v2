@@ -34,7 +34,7 @@ export default function LeaveSystem({ profile }: LeaveSystemProps) {
   const isManager = profile?.role === 'admin' || profile?.role === 'director' || profile?.role === 'management';
 
   return (
-    <div className="animate-fade-in" style={{ display: 'flex', flexDirection: 'column', gap: '2rem' }}>
+    <div className="" style={{ display: 'flex', flexDirection: 'column', gap: '2rem' }}>
       
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '1rem' }}>
         <div style={{ display: 'flex', gap: '0.5rem', background: 'var(--surface-color)', padding: '0.5rem', borderRadius: '12px', border: '1px solid var(--border-color)' }}>

@@ -12,7 +12,7 @@ export function AccountingSystem() {
   const [activeTab, setActiveTab] = useState<'finance' | 'item'>('finance');
 
   return (
-    <div className="accounting-container animate-fade-in">
+    <div className="accounting-container ">
       <div className="accounting-header">
         <div>
           <h1 style={{ fontSize: '2rem', marginBottom: '0.5rem', color: 'var(--text-primary)', display: 'flex', alignItems: 'center', gap: '0.75rem' }}>

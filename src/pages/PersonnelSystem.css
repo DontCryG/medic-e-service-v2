@@ -156,38 +156,11 @@
 /* action-btn moved to index.css */
 
 /* Edit Modal */
-.modal-overlay {
-  position: fixed;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  background: rgba(15, 23, 42, 0.4);
-  backdrop-filter: blur(4px);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  z-index: 1000;
-  animation: fade-in 0.2s ease-out;
-}
 
-.modal-content {
-  background: white;
-  border-radius: 24px;
-  padding: 2.5rem;
-  width: 100%;
-  max-width: 450px;
-  box-shadow: 0 20px 40px rgba(0,0,0,0.1);
-  animation: slide-up 0.3s ease-out;
-  max-height: 90vh;
-  overflow-y: auto;
-  display: flex;
-  flex-direction: column;
-}
 
-.personnel-modal-content {
-  overflow: visible !important;
-}
+
+
+
 
 .modal-header {
   display: flex;
