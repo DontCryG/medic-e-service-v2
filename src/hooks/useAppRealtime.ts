@@ -5,7 +5,7 @@ import { dutyKeys } from '@/pages/DutySystem/hooks/useDutyQueries';
 import { useAuthStore } from '@/store/authStore';
 
 export const broadcastForceSync = () => {
-  const channel = supabase.channel('global_sync_broadcast_emitter');
+  const channel = supabase.channel('global_broadcast_channel');
   channel.subscribe((status) => {
     if (status === 'SUBSCRIBED') {
       channel.send({ type: 'broadcast', event: 'force_sync', payload: {} });
@@ -15,7 +15,7 @@ export const broadcastForceSync = () => {
 };
 
 export const broadcastForceReload = () => {
-  const channel = supabase.channel('global_reload_emitter');
+  const channel = supabase.channel('global_broadcast_channel');
   channel.subscribe((status) => {
     if (status === 'SUBSCRIBED') {
       channel.send({ type: 'broadcast', event: 'force_reload', payload: { by: 'admin', at: new Date().toISOString() } });
@@ -87,7 +87,7 @@ export function useAppRealtime() {
       .subscribe((status) => { if (status === 'SUBSCRIBED') { queryClient.invalidateQueries(); } });
 
     // Listen to manual broadcasts (force_sync and force_reload)
-    const globalBroadcastChannel = supabase.channel(`global_sync_broadcast_${suffix}`);
+    const globalBroadcastChannel = supabase.channel(`global_broadcast_channel`);
     globalBroadcastChannel
       .on('broadcast', { event: 'force_sync' }, () => {
         queryClient.invalidateQueries();

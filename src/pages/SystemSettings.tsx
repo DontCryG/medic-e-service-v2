@@ -1,5 +1,7 @@
 import { useState } from 'react';
-import { Settings, Users, Shield, DollarSign } from 'lucide-react';
+import { Settings, Users, Shield, DollarSign, RefreshCw } from 'lucide-react';
+import Swal from 'sweetalert2';
+import { broadcastForceReload } from '@/hooks/useAppRealtime';
 import './SystemSettings.css';
 
 import PositionSettings from './SystemSettings/components/PositionSettings';
@@ -11,16 +13,42 @@ type Tab = 'positions' | 'gangs' | 'pricing';
 export default function SystemSettings() {
   const [activeTab, setActiveTab] = useState<Tab>('positions');
 
+  const handleForceRefresh = async () => {
+    const result = await Swal.fire({
+      title: 'บังคับ Refresh หน้าจอ?',
+      text: 'การกระทำนี้จะสั่งให้หน้าเว็บของผู้ใช้งานทุกคน (ที่กำลังเปิดเว็บอยู่) ถูก Refresh ใหม่ทันที (เพื่ออัปเดตโค้ดล่าสุด)',
+      icon: 'warning',
+      showCancelButton: true,
+      confirmButtonColor: '#ef4444',
+      cancelButtonColor: '#94a3b8',
+      confirmButtonText: 'ใช่, บังคับ Refresh',
+      cancelButtonText: 'ยกเลิก'
+    });
+
+    if (result.isConfirmed) {
+      broadcastForceReload();
+      Swal.fire('สำเร็จ!', 'ส่งคำสั่ง Refresh ไปยังทุกคนแล้ว', 'success');
+    }
+  };
+
   return (
     <div className="settings-container fade-in">
-      <div className="settings-header">
+      <div className="settings-header" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
         <div>
           <h1 style={{ fontSize: '2rem', marginBottom: '0.5rem', display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
             <Settings size={32} className="text-primary" />
             ตั้งค่าระบบ
           </h1>
-          <p style={{ color: 'var(--text-secondary)' }}>จัดการข้อมูลพื้นฐานและตั้งค่าการทำงานของระบบ</p>
+          <p style={{ color: 'var(--text-secondary)' }}>จัดการข้อมูลตำแหน่ง แก๊ง ครอบครัว และตั้งค่าราคาการรักษา</p>
         </div>
+        <button 
+          onClick={handleForceRefresh}
+          className="settings-tab-btn"
+          style={{ borderColor: 'var(--danger)', color: 'var(--danger)', display: 'flex', gap: '0.5rem', alignItems: 'center' }}
+        >
+          <RefreshCw size={18} />
+          Force Refresh (All Users)
+        </button>
       </div>
 
       <div className="settings-tabs" style={{ marginBottom: '1rem', width: 'fit-content' }}>

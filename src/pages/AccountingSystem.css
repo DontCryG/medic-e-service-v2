@@ -252,6 +252,7 @@
   
 /* Report Styles */  
 @media print {  
+  @page { size: landscape; margin: 1cm; }
   body * { visibility: hidden; }  
   .report-container, .report-container * { visibility: visible; }  
   .report-container { position: absolute; left: 0; top: 0; width: 100%; }  
