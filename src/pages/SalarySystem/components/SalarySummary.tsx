@@ -8,10 +8,8 @@ interface SalarySummaryProps {
 export default function SalarySummary({ data }: SalarySummaryProps) {
   if (!data) return null;
 
-  const totalIC = data.reduce((sum, item) => sum + item.ic_salary, 0);
-  const totalOC = data.reduce((sum, item) => sum + item.oc_money, 0);
-  const totalCash = totalIC + totalOC;
-
+  const totalCash = data.reduce((sum, item) => sum + item.ic_salary + item.story_money + (item.mentor_money || 0), 0);
+    
   const totalGacha = data.reduce((sum, item) => sum + item.gacha_ic + item.agency_gacha + item.gacha_promote + item.gacha_premium, 0);
   const totalCoins = data.reduce((sum, item) => sum + item.coins, 0);
   const activeStaffCount = data.filter(item => item.total_hours > 0).length;
@@ -23,7 +21,7 @@ export default function SalarySummary({ data }: SalarySummaryProps) {
           <Banknote size={24} />
         </div>
         <div className="summary-details">
-          <h4>ยอดเงินจ่ายรวม (IC + OC)</h4>
+          <h4>ยอดเงินจ่ายรวม (IC สุทธิ)</h4>
           <p className="summary-value">{totalCash.toLocaleString()}</p>
         </div>
       </div>
