@@ -11,7 +11,7 @@
   flex-direction: column;
   box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 8px 10px -6px rgba(0, 0, 0, 0.1);
   overflow: hidden;
-  font-family: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+
 }
 
 .modal-header {
@@ -75,7 +75,7 @@
   border: 1px solid var(--qs-border, #e2e8f0);
   border-radius: 8px;
   padding: 8px 12px;
-  font-family: inherit;
+
   font-size: 0.9rem;
   color: var(--qs-text-main, #0f172a);
   outline: none;
@@ -95,7 +95,7 @@
   border: 1px solid var(--qs-border, #e2e8f0);
   border-radius: 8px;
   padding: 6px 10px;
-  font-family: inherit;
+
   font-size: 0.85rem;
   color: var(--qs-text-main, #0f172a);
   outline: none;
@@ -124,33 +124,11 @@
   min-height: 200px;
 }
 
-.history-table {
-  width: 100%;
-  border-collapse: collapse;
-}
 
-.history-table th {
-  position: sticky;
-  top: 0;
-  background: #f8fafc;
-  padding: 12px 24px;
-  font-size: 0.8rem;
-  font-weight: 600;
-  color: var(--qs-text-muted, #64748b);
-  text-transform: uppercase;
-  letter-spacing: 0.05em;
-  border-bottom: 1px solid var(--qs-border, #e2e8f0);
-  text-align: left;
-  z-index: 10;
-}
 
-.history-table td {
-  padding: 16px 24px;
-  border-bottom: 1px solid var(--qs-border, #e2e8f0);
-  font-size: 0.95rem;
-  color: var(--qs-text-main, #0f172a);
-  vertical-align: middle;
-}
+
+
+
 
 .history-table tbody tr:hover td {
   background: #f8fafc;

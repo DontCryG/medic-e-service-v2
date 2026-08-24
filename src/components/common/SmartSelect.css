@@ -1,7 +1,6 @@
 .smart-select-container {
   position: relative;
   width: 100%;
-  font-family: inherit;
 }
 
 .smart-select-trigger {
@@ -71,8 +70,7 @@
   animation: dropdownFadeIn 0.2s ease;
 }
 
-@keyframes dropdownFadeIn {
-  from { opacity: 0; transform: translateY(-4px); }
+
   to { opacity: 1; transform: translateY(0); }
 }
 

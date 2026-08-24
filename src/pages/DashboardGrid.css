@@ -1,9 +1,4 @@
-/* Brand New Custom Dashboard Card Design (Medic Wiptown Exclusive) */
-@import url('https://fonts.googleapis.com/css2?family=Kanit:wght@300;400;500;600;700&display=swap');
 
-.dashboard-content {
-  font-family: 'Kanit', sans-serif;
-}
 
 .hub-container {
   display: flex;
@@ -176,7 +171,6 @@
   font-weight: 600;
   cursor: pointer;
   transition: all 0.3s ease;
-  font-family: 'Kanit', sans-serif;
   z-index: 1;
   display: flex;
   justify-content: center;
@@ -268,7 +262,6 @@
   font-size: 1.05rem;
   transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
   border: 2px solid #ddd6fe;
-  font-family: 'Kanit', sans-serif;
   z-index: 1;
   box-shadow: 0 4px 15px rgba(124, 58, 237, 0.05);
 }

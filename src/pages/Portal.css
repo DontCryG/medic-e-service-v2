@@ -2,12 +2,10 @@
    PORTAL — Full Redesign
    =========================== */
 
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap');
 
 .portal-root {
   min-height: 100vh;
   display: flex;
-  font-family: 'Inter', sans-serif;
 }
 
 /* ---- LEFT PANEL ---- */
@@ -214,7 +212,6 @@
   font-weight: 600;
   cursor: pointer;
   width: 100%;
-  font-family: 'Inter', sans-serif;
   box-shadow: 0 4px 20px rgba(88, 101, 242, 0.35);
   transition: all 0.2s ease;
   letter-spacing: 0.2px;
@@ -278,8 +275,7 @@
   animation: spin 0.8s linear infinite;
 }
 
-@keyframes spin {
-  to { transform: rotate(360deg); }
+
 }
 
 .portal-loading h3 {
@@ -345,7 +341,6 @@
   border-radius: 12px;
   border: 1.5px solid #e2e8f0;
   font-size: 0.95rem;
-  font-family: 'Inter', sans-serif;
   color: #0f172a;
   outline: none;
   transition: border-color 0.2s;
@@ -366,7 +361,6 @@
   color: white;
   font-size: 1rem;
   font-weight: 600;
-  font-family: 'Inter', sans-serif;
   cursor: pointer;
   transition: all 0.2s;
   margin-top: 0.75rem;
@@ -392,7 +386,6 @@
   color: #64748b;
   font-size: 0.9rem;
   font-weight: 500;
-  font-family: 'Inter', sans-serif;
   cursor: pointer;
   transition: color 0.2s;
   margin-top: 0.5rem;
