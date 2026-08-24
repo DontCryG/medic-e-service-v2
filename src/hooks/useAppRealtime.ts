@@ -6,15 +6,15 @@ import { useAuthStore } from '@/store/authStore';
 
 export const broadcastForceSync = () => {
   const channels = supabase.getChannels();
-  let channel = channels.find(c => c.topic === 'realtime:global_broadcast_channel');
+  const existingChannel = channels.find(c => c.topic === 'realtime:global_broadcast_channel');
   
-  if (channel && channel.state === 'joined') {
-    channel.send({ type: 'broadcast', event: 'force_sync', payload: {} });
+  if (existingChannel && existingChannel.state === 'joined') {
+    existingChannel.send({ type: 'broadcast', event: 'force_sync', payload: {} });
   } else {
-    channel = supabase.channel('global_broadcast_channel');
-    channel.subscribe((status) => {
+    const newChannel = supabase.channel('global_broadcast_channel');
+    newChannel.subscribe((status) => {
       if (status === 'SUBSCRIBED') {
-        channel.send({ type: 'broadcast', event: 'force_sync', payload: {} });
+        newChannel.send({ type: 'broadcast', event: 'force_sync', payload: {} });
       }
     });
   }
@@ -22,15 +22,15 @@ export const broadcastForceSync = () => {
 
 export const broadcastForceReload = () => {
   const channels = supabase.getChannels();
-  let channel = channels.find(c => c.topic === 'realtime:global_broadcast_channel');
+  const existingChannel = channels.find(c => c.topic === 'realtime:global_broadcast_channel');
   
-  if (channel && channel.state === 'joined') {
-    channel.send({ type: 'broadcast', event: 'force_reload', payload: { by: 'admin', at: new Date().toISOString() } });
+  if (existingChannel && existingChannel.state === 'joined') {
+    existingChannel.send({ type: 'broadcast', event: 'force_reload', payload: { by: 'admin', at: new Date().toISOString() } });
   } else {
-    channel = supabase.channel('global_broadcast_channel');
-    channel.subscribe((status) => {
+    const newChannel = supabase.channel('global_broadcast_channel');
+    newChannel.subscribe((status) => {
       if (status === 'SUBSCRIBED') {
-        channel.send({ type: 'broadcast', event: 'force_reload', payload: { by: 'admin', at: new Date().toISOString() } });
+        newChannel.send({ type: 'broadcast', event: 'force_reload', payload: { by: 'admin', at: new Date().toISOString() } });
       }
     });
   }
