@@ -17,7 +17,7 @@ export default function PayslipModal({ user, startDate, endDate, onClose }: Pays
     window.print();
   };
 
-  const totalIncome = user.ic_salary + user.story_money + user.oc_money + ((user as any).bonus_cash || 0);
+  const totalIncome = user.ic_salary + user.story_money + (user.mentor_money || 0) + ((user as any).bonus_cash || 0);
 
   return (
     <div className="modal-overlay" onClick={onClose} style={{ zIndex: 9999 }}>
@@ -161,8 +161,8 @@ export default function PayslipModal({ user, startDate, endDate, onClose }: Pays
             <span>{user.story_money > 0 ? user.story_money.toLocaleString() : '-'}</span>
           </div>
           <div className="payslip-row">
-            <span>เงิน OC (อุดหนุน/พิเศษ)</span>
-            <span>{user.oc_money > 0 ? user.oc_money.toLocaleString() : '-'}</span>
+            <span>เงินพี่เลี้ยงหมอใหม่</span>
+            <span>{user.mentor_money > 0 ? user.mentor_money.toLocaleString() : '-'}</span>
           </div>
           <div className="payslip-row total">
             <span>รวมรายรับทั้งสิ้น (Total Income)</span>
@@ -185,6 +185,10 @@ export default function PayslipModal({ user, startDate, endDate, onClose }: Pays
           <div className="payslip-row">
             <span>กาชา Promote</span>
             <span>{user.gacha_promote > 0 ? user.gacha_promote : '-'}</span>
+          </div>
+          <div className="payslip-row">
+            <span>เงิน OC (อุดหนุน/พิเศษ)</span>
+            <span>{user.oc_money > 0 ? user.oc_money.toLocaleString() : '-'}</span>
           </div>
           <div className="payslip-row">
             <span>เหรียญหน่วยงาน (Coins)</span>

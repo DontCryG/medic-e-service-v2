@@ -19,6 +19,8 @@ export default function SalaryTable({ data, onOpenDutyLogModal, onPrintPayslip }
     if (row.story_count > 0) msg += `สตอรี่: ${row.story_count} รอบ\n`;
     if (row.story_money > 0) msg += `เงินสตอรี่: ${row.story_money.toLocaleString()}\n`;
     if (row.mentor_money > 0) msg += `เงินพิเศษพี่เลี้ยง: ${row.mentor_money.toLocaleString()}\n`;
+      const netTotal = row.ic_salary + row.story_money + (row.mentor_money || 0);
+      if (netTotal > 0) msg += `รวมเงิน IC สุทธิ: ${netTotal.toLocaleString()}\n\n`;
     if (row.oc_money > 0) msg += `เงิน OC: ${row.oc_money.toLocaleString()}\n`;
     if (row.gacha_ic > 0) msg += `กาชา IC: ${row.gacha_ic}\n`;
     if (row.agency_gacha > 0) msg += `กาชาหน่วยงาน: ${row.agency_gacha}\n`;
@@ -50,6 +52,7 @@ export default function SalaryTable({ data, onOpenDutyLogModal, onPrintPayslip }
               <th style={{ textAlign: 'center' }}>สตอรี่ (เคส)</th>
               <th style={{ textAlign: 'right' }}>เงินสตอรี่</th>
               <th style={{ textAlign: 'right' }}>เงินพี่เลี้ยง</th>
+              <th style={{ textAlign: 'right' }}>รวมสุทธิ (IC)</th>
               <th style={{ textAlign: 'right' }}>เงิน OC</th>
               <th style={{ textAlign: 'center' }}>กาชา IC</th>
               <th style={{ textAlign: 'center' }}>กาชาหน่วยงาน</th>
@@ -83,6 +86,9 @@ export default function SalaryTable({ data, onOpenDutyLogModal, onPrintPayslip }
                 </td>
                 <td style={{ textAlign: 'right', color: item.mentor_money > 0 ? '#3b82f6' : 'inherit', fontWeight: 'bold' }}>
                   {item.mentor_money > 0 ? item.mentor_money.toLocaleString() : '-'}
+                </td>
+                <td style={{ textAlign: 'right', color: '#10b981', fontWeight: 'bold' }}>
+                  {(item.ic_salary + item.story_money + (item.mentor_money || 0)).toLocaleString()}
                 </td>
                 <td style={{ textAlign: 'right', color: item.oc_money > 0 ? '#ea580c' : 'inherit', fontWeight: 'bold' }}>
                   {item.oc_money > 0 ? item.oc_money.toLocaleString() : '-'}
