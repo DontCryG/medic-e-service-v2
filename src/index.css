@@ -457,33 +457,3 @@ button:active:not(:disabled) {
   box-shadow: 0 20px 40px -10px rgba(0, 0, 0, 0.1);
   position: relative;
 }
-
-/* Standard Table UI */
-.ui-table, .report-table, .req-admin-table, .duty-table, .personnel-table, .history-table, .queue-table, .salary-table {
-  width: 100%;
-  border-collapse: collapse;
-  background: white;
-  border-radius: 8px;
-  overflow: hidden;
-  box-shadow: var(--shadow-sm);
-  text-align: left;
-}
-.ui-table th, .report-table th, .req-admin-table th, .duty-table th, .personnel-table th, .history-table th, .queue-table th, .salary-table th {
-  background: #f8fafc;
-  color: var(--text-secondary);
-  font-weight: 600;
-  padding: 1rem;
-  border-bottom: 2px solid var(--border-color);
-  font-size: 0.85rem;
-  text-transform: uppercase;
-  letter-spacing: 0.5px;
-}
-.ui-table td, .report-table td, .req-admin-table td, .duty-table td, .personnel-table td, .history-table td, .queue-table td, .salary-table td {
-  padding: 1rem;
-  border-bottom: 1px solid var(--border-color);
-  color: var(--text-primary);
-  font-size: 0.95rem;
-}
-.ui-table tbody tr:hover, .report-table tbody tr:hover, .req-admin-table tbody tr:hover, .duty-table tbody tr:hover, .personnel-table tbody tr:hover, .history-table tbody tr:hover, .queue-table tbody tr:hover, .salary-table tbody tr:hover {
-  background-color: #f1f5f9;
-}

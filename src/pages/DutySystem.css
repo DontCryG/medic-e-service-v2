@@ -149,7 +149,60 @@
 .duty-card-title {
   font-size: 1.25rem;
   font-weight: 700;
+  color: #1e293b;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
 
+.live-badge {
+  background: #fee2e2;
+  color: #ef4444;
+  font-size: 0.75rem;
+  padding: 2px 8px;
+  border-radius: 12px;
+  font-weight: 600;
+  animation: pulse 2s infinite;
+}
+
+@keyframes pulse {
+  0% { opacity: 1; }
+  50% { opacity: 0.6; }
+  100% { opacity: 1; }
+}
+
+/* Tables */
+.table-responsive {
+  width: 100%;
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+}
+
+.duty-table {
+  width: 100%;
+  min-width: 500px;
+  border-collapse: collapse;
+}
+
+.duty-table th {
+  text-align: left;
+  padding: 1rem;
+  color: #64748b;
+  font-weight: 500;
+  border-bottom: 2px solid #f1f5f9;
+  font-size: 0.9rem;
+}
+
+.duty-table td {
+  padding: 1rem;
+  border-bottom: 1px solid #f1f5f9;
+  color: #334155;
+  font-size: 0.95rem;
+}
+
+.duty-table tr:last-child td {
+  border-bottom: none;
+}
 
 .status-badge {
   padding: 0.25rem 0.75rem;

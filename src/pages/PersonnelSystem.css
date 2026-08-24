@@ -76,13 +76,31 @@
   overflow: hidden;
 }
 
+.personnel-table {
+  width: 100%;
+  border-collapse: collapse;
+}
 
+.personnel-table th {
+  text-align: left;
+  padding: 1rem;
+  color: #64748b;
+  font-weight: 600;
+  border-bottom: 2px solid #f1f5f9;
+  font-size: 0.95rem;
+}
 
+.personnel-table td {
+  padding: 1.25rem 1rem;
+  border-bottom: 1px solid #f1f5f9;
+  color: #334155;
+  font-size: 0.95rem;
+  vertical-align: middle;
+}
 
-
-
-
-
+.personnel-table tr:last-child td {
+  border-bottom: none;
+}
 
 .personnel-user {
   display: flex;

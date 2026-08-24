@@ -3,9 +3,11 @@
    =========================== */
 
 
+
 .portal-root {
   min-height: 100vh;
   display: flex;
+
 }
 
 /* ---- LEFT PANEL ---- */
@@ -212,6 +214,7 @@
   font-weight: 600;
   cursor: pointer;
   width: 100%;
+
   box-shadow: 0 4px 20px rgba(88, 101, 242, 0.35);
   transition: all 0.2s ease;
   letter-spacing: 0.2px;
@@ -273,6 +276,10 @@
   border-top-color: #6366f1;
   border-radius: 50%;
   animation: spin 0.8s linear infinite;
+}
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
 }
 
 .portal-loading h3 {
@@ -338,6 +345,7 @@
   border-radius: 12px;
   border: 1.5px solid #e2e8f0;
   font-size: 0.95rem;
+
   color: #0f172a;
   outline: none;
   transition: border-color 0.2s;
@@ -358,6 +366,7 @@
   color: white;
   font-size: 1rem;
   font-weight: 600;
+
   cursor: pointer;
   transition: all 0.2s;
   margin-top: 0.75rem;
@@ -383,6 +392,7 @@
   color: #64748b;
   font-size: 0.9rem;
   font-weight: 500;
+
   cursor: pointer;
   transition: color 0.2s;
   margin-top: 0.5rem;

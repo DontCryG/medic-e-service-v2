@@ -13,6 +13,7 @@
   background-color: white;
   border: 1px solid var(--border-color, #e2e8f0);
   border-radius: 8px;
+
   font-size: 0.95rem;
   color: var(--text-color, #1e293b);
   transition: all 0.2s ease;
@@ -47,6 +48,7 @@
 
 /* React Datepicker Overrides */
 .react-datepicker {
+
   border: 1px solid var(--border-color, #e2e8f0) !important;
   border-radius: 12px !important;
   box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1), 0 8px 10px -6px rgba(0, 0, 0, 0.1) !important;

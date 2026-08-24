@@ -4,6 +4,7 @@
   width: 100%;
   max-width: 1100px; /* slightly narrower for better proportions */
   margin: 0 auto;
+
   padding-top: 1rem;
 }
 
@@ -149,6 +150,7 @@
   border-radius: 10px;
   font-size: 0.95rem;
   font-weight: 600;
+
   cursor: pointer;
   transition: all 0.2s ease;
   z-index: 1;

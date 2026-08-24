@@ -115,13 +115,32 @@
   border: 1px solid var(--border-color);
 }
 
+.salary-table {
+  width: 100%;
+  border-collapse: collapse;
+}
 
+.salary-table th {
+  text-align: left;
+  padding: 1rem;
+  color: #64748b;
+  font-weight: 600;
+  border-bottom: 2px solid #f1f5f9;
+  font-size: 0.95rem;
+  white-space: nowrap;
+}
 
+.salary-table td {
+  padding: 1.25rem 1rem;
+  border-bottom: 1px solid #f1f5f9;
+  color: #334155;
+  font-size: 0.95rem;
+  vertical-align: middle;
+}
 
-
-
-
-
+.salary-table tr:last-child td {
+  border-bottom: none;
+}
 
 .amount-text {
   font-weight: 700;

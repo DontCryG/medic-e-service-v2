@@ -94,9 +94,24 @@
   margin-bottom: -120px; /* compensate the padding to avoid extra whitespace */
 }
 
+.queue-table {
+  width: 100%;
+  min-width: 900px;
+  border-collapse: separate;
+  border-spacing: 0;
+  text-align: left;
+}
 
-
-
+.queue-table th {
+  padding: 16px;
+  font-weight: 600;
+  font-size: 0.85rem;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--qs-text-muted);
+  border-bottom: 1px solid var(--qs-border);
+  background: #f8fafc;
+}
 
 .category-header-row td {
   background: #f1f5f9;
@@ -121,7 +136,12 @@
   box-shadow: 0 0 0 2px rgba(139, 92, 246, 0.2);
 }
 
-
+.queue-table td {
+  padding: 16px;
+  vertical-align: middle;
+  border-bottom: 1px solid var(--qs-border);
+  transition: background-color 0.2s ease;
+}
 
 .queue-table tbody tr:hover td {
   background-color: #f8fafc;

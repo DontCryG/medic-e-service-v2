@@ -58,13 +58,31 @@
   overflow: hidden;
 }
 
+.req-admin-table {
+  width: 100%;
+  border-collapse: collapse;
+}
 
+.req-admin-table th {
+  text-align: left;
+  padding: 1rem;
+  color: #64748b;
+  font-weight: 600;
+  border-bottom: 2px solid #f1f5f9;
+  font-size: 0.95rem;
+}
 
+.req-admin-table td {
+  padding: 1.25rem 1rem;
+  border-bottom: 1px solid #f1f5f9;
+  color: #334155;
+  font-size: 0.95rem;
+  vertical-align: top;
+}
 
-
-
-
-
+.req-admin-table tr:last-child td {
+  border-bottom: none;
+}
 
 .req-admin-user {
   display: flex;
