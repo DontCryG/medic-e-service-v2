@@ -76,6 +76,8 @@ export default function SalaryReportModal({ data, startDate, endDate, onClose }:
             border-collapse: collapse;
             margin-bottom: 2rem;
             font-size: 0.85rem;
+            table-layout: fixed;
+            word-break: break-word;
           }
           
           .report-table th, .report-table td {
@@ -172,16 +174,16 @@ export default function SalaryReportModal({ data, startDate, endDate, onClose }:
                 <th colSpan={6}>สวัสดิการ (Benefits)</th>
               </tr>
               <tr>
-                <th style={{ width: '8%' }}>เงิน IC</th>
+                <th style={{ width: '9%' }}>เงิน IC</th>
                 <th style={{ width: '5%' }}>สตอรี่</th>
-                <th style={{ width: '8%' }}>เงินสตอรี่</th>
-                <th style={{ width: '8%' }}>เงินพี่เลี้ยง</th>
-                <th style={{ width: '5%' }}>กาชา IC</th>
-                <th style={{ width: '5%' }}>หน่วยงาน</th>
-                <th style={{ width: '5%' }}>Prem.</th>
-                <th style={{ width: '5%' }}>Promo.</th>
-                <th style={{ width: '8%' }}>เงิน OC</th>
-                <th style={{ width: '5%' }}>เหรียญ</th>
+                <th style={{ width: '9%' }}>เงินสตอรี่</th>
+                <th style={{ width: '9%' }}>เงินพี่เลี้ยง</th>
+                <th style={{ width: '6%' }}>กาชา IC</th>
+                <th style={{ width: '7%' }}>หน่วยงาน</th>
+                <th style={{ width: '6%' }}>Prem.</th>
+                <th style={{ width: '6%' }}>Promo.</th>
+                <th style={{ width: '9%' }}>เงิน OC</th>
+                <th style={{ width: '9%' }}>เหรียญ</th>
               </tr>
             </thead>
             <tbody>
