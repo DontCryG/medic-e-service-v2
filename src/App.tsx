@@ -1,4 +1,4 @@
-import React, { lazy, Suspense } from 'react';
+﻿import React, { lazy, Suspense } from 'react';
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 import { QueryClient, QueryClientProvider, MutationCache } from '@tanstack/react-query';
 import { useAuthStore } from './store/authStore';
@@ -64,7 +64,7 @@ function AppEffects() {
 const FallbackLoader = () => (
   <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '100vh', background: 'var(--bg-main)' }}>
     <div style={{ padding: '20px', borderRadius: '12px', background: 'var(--bg-secondary)', color: 'var(--text-primary)', boxShadow: '0 4px 12px rgba(0,0,0,0.1)' }}>
-      กำลังโหลดระบบ... (Loading System)
+      à¸à¸³à¸¥à¸±à¸‡à¹‚à¸«à¸¥à¸”à¸£à¸°à¸šà¸š... (Loading System)
     </div>
   </div>
 );
@@ -87,7 +87,7 @@ export default function App() {
     checkVersionAndLogout();
   }, []);
 
-  // Sync user identity to Sentry whenever auth state changes
+    // Sync user identity to Sentry whenever auth state changes
   React.useEffect(() => {
     if (user) {
       setSentryUser(user.discord_id, user.ic_name);
@@ -95,6 +95,25 @@ export default function App() {
       clearSentryUser();
     }
   }, [user]);
+
+  // Global Auth Sync to prevent 401 errors when session expires
+  React.useEffect(() => {
+    supabase.auth.getSession().then(({ data: { session }, error }) => {
+      if ((!session || error) && useAuthStore.getState().user) {
+        useAuthStore.getState().logout();
+      }
+    });
+
+    const { data: authListener } = supabase.auth.onAuthStateChange((event, session) => {
+      if (event === 'SIGNED_OUT' || (event === 'TOKEN_REFRESHED' && !session)) {
+        useAuthStore.getState().logout();
+      }
+    });
+
+    return () => {
+      authListener.subscription.unsubscribe();
+    };
+  }, []);
 
   return (
     <QueryClientProvider client={queryClient}>
@@ -137,5 +156,7 @@ export default function App() {
     </QueryClientProvider>
   );
 }
+
+
 
 
