@@ -1,4 +1,4 @@
-﻿import { useMutation, useQueryClient } from '@tanstack/react-query';
+import { useMutation, useQueryClient } from '@tanstack/react-query';
 import Swal from 'sweetalert2';
 import { supabase } from '@/lib/supabase';
 import { broadcastForceSync } from '@/hooks/useAppRealtime';
@@ -91,7 +91,7 @@ const clearOtherQueued = async (excludeDiscordId: string) => {
       await supabase.from('system_settings').upsert({
         key: 'queue_volunteers',
         value: JSON.stringify(volunteers),
-        description: 'à¸‚à¹‰à¸­à¸¡à¸¹à¸¥à¸«à¸¡à¸­à¸­à¸²à¸ªà¸²',
+        description: 'ข้อมูลหมออาสา',
         type: 'json'
       });
     }
@@ -161,7 +161,7 @@ export function useQueueMutations() {
     },
     onError: (err: any) => {
       console.error('Failed to update status:', err);
-      Swal.fire({ icon: 'error', title: 'à¹à¸ˆà¹‰à¸‡à¹€à¸•à¸·à¸­à¸™', text: 'Error updating status: ' + err.message });
+      Swal.fire({ icon: 'error', title: 'แจ้งเตือน', text: 'Error updating status: ' + err.message });
     }
   });
 
@@ -385,7 +385,7 @@ export function useQueueMutations() {
     },
     onError: (err: any) => {
       console.error('Failed to add story log:', err);
-      Swal.fire({ icon: 'error', title: 'à¹à¸ˆà¹‰à¸‡à¹€à¸•à¸·à¸­à¸™', text: 'Error adding story log: ' + err.message });
+      Swal.fire({ icon: 'error', title: 'แจ้งเตือน', text: 'Error adding story log: ' + err.message });
     }
   });
 
@@ -415,7 +415,7 @@ export function useQueueMutations() {
     },
     onError: (err: any) => {
       console.error('Failed to update story log:', err);
-      Swal.fire({ icon: 'error', title: 'à¹à¸ˆà¹‰à¸‡à¹€à¸•à¸·à¸­à¸™', text: 'Error updating story log: ' + err.message });
+      Swal.fire({ icon: 'error', title: 'แจ้งเตือน', text: 'Error updating story log: ' + err.message });
     }
   });
 
@@ -435,14 +435,14 @@ export function useQueueMutations() {
     }
   });
 
-    const addVolunteerMutation = useMutation({
+  const addVolunteerMutation = useMutation({
     mutationFn: async (name: string) => {
       const { data: setting } = await supabase.from('system_settings').select('value').eq('key', 'queue_volunteers').maybeSingle();
       let volunteers: any[] = [];
       if (setting?.value) {
         try { volunteers = JSON.parse(setting.value); } catch(e){}
       }
-      
+
       const volunteerId = name.trim(); // Use name as ID (or discord ID if they pasted one)
       volunteers.push({
         id: volunteerId,
@@ -461,7 +461,7 @@ export function useQueueMutations() {
       await supabase.from('system_settings').upsert({
         key: 'queue_volunteers',
         value: JSON.stringify(volunteers),
-        description: 'à¸£à¸²à¸¢à¸Šà¸·à¹ˆà¸­à¸«à¸¡à¸­à¸­à¸²à¸ªà¸²',
+        description: 'รายชื่อหมออาสา',
         type: 'json'
       });
     },
@@ -469,7 +469,7 @@ export function useQueueMutations() {
   });
 
   const updateVolunteerMutation = useMutation({
-        mutationFn: async ({ id, newStatus }: { id: string, newStatus: QueueStatusType | null }) => {
+    mutationFn: async ({ id, newStatus }: { id: string, newStatus: QueueStatusType | null }) => {
       if (newStatus === 'queued') {
         await clearOtherQueued(id);
       }
@@ -491,7 +491,7 @@ export function useQueueMutations() {
         await supabase.from('system_settings').upsert({
           key: 'queue_volunteers',
           value: JSON.stringify(volunteers),
-          description: 'à¸£à¸²à¸¢à¸Šà¸·à¹ˆà¸­à¸«à¸¡à¸­à¸­à¸²à¸ªà¸²',
+          description: 'รายชื่อหมออาสา',
           type: 'json'
         });
       }
@@ -512,7 +512,7 @@ export function useQueueMutations() {
       await supabase.from('system_settings').upsert({
         key: 'queue_volunteers',
         value: JSON.stringify(volunteers),
-        description: 'à¸£à¸²à¸¢à¸Šà¸·à¹ˆà¸­à¸«à¸¡à¸­à¸­à¸²à¸ªà¸²',
+        description: 'รายชื่อหมออาสา',
         type: 'json'
       });
     },
@@ -532,5 +532,3 @@ export function useQueueMutations() {
     removeVolunteer: removeVolunteerMutation.mutateAsync
   };
 }
-
-
