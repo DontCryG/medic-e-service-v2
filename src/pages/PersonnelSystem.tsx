@@ -112,13 +112,13 @@ export default function PersonnelSystem({ profile }: PersonnelSystemProps) {
 
   const handleDeleteUser = async (user: any) => {
     const result = await Swal.fire({
-      title: 'ยืนยันการลบ?',
-      text: `คุณต้องการลบข้อมูลของ ${user.ic_name} หรือไม่? การกระทำนี้ไม่สามารถย้อนกลับได้`,
+      title: 'ยืนยันการพ้นสภาพ?',
+      text: `คุณต้องการเปลี่ยนสถานะของ ${user.ic_name} เป็น "พ้นสภาพ" ใช่หรือไม่?\n\nข้อมูลการทำงานและเวรต่างๆ จะยังคงอยู่ แต่ผู้ใช้จะไม่สามารถเข้าสู่ระบบได้อีก`,
       icon: 'warning',
       showCancelButton: true,
       confirmButtonColor: '#ef4444',
       cancelButtonColor: '#94a3b8',
-      confirmButtonText: 'ลบข้อมูล',
+      confirmButtonText: 'ยืนยันการพ้นสภาพ',
       cancelButtonText: 'ยกเลิก',
       background: 'var(--surface-color)',
       color: 'var(--text-color)',
@@ -128,14 +128,14 @@ export default function PersonnelSystem({ profile }: PersonnelSystemProps) {
       try {
         const { error } = await supabase
           .from('users')
-          .delete()
+          .update({ role: 'resigned' })
           .eq('discord_id', user.discord_id);
 
         if (error) throw error;
-        toast.success('ลบข้อมูลสำเร็จ');
+        toast.success('อัปเดตสถานะเป็นพ้นสภาพสำเร็จ');
         queryClient.invalidateQueries({ queryKey: ['users'] });
       } catch (error: any) {
-        toast.error('ลบไม่สำเร็จ: ' + error.message);
+        toast.error('เกิดข้อผิดพลาด: ' + error.message);
       }
     }
   };
