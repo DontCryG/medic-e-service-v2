@@ -127,13 +127,17 @@ export default function PersonnelSystem({ profile }: PersonnelSystemProps) {
     if (result.isConfirmed) {
       try {
         // ลบข้อมูลที่ผูกติดอยู่ทั้งหมด (Manual Cascade Delete)
-        await supabase.from('duty_logs').delete().eq('discord_id', user.discord_id);
-        await supabase.from('leave_requests').delete().eq('discord_id', user.discord_id);
-        await supabase.from('general_requests').delete().eq('discord_id', user.discord_id);
-        await supabase.from('accounting_logs').delete().eq('discord_id', user.discord_id);
-        await supabase.from('inventory_logs').delete().eq('discord_id', user.discord_id);
+        const tablesToDelete = ['duty_logs', 'leave_requests', 'general_requests', 'accounting_logs', 'inventory_logs', 'queue_status', 'queue_manager_logs', 'story_logs'];
         
-        // ลบผู้ใช้ (ตาราง queue_status, queue_manager_logs, story_logs จะโดนลบอัตโนมัติตาม ON DELETE CASCADE)
+        for (const table of tablesToDelete) {
+          const { error: cascadeError } = await supabase.from(table).delete().eq('discord_id', user.discord_id);
+          if (cascadeError) {
+            console.error(`Failed to delete from ${table}:`, cascadeError);
+            throw new Error(`ไม่สามารถลบประวัติใน ${table} ได้: ${cascadeError.message}`);
+          }
+        }
+        
+        // ลบผู้ใช้
         const { error } = await supabase
           .from('users')
           .delete()
