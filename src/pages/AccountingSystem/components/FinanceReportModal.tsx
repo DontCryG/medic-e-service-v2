@@ -82,6 +82,8 @@ export default function FinanceReportModal({ onClose, startDate, endDate }: Fina
             border-collapse: collapse;
             margin-bottom: 2rem;
             font-size: 0.85rem;
+            table-layout: fixed;
+            word-break: break-word;
           }
           
           .report-table th, .report-table td {
