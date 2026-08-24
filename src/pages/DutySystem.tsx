@@ -10,6 +10,7 @@ import { useCurrentSession, useLiveUsers, useDutyHistory } from './DutySystem/ho
 import { useClockIn, useToggleBreak, useClockOut, useAdminToggleBreak, useAdminClockOut } from './DutySystem/hooks/useDutyMutations';
 import { useDutyRealtime } from './DutySystem/hooks/useDutyRealtime';
 import Swal from 'sweetalert2';
+import { Gift } from 'lucide-react';
 
 import SpecialDutyModal from './DutySystem/components/SpecialDutyModal';
 
@@ -176,12 +177,13 @@ export default function DutySystem({ profile }: DutySystemProps) {
   return (
     <div className="duty-container">
       {profile?.role === 'admin' && (
-        <div style={{ marginBottom: '1rem', display: 'flex', justifyContent: 'flex-end' }}>
+        <div style={{ marginBottom: '1.5rem', display: 'flex', justifyContent: 'flex-end' }}>
           <button 
             onClick={() => setShowSpecialDutyModal(true)}
-            style={{ padding: '0.5rem 1rem', borderRadius: '8px', background: '#8b5cf6', color: 'white', border: 'none', fontWeight: 'bold', cursor: 'pointer', boxShadow: '0 2px 4px rgba(0,0,0,0.1)' }}
+            className="btn-special"
           >
-            + มอบเวลาพิเศษ (สอบหมอ/พี่เลี้ยง)
+            <Gift size={20} />
+            มอบเวลาพิเศษ (สอบหมอ/พี่เลี้ยง)
           </button>
         </div>
       )}

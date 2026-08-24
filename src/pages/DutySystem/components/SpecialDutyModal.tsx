@@ -2,6 +2,7 @@
 import { supabase } from '@/lib/supabase';
 import { useAuthStore } from '@/store/authStore';
 import Swal from 'sweetalert2';
+import { X } from 'lucide-react';
 
 interface SpecialDutyModalProps {
   onClose: () => void;
@@ -64,16 +65,22 @@ export default function SpecialDutyModal({ onClose }: SpecialDutyModalProps) {
   };
 
   return (
-    <div className="" onClick={onClose} style={{ position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, backgroundColor: 'rgba(0,0,0,0.5)', zIndex: 1000, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-      <div className="animate-scale" onClick={e => e.stopPropagation()} style={{ background: 'white', padding: '2rem', borderRadius: '12px', width: '90%', maxWidth: '500px' }}>
-        <h2 style={{ marginBottom: '1.5rem', color: '#1e293b' }}>มอบเวลาพิเศษ (Admin)</h2>
-        <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
-          <div>
-            <label style={{ display: 'block', marginBottom: '0.5rem', fontWeight: 600 }}>เลือกหมอ</label>
+    <div className="modal-overlay" onClick={onClose}>
+      <div className="modal-content" onClick={e => e.stopPropagation()}>
+        <div className="modal-header">
+          <h2>มอบเวลาพิเศษ</h2>
+          <button type="button" className="close-btn" onClick={onClose}>
+            <X size={20} />
+          </button>
+        </div>
+        
+        <form onSubmit={handleSubmit}>
+          <div className="modal-form-group">
+            <label>เลือกหมอ</label>
             <select
               value={selectedUserId}
               onChange={e => setSelectedUserId(e.target.value)}
-              style={{ width: '100%', padding: '0.75rem', borderRadius: '8px', border: '1px solid #cbd5e1' }}
+              className="modal-input"
               required
             >
               <option value="">-- เลือกหมอ --</option>
@@ -82,22 +89,24 @@ export default function SpecialDutyModal({ onClose }: SpecialDutyModalProps) {
               ))}
             </select>
           </div>
-          <div>
-            <label style={{ display: 'block', marginBottom: '0.5rem', fontWeight: 600 }}>ประเภทงานพิเศษ</label>
+          
+          <div className="modal-form-group">
+            <label>ประเภทงานพิเศษ</label>
             <select
               value={dutyType}
               onChange={e => setDutyType(e.target.value)}
-              style={{ width: '100%', padding: '0.75rem', borderRadius: '8px', border: '1px solid #cbd5e1' }}
+              className="modal-input"
             >
               <option value="exam_doctor">สอบหมอใหม่ (+3 ชม.)</option>
               <option value="mentor">พี่เลี้ยงหมอใหม่ (+1 ชม. + เงิน 500,000)</option>
             </select>
           </div>
-          <div style={{ display: 'flex', gap: '1rem', marginTop: '1rem' }}>
-            <button type="button" onClick={onClose} style={{ flex: 1, padding: '0.75rem', borderRadius: '8px', border: '1px solid #cbd5e1', background: 'white' }}>
+          
+          <div className="modal-actions">
+            <button type="button" className="modal-btn cancel" onClick={onClose}>
               ยกเลิก
             </button>
-            <button type="submit" disabled={isSubmitting} style={{ flex: 1, padding: '0.75rem', borderRadius: '8px', border: 'none', background: '#3b82f6', color: 'white', fontWeight: 600, opacity: isSubmitting ? 0.7 : 1 }}>
+            <button type="submit" className="modal-btn save" disabled={isSubmitting}>
               {isSubmitting ? 'กำลังบันทึก...' : 'บันทึก'}
             </button>
           </div>
