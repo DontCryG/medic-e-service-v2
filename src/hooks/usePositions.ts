@@ -80,6 +80,17 @@ export const useDeletePosition = () => {
   const queryClient = useQueryClient();
   return useMutation({
     mutationFn: async (id: string) => {
+      // 1. Check if any user is using this position
+      const { data: usersWithPosition } = await supabase
+        .from('users')
+        .select('discord_id')
+        .eq('position_id', id)
+        .limit(1);
+
+      if (usersWithPosition && usersWithPosition.length > 0) {
+        throw new Error('ไม่สามารถลบตำแหน่งนี้ได้ เนื่องจากมีบุคลากรที่กำลังใช้ตำแหน่งนี้อยู่ กรุณาเปลี่ยนตำแหน่งของบุคลากรก่อน');
+      }
+
       const { error } = await supabase
         .from('positions')
         .delete()

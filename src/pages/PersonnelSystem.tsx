@@ -112,13 +112,13 @@ export default function PersonnelSystem({ profile }: PersonnelSystemProps) {
 
   const handleDeleteUser = async (user: any) => {
     const result = await Swal.fire({
-      title: 'ยืนยันการพ้นสภาพ?',
-      text: `คุณต้องการเปลี่ยนสถานะของ ${user.ic_name} เป็น "พ้นสภาพ" ใช่หรือไม่?\n\nข้อมูลการทำงานและเวรต่างๆ จะยังคงอยู่ แต่ผู้ใช้จะไม่สามารถเข้าสู่ระบบได้อีก`,
+      title: 'ลบข้อมูลผู้ใช้อย่างถาวร?',
+      text: `คุณต้องการลบข้อมูลของ ${user.ic_name} ออกจากระบบอย่างถาวรใช่หรือไม่?\n\nคำเตือน: ประวัติการเข้าเวร ใบลา ประวัติการเบิกจ่าย และข้อมูลทุกอย่างที่เกี่ยวข้องกับผู้ใช้คนนี้ จะถูกลบหายไปทั้งหมดและไม่สามารถกู้คืนได้!`,
       icon: 'warning',
       showCancelButton: true,
       confirmButtonColor: '#ef4444',
       cancelButtonColor: '#94a3b8',
-      confirmButtonText: 'ยืนยันการพ้นสภาพ',
+      confirmButtonText: 'ยืนยันการลบทิ้งถาวร',
       cancelButtonText: 'ยกเลิก',
       background: 'var(--surface-color)',
       color: 'var(--text-color)',
@@ -126,16 +126,24 @@ export default function PersonnelSystem({ profile }: PersonnelSystemProps) {
 
     if (result.isConfirmed) {
       try {
+        // ลบข้อมูลที่ผูกติดอยู่ทั้งหมด (Manual Cascade Delete)
+        await supabase.from('duty_logs').delete().eq('discord_id', user.discord_id);
+        await supabase.from('leave_requests').delete().eq('discord_id', user.discord_id);
+        await supabase.from('general_requests').delete().eq('discord_id', user.discord_id);
+        await supabase.from('accounting_logs').delete().eq('discord_id', user.discord_id);
+        await supabase.from('inventory_logs').delete().eq('discord_id', user.discord_id);
+        
+        // ลบผู้ใช้ (ตาราง queue_status, queue_manager_logs, story_logs จะโดนลบอัตโนมัติตาม ON DELETE CASCADE)
         const { error } = await supabase
           .from('users')
-          .update({ role: 'resigned' })
+          .delete()
           .eq('discord_id', user.discord_id);
 
         if (error) throw error;
-        toast.success('อัปเดตสถานะเป็นพ้นสภาพสำเร็จ');
+        toast.success('ลบข้อมูลผู้ใช้งานและประวัติทั้งหมดเรียบร้อยแล้ว');
         queryClient.invalidateQueries({ queryKey: ['users'] });
       } catch (error: any) {
-        toast.error('เกิดข้อผิดพลาด: ' + error.message);
+        toast.error('เกิดข้อผิดพลาดในการลบข้อมูล: ' + error.message);
       }
     }
   };
