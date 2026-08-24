@@ -5,6 +5,7 @@ export interface DutyLog {
   clock_out: string | null;
   total_break_minutes: number;
   total_duty_minutes: number;
+  duty_type?: string;
 }
 
 export interface LeaveRequest {
@@ -60,6 +61,7 @@ export interface SalaryResult {
   coins: number;
   story_count: number;
   story_money: number;
+  mentor_money: number;
 }
 
 // Hardcoded Rates based on old rules as fallback
@@ -199,6 +201,14 @@ export function calculateSalary(
     let gacha_promote = 0;
     let gacha_premium = 0;
     let coins = 0;
+    let mentor_money = 0;
+
+    // Calculate mentor money
+    logs.forEach(log => {
+      if (log.duty_type === 'mentor') {
+        mentor_money += 500000;
+      }
+    });
 
     if (totalHours >= 20) {
       gacha_ic = settings.reward_20h_gacha_ic !== undefined ? settings.reward_20h_gacha_ic : 20;
@@ -250,6 +260,7 @@ export function calculateSalary(
       coins,
       story_count,
       story_money,
+      mentor_money,
     };
   });
 

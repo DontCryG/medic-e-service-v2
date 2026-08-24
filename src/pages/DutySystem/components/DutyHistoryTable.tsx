@@ -88,13 +88,8 @@ const DutyHistoryTable = React.memo(function DutyHistoryTable({
           </thead>
           <tbody>
             {history.length > 0 ? history.map(log => {
-              const start = new Date(log.clock_in).getTime();
-              const end = new Date(log.clock_out).getTime();
-              
-              const diffMs = end - start;
               const breakMinutes = Math.floor(log.total_break_minutes || 0);
-              const totalMinutes = Math.floor(diffMs / 60000) - breakMinutes;
-              const displayMinutes = Math.max(0, totalMinutes);
+              const displayMinutes = Math.max(0, log.total_duty_minutes || 0);
               const hours = Math.floor(displayMinutes / 60);
               const minutes = displayMinutes % 60;
               
@@ -103,10 +98,20 @@ const DutyHistoryTable = React.memo(function DutyHistoryTable({
                 formattedTime += `${hours} ชม. `;
               }
               formattedTime += `${minutes} นาที`;
+
+              let badge = null;
+              if (log.duty_type === 'exam_doctor') {
+                badge = <span style={{ marginLeft: '0.5rem', fontSize: '0.75rem', background: '#3b82f6', color: 'white', padding: '0.1rem 0.4rem', borderRadius: '4px' }}>สอบหมอใหม่</span>;
+              } else if (log.duty_type === 'mentor') {
+                badge = <span style={{ marginLeft: '0.5rem', fontSize: '0.75rem', background: '#ec4899', color: 'white', padding: '0.1rem 0.4rem', borderRadius: '4px' }}>พี่เลี้ยง</span>;
+              }
               
               return (
                 <tr key={log.id}>
-                  <td>{formatDateString(log.clock_in)}</td>
+                  <td>
+                    {formatDateString(log.clock_in)}
+                    {badge}
+                  </td>
                   <td>{formatDateString(log.clock_out)}</td>
                   <td>{breakMinutes}</td>
                   <td style={{ fontWeight: 600 }}>{formattedTime}</td>

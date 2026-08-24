@@ -84,7 +84,7 @@ export function useDutyHistory(discordId: string | undefined, role: string | und
       let query = supabase
         .from('duty_logs')
         .select(`
-          id, discord_id, clock_in, clock_out, total_break_minutes, total_duty_minutes, status,
+          id, discord_id, clock_in, clock_out, total_break_minutes, total_duty_minutes, status, duty_type,
           users!inner ( ic_name, role, positions (name) )
         `, { count: 'exact' })
         .eq('status', 'completed')

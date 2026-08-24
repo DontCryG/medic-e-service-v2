@@ -16,8 +16,9 @@ export default function SalaryTable({ data, onOpenDutyLogModal, onPrintPayslip }
     let msg = `ชื่อ (IC): ${row.ic_name}\n`;
     msg += `เวลาเข้าเวร: ${row.total_hours} ชม. (${Math.floor(row.total_minutes / 60)}h ${Math.floor(row.total_minutes % 60)}m)\n`;
     if (row.ic_salary > 0) msg += `เงิน IC: ${row.ic_salary.toLocaleString()}\n`;
-    if (row.story_count > 0) msg += `เข้าสตอรี่: ${row.story_count} เคส\n`;
+    if (row.story_count > 0) msg += `สตอรี่: ${row.story_count} รอบ\n`;
     if (row.story_money > 0) msg += `เงินสตอรี่: ${row.story_money.toLocaleString()}\n`;
+    if (row.mentor_money > 0) msg += `เงินพิเศษพี่เลี้ยง: ${row.mentor_money.toLocaleString()}\n`;
     if (row.oc_money > 0) msg += `เงิน OC: ${row.oc_money.toLocaleString()}\n`;
     if (row.gacha_ic > 0) msg += `กาชา IC: ${row.gacha_ic}\n`;
     if (row.agency_gacha > 0) msg += `กาชาหน่วยงาน: ${row.agency_gacha}\n`;
@@ -48,6 +49,7 @@ export default function SalaryTable({ data, onOpenDutyLogModal, onPrintPayslip }
               <th style={{ textAlign: 'right' }}>เงิน IC</th>
               <th style={{ textAlign: 'center' }}>สตอรี่ (เคส)</th>
               <th style={{ textAlign: 'right' }}>เงินสตอรี่</th>
+              <th style={{ textAlign: 'right' }}>เงินพี่เลี้ยง</th>
               <th style={{ textAlign: 'right' }}>เงิน OC</th>
               <th style={{ textAlign: 'center' }}>กาชา IC</th>
               <th style={{ textAlign: 'center' }}>กาชาหน่วยงาน</th>
@@ -78,6 +80,9 @@ export default function SalaryTable({ data, onOpenDutyLogModal, onPrintPayslip }
                 </td>
                 <td style={{ textAlign: 'right', color: item.story_money > 0 ? '#10b981' : 'inherit', fontWeight: 'bold' }}>
                   {item.story_money > 0 ? item.story_money.toLocaleString() : '-'}
+                </td>
+                <td style={{ textAlign: 'right', color: item.mentor_money > 0 ? '#3b82f6' : 'inherit', fontWeight: 'bold' }}>
+                  {item.mentor_money > 0 ? item.mentor_money.toLocaleString() : '-'}
                 </td>
                 <td style={{ textAlign: 'right', color: item.oc_money > 0 ? '#ea580c' : 'inherit', fontWeight: 'bold' }}>
                   {item.oc_money > 0 ? item.oc_money.toLocaleString() : '-'}

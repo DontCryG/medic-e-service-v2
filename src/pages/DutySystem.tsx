@@ -11,11 +11,14 @@ import { useClockIn, useToggleBreak, useClockOut, useAdminToggleBreak, useAdminC
 import { useDutyRealtime } from './DutySystem/hooks/useDutyRealtime';
 import Swal from 'sweetalert2';
 
+import SpecialDutyModal from './DutySystem/components/SpecialDutyModal';
+
 export interface DutySystemProps {
   profile: any;
 }
 
 export default function DutySystem({ profile }: DutySystemProps) {
+  const [showSpecialDutyModal, setShowSpecialDutyModal] = useState(false);
   const [startDate, setStartDate] = useState<Date | null>(() => {
     const d = new Date();
     const day = d.getDay() === 0 ? 6 : d.getDay() - 1;
@@ -172,6 +175,19 @@ export default function DutySystem({ profile }: DutySystemProps) {
 
   return (
     <div className="duty-container">
+      {profile?.role === 'admin' && (
+        <div style={{ marginBottom: '1rem', display: 'flex', justifyContent: 'flex-end' }}>
+          <button 
+            onClick={() => setShowSpecialDutyModal(true)}
+            style={{ padding: '0.5rem 1rem', borderRadius: '8px', background: '#8b5cf6', color: 'white', border: 'none', fontWeight: 'bold', cursor: 'pointer', boxShadow: '0 2px 4px rgba(0,0,0,0.1)' }}
+          >
+            + มอบเวลาพิเศษ (สอบหมอ/พี่เลี้ยง)
+          </button>
+        </div>
+      )}
+
+      {showSpecialDutyModal && <SpecialDutyModal onClose={() => setShowSpecialDutyModal(false)} />}
+
       <DutyControls 
         profile={profile}
         avatarUrl={profile?.avatar_url}
