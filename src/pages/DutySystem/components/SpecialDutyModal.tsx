@@ -1,8 +1,9 @@
-﻿import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect } from 'react';
 import { supabase } from '@/lib/supabase';
 import { useAuthStore } from '@/store/authStore';
 import Swal from 'sweetalert2';
 import { X } from 'lucide-react';
+import SmartSelect from '../../../components/common/SmartSelect';
 
 interface SpecialDutyModalProps {
   onClose: () => void;
@@ -77,29 +78,25 @@ export default function SpecialDutyModal({ onClose }: SpecialDutyModalProps) {
         <form onSubmit={handleSubmit}>
           <div className="modal-form-group">
             <label>เลือกหมอ</label>
-            <select
+            <SmartSelect
+              options={users.map(u => ({ value: u.discord_id, label: u.ic_name }))}
               value={selectedUserId}
-              onChange={e => setSelectedUserId(e.target.value)}
-              className="modal-input"
-              required
-            >
-              <option value="">-- เลือกหมอ --</option>
-              {users.map(u => (
-                <option key={u.discord_id} value={u.discord_id}>{u.ic_name}</option>
-              ))}
-            </select>
+              onChange={setSelectedUserId}
+              placeholder="-- เลือกหมอ --"
+              searchable={true}
+            />
           </div>
           
           <div className="modal-form-group">
             <label>ประเภทงานพิเศษ</label>
-            <select
+            <SmartSelect
+              options={[
+                { value: 'exam_doctor', label: 'สอบหมอใหม่ (+3 ชม.)' },
+                { value: 'mentor', label: 'พี่เลี้ยงหมอใหม่ (+1 ชม. + เงิน 500,000)' }
+              ]}
               value={dutyType}
-              onChange={e => setDutyType(e.target.value)}
-              className="modal-input"
-            >
-              <option value="exam_doctor">สอบหมอใหม่ (+3 ชม.)</option>
-              <option value="mentor">พี่เลี้ยงหมอใหม่ (+1 ชม. + เงิน 500,000)</option>
-            </select>
+              onChange={setDutyType}
+            />
           </div>
           
           <div className="modal-actions">
