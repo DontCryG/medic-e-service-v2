@@ -12,13 +12,30 @@ initSentry();
 
 const container = document.getElementById('root')!;
 
+// Auto-reload when Vite fails to fetch lazy-loaded chunks (happens after deployment)
+window.addEventListener('vite:preloadError', (event) => {
+  window.location.reload();
+});
+
 createRoot(container).render(
   <StrictMode>
     <Sentry.ErrorBoundary
-      fallback={({ error, resetError }) => (
+      fallback={({ error, resetError }) => {
+        const err = error as Error;
+        // Auto-reload on Vite chunk load errors (happens after new deployments)
+        if (
+          err?.message?.includes('Importing a module script failed') || 
+          err?.message?.includes('Failed to fetch dynamically imported module') ||
+          err?.message?.includes('dynamically imported module')
+        ) {
+          window.location.reload();
+          return <div style={{ minHeight: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center', fontFamily: 'var(--font-main, sans-serif)' }}>กำลังอัปเดตระบบ...</div>;
+        }
+
+        return (
         <div style={{
           minHeight: '100vh', display: 'flex', flexDirection: 'column',
-          alignItems: 'center', justifyContent: 'center', fontFamily: 'Inter, sans-serif',
+          alignItems: 'center', justifyContent: 'center', fontFamily: 'var(--font-main, sans-serif)',
           background: '#f8fafc', gap: '1rem', padding: '2rem', textAlign: 'center'
         }}>
           <div style={{ fontSize: '3rem' }}>⚠️</div>
@@ -40,7 +57,8 @@ createRoot(container).render(
             ลองใหม่อีกครั้ง
           </button>
         </div>
-      )}
+        );
+      }}
     >
       <App />
     </Sentry.ErrorBoundary>
