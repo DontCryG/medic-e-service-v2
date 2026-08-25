@@ -34,6 +34,9 @@ export function initSentry() {
       'Load failed',
       'ResizeObserver loop limit exceeded',
       'Non-Error promise rejection captured',
+      'Importing a module script failed',
+      'Failed to fetch dynamically imported module',
+      'dynamically imported module',
     ],
 
     beforeSend(event) {
