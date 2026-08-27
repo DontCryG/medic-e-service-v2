@@ -1,8 +1,20 @@
-﻿import { useState, useRef } from 'react';
+import { useState, useRef } from 'react';
 import Swal from 'sweetalert2';
 import { Plus, Edit2, Trash2, AlertTriangle, Save, X } from 'lucide-react';
 import { usePositions, useAddPosition, useUpdatePosition, useDeletePosition } from '../../../hooks/usePositions';
 import type { Position } from '../../../hooks/usePositions';
+import { useForm } from 'react-hook-form';
+import { z } from 'zod';
+import { zodResolver } from '@hookform/resolvers/zod';
+
+const positionSchema = z.object({
+  name: z.string().min(1, 'กรุณาระบุชื่อตำแหน่ง'),
+  rank: z.number({ message: "Required" }).min(0, 'ระดับต้องมากกว่าหรือเท่ากับ 0'),
+  ic_rate: z.number({ message: "Required" }).min(0, 'เรทต้องไม่ติดลบ'),
+  oc_rate: z.number({ message: "Required" }).min(0, 'ส่วนแบ่งต้องไม่ติดลบ'),
+});
+
+type PositionFormValues = z.infer<typeof positionSchema>;
 
 export default function PositionSettings() {
   const { data: positions = [], isLoading } = usePositions();
@@ -13,17 +25,20 @@ export default function PositionSettings() {
 
   const [isAdding, setIsAdding] = useState(false);
   const [editingId, setEditingId] = useState<string | null>(null);
-  
-  const [formData, setFormData] = useState({
-    name: '',
-    rank: 0,
-    ic_rate: 0,
-    oc_rate: 0
+
+  const { register, handleSubmit, reset, formState: { errors } } = useForm<PositionFormValues>({
+    resolver: zodResolver(positionSchema),
+    defaultValues: {
+      name: '',
+      rank: 1,
+      ic_rate: 0,
+      oc_rate: 0
+    }
   });
 
   const handleEdit = (pos: Position) => {
     setEditingId(pos.id);
-    setFormData({
+    reset({
       name: pos.name,
       rank: pos.rank,
       ic_rate: pos.ic_rate || 0,
@@ -35,17 +50,22 @@ export default function PositionSettings() {
   const handleAdd = () => {
     setIsAdding(true);
     setEditingId(null);
-    setFormData({ name: '', rank: 1, ic_rate: 0, oc_rate: 0 });
+    reset({ name: '', rank: 1, ic_rate: 0, oc_rate: 0 });
   };
 
-  const handleSave = async () => { 
-    if (!formData.name.trim() || addMutation.isPending || updateMutation.isPending || processingRef.current) return;
+  const cancelEdit = () => {
+    setIsAdding(false);
+    setEditingId(null);
+  };
+
+  const onSubmit = async (data: PositionFormValues) => { 
+    if (addMutation.isPending || updateMutation.isPending || processingRef.current) return;
     processingRef.current = true;
     try {
       if (editingId) {
-        await updateMutation.mutateAsync({ id: editingId, ...formData });
+        await updateMutation.mutateAsync({ id: editingId, ...data });
       } else {
-        await addMutation.mutateAsync(formData);
+        await addMutation.mutateAsync(data);
       }
       setIsAdding(false);
       setEditingId(null);
@@ -84,191 +104,188 @@ export default function PositionSettings() {
     }
   };
 
-  const cancelEdit = () => {
-    setIsAdding(false);
-    setEditingId(null);
-  };
-
-  if (isLoading) return <div>กำลังโหลดข้อมูล...</div>;
+  if (isLoading) return <div className="text-center p-8 text-slate-500">กำลังโหลดข้อมูล...</div>;
 
   return (
-    <div>
-      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1.5rem' }}>
-        <h2 style={{ fontSize: '1.25rem', fontWeight: '600' }}>การจัดการตำแหน่งงาน</h2>
+    <div className="animate-in fade-in duration-300">
+      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-6">
+        <h2 className="text-xl font-semibold text-slate-800 m-0">การจัดการตำแหน่งงาน</h2>
         <button 
           onClick={handleAdd}
           disabled={isAdding || !!editingId}
-          style={{
-            display: 'flex',
-            alignItems: 'center',
-            gap: '0.5rem',
-            padding: '0.5rem 1rem',
-            background: '#4f46e5',
-            color: 'white',
-            border: 'none',
-            borderRadius: '8px',
-            cursor: (isAdding || !!editingId) ? 'not-allowed' : 'pointer',
-            opacity: (isAdding || !!editingId) ? 0.6 : 1
-          }}
+          className="flex items-center gap-2 px-4 !py-2 bg-[var(--primary)] text-white border-none rounded-md font-medium cursor-pointer transition-colors hover:bg-[var(--primary-hover)] disabled:opacity-50 disabled:cursor-not-allowed"
         >
-          <Plus size={16} />
+          <Plus size={18} />
           เพิ่มตำแหน่ง
         </button>
       </div>
 
-      <div style={{ overflowX: 'auto' }}>
-        <table style={{ width: '100%', borderCollapse: 'collapse', textAlign: 'left' }}>
-          <thead style={{ background: '#f8fafc' }}>
-            <tr style={{ color: '#64748b' }}>
-              <th style={{ padding: '1rem', width: '10%' }}>Rank</th>
-              <th style={{ padding: '1rem', width: '30%' }}>ชื่อตำแหน่ง</th>
-              <th style={{ padding: '1rem', width: '25%' }}>อัตราค่าเข้าเวร (IC Rate)</th>
-              <th style={{ padding: '1rem', width: '25%' }}>อัตราค่าโอที (OC Rate)</th>
-              <th style={{ padding: '1rem', width: '10%', textAlign: 'center' }}>จัดการ</th>
-            </tr>
-          </thead>
-          <tbody>
-            {isAdding && (
-              <tr style={{ background: '#f8fafc', borderBottom: '1px solid #e2e8f0' }}>
-                <td style={{ padding: '1rem' }}>
-                  <input 
-                    type="number" 
-                    value={formData.rank}
-                    onChange={e => setFormData({...formData, rank: parseInt(e.target.value) || 0})}
-                    style={{ width: '60px', padding: '0.5rem', borderRadius: '4px', border: '1px solid #cbd5e1' }}
-                  />
-                </td>
-                <td style={{ padding: '1rem' }}>
-                  <input 
-                    type="text" 
-                    value={formData.name}
-                    onChange={e => setFormData({...formData, name: e.target.value})}
-                    placeholder="ระบุชื่อตำแหน่ง"
-                    style={{ width: '100%', padding: '0.5rem', borderRadius: '4px', border: '1px solid #cbd5e1' }}
-                  />
-                </td>
-                <td style={{ padding: '1rem' }}>
-                  <input 
-                    type="number" 
-                    value={formData.ic_rate}
-                    onChange={e => setFormData({...formData, ic_rate: parseInt(e.target.value) || 0})}
-                    style={{ width: '100px', padding: '0.5rem', borderRadius: '4px', border: '1px solid #cbd5e1' }}
-                  />
-                </td>
-                <td style={{ padding: '1rem' }}>
-                  <input 
-                    type="number" 
-                    value={formData.oc_rate}
-                    onChange={e => setFormData({...formData, oc_rate: parseInt(e.target.value) || 0})}
-                    style={{ width: '100px', padding: '0.5rem', borderRadius: '4px', border: '1px solid #cbd5e1' }}
-                  />
-                </td>
-                <td style={{ padding: '1rem', textAlign: 'center' }}>
-                  <div style={{ display: 'flex', gap: '0.5rem', justifyContent: 'center' }}>
-                    <button onClick={handleSave} style={{ background: 'transparent', border: 'none', color: '#16a34a', cursor: 'pointer' }}><Save size={18} /></button>
-                    <button onClick={cancelEdit} style={{ background: 'transparent', border: 'none', color: '#ef4444', cursor: 'pointer' }}><X size={18} /></button>
-                  </div>
-                </td>
-              </tr>
-            )}
-            
-            {positions.map(position => (
-              <tr key={position.id} style={{ borderBottom: '1px solid #e2e8f0' }}>
-                {editingId === position.id ? (
-                  <>
-                    <td style={{ padding: '1rem' }}>
+      <div className="bg-amber-50 border border-amber-200 rounded-md p-4 mb-6 flex gap-3 text-amber-800">
+        <AlertTriangle size={20} className="shrink-0 mt-0.5 text-amber-500" />
+        <div>
+          <strong className="block mb-1">ข้อควรระวัง:</strong>
+          <span className="text-sm">การลบหรือแก้ไขชื่อตำแหน่งอาจส่งผลกระทบต่อข้อมูลบุคลากร ที่ผูกกับตำแหน่งนั้นๆ อยู่ โปรดตรวจสอบให้แน่ใจก่อนทำการเปลี่ยนแปลง</span>
+        </div>
+      </div>
+
+      <div className="border border-slate-200 rounded-2xl overflow-hidden">
+        <div className="overflow-x-auto">
+          <form onSubmit={handleSubmit(onSubmit)}>
+            <table className="w-full min-w-[800px] border-collapse text-left">
+              <thead className="bg-slate-50 border-b border-slate-200">
+                <tr className="text-slate-500 text-[0.95rem]">
+                  <th className="p-4 font-semibold w-[10%]">Rank</th>
+                  <th className="p-4 font-semibold w-[30%]">ชื่อตำแหน่ง</th>
+                  <th className="p-4 font-semibold w-[25%]">อัตราค่าเข้าเวร (IC Rate)</th>
+                  <th className="p-4 font-semibold w-[25%]">อัตราค่าโอที (OC Rate)</th>
+                  <th className="p-4 font-semibold w-[10%] text-right">จัดการ</th>
+                </tr>
+              </thead>
+              <tbody>
+                {isAdding && (
+                  <tr className="bg-slate-50 border-b border-slate-200">
+                    <td className="p-3">
                       <input 
-                        type="number" 
-                        value={formData.rank}
-                        onChange={e => setFormData({...formData, rank: parseInt(e.target.value) || 0})}
-                        style={{ width: '60px', padding: '0.5rem', borderRadius: '4px', border: '1px solid #cbd5e1' }}
+                        type="number"
+                        {...register('rank')}
+                        className={`w-full !p-2.5 rounded-md border ${errors.rank ? 'border-red-400 bg-red-50' : 'border-slate-300'} outline-none focus:border-[var(--primary)]`}
                       />
                     </td>
-                    <td style={{ padding: '1rem' }}>
+                    <td className="p-3">
                       <input 
                         type="text" 
-                        value={formData.name}
-                        onChange={e => setFormData({...formData, name: e.target.value})}
-                        style={{ width: '100%', padding: '0.5rem', borderRadius: '4px', border: '1px solid #cbd5e1' }}
+                        {...register('name')}
+                        placeholder="ระบุชื่อตำแหน่ง"
+                        className={`w-full !p-2.5 rounded-md border ${errors.name ? 'border-red-400 bg-red-50' : 'border-slate-300'} outline-none focus:border-[var(--primary)]`}
                       />
                     </td>
-                    <td style={{ padding: '1rem' }}>
-                      <input 
-                        type="number" 
-                        value={formData.ic_rate}
-                        onChange={e => setFormData({...formData, ic_rate: parseInt(e.target.value) || 0})}
-                        style={{ width: '100px', padding: '0.5rem', borderRadius: '4px', border: '1px solid #cbd5e1' }}
-                      />
-                    </td>
-                    <td style={{ padding: '1rem' }}>
-                      <input 
-                        type="number" 
-                        value={formData.oc_rate}
-                        onChange={e => setFormData({...formData, oc_rate: parseInt(e.target.value) || 0})}
-                        style={{ width: '100px', padding: '0.5rem', borderRadius: '4px', border: '1px solid #cbd5e1' }}
-                      />
-                    </td>
-                    <td style={{ padding: '1rem', textAlign: 'center' }}>
-                      <div style={{ display: 'flex', gap: '0.5rem', justifyContent: 'center' }}>
-                        <button onClick={handleSave} style={{ background: 'transparent', border: 'none', color: '#16a34a', cursor: 'pointer' }}><Save size={18} /></button>
-                        <button onClick={cancelEdit} style={{ background: 'transparent', border: 'none', color: '#ef4444', cursor: 'pointer' }}><X size={18} /></button>
+                    <td className="p-3">
+                      <div className="relative">
+                        <span className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400">฿</span>
+                        <input 
+                          type="number" 
+                          {...register('ic_rate')}
+                          className={`w-full !p-2.5 !pl-8 rounded-md border ${errors.ic_rate ? 'border-red-400 bg-red-50' : 'border-slate-300'} outline-none focus:border-[var(--primary)]`}
+                        />
                       </div>
                     </td>
-                  </>
-                ) : (
-                  <>
-                    <td style={{ padding: '1rem', fontWeight: 'bold' }}>{position.rank}</td>
-                    <td style={{ padding: '1rem', fontWeight: '500' }}>{position.name}</td>
-                    <td style={{ padding: '1rem', color: '#10b981', fontWeight: '500' }}>
-                      ฿{position.ic_rate?.toLocaleString() || 0}
+                    <td className="p-3">
+                      <div className="relative">
+                        <span className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400">฿</span>
+                        <input 
+                          type="number" 
+                          {...register('oc_rate')}
+                          className={`w-full !p-2.5 !pl-8 rounded-md border ${errors.oc_rate ? 'border-red-400 bg-red-50' : 'border-slate-300'} outline-none focus:border-[var(--primary)]`}
+                        />
+                      </div>
                     </td>
-                    <td style={{ padding: '1rem', color: '#10b981', fontWeight: '500' }}>
-                      ฿{position.oc_rate?.toLocaleString() || 0}
-                    </td>
-                    <td style={{ padding: '1rem', textAlign: 'center' }}>
-                      <div style={{ display: 'flex', gap: '0.5rem', justifyContent: 'center' }}>
-                        <button 
-                          onClick={() => handleEdit(position)} 
-                          disabled={isAdding || !!editingId}
-                          style={{ background: 'transparent', border: 'none', color: '#3b82f6', cursor: (isAdding || !!editingId) ? 'not-allowed' : 'pointer', opacity: (isAdding || !!editingId) ? 0.5 : 1 }}
-                        >
-                          <Edit2 size={18} />
+                    <td className="p-3 text-right">
+                      <div className="flex gap-2 justify-end">
+                        <button type="submit" className="p-2 rounded-md bg-emerald-50 text-emerald-600 border-none hover:bg-emerald-100 transition-colors cursor-pointer disabled:opacity-50" disabled={addMutation.isPending || updateMutation.isPending}>
+                          <Save size={18} />
                         </button>
-                        <button 
-                          onClick={() => handleDelete(position.id)}
-                          disabled={isAdding || !!editingId}
-                          style={{ background: 'transparent', border: 'none', color: '#ef4444', cursor: (isAdding || !!editingId) ? 'not-allowed' : 'pointer', opacity: (isAdding || !!editingId) ? 0.5 : 1 }}
-                        >
-                          <Trash2 size={18} />
+                        <button type="button" onClick={cancelEdit} className="p-2 rounded-md bg-slate-100 text-slate-500 border-none hover:bg-slate-200 transition-colors cursor-pointer disabled:opacity-50" disabled={addMutation.isPending || updateMutation.isPending}>
+                          <X size={18} />
                         </button>
                       </div>
                     </td>
-                  </>
+                  </tr>
                 )}
-              </tr>
-            ))}
-            
-            {positions.length === 0 && !isAdding && (
-              <tr>
-                <td colSpan={4} style={{ padding: '2rem', textAlign: 'center', color: '#64748b' }}>
-                  ไม่พบข้อมูลตำแหน่ง
-                </td>
-              </tr>
-            )}
-          </tbody>
-        </table>
-      </div>
-      
-      <div style={{ marginTop: '1.5rem', padding: '1rem', background: '#f8fafc', borderRadius: '8px', display: 'flex', gap: '0.75rem', color: '#64748b', fontSize: '0.9rem' }}>
-        <AlertTriangle size={18} style={{ flexShrink: 0, color: '#f59e0b' }} />
-        <p style={{ margin: 0 }}>
-          <strong>ข้อควรระวัง:</strong> การลบหรือแก้ไขชื่อตำแหน่งอาจส่งผลกระทบต่อข้อมูลบุคลากร (Users) ที่ผูกกับตำแหน่งนั้นๆ อยู่ โปรดตรวจสอบให้แน่ใจก่อนทำการเปลี่ยนแปลง
-        </p>
+                
+                {positions.length > 0 ? positions.map(pos => (
+                  <tr key={pos.id} className="border-b border-slate-100 hover:bg-slate-50/50 transition-colors">
+                    {editingId === pos.id ? (
+                      <>
+                        <td className="p-3">
+                          <input 
+                            type="number"
+                            {...register('rank')}
+                            className={`w-full !p-2.5 rounded-md border ${errors.rank ? 'border-red-400 bg-red-50' : 'border-slate-300'} outline-none focus:border-[var(--primary)]`}
+                          />
+                        </td>
+                        <td className="p-3">
+                          <input 
+                            type="text" 
+                            {...register('name')}
+                            className={`w-full !p-2.5 rounded-md border ${errors.name ? 'border-red-400 bg-red-50' : 'border-slate-300'} outline-none focus:border-[var(--primary)]`}
+                          />
+                        </td>
+                        <td className="p-3">
+                          <div className="relative">
+                            <span className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400">฿</span>
+                            <input 
+                              type="number" 
+                              {...register('ic_rate')}
+                              className={`w-full !p-2.5 !pl-8 rounded-md border ${errors.ic_rate ? 'border-red-400 bg-red-50' : 'border-slate-300'} outline-none focus:border-[var(--primary)]`}
+                            />
+                          </div>
+                        </td>
+                        <td className="p-3">
+                          <div className="relative">
+                            <span className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400">฿</span>
+                            <input 
+                              type="number" 
+                              {...register('oc_rate')}
+                              className={`w-full !p-2.5 !pl-8 rounded-md border ${errors.oc_rate ? 'border-red-400 bg-red-50' : 'border-slate-300'} outline-none focus:border-[var(--primary)]`}
+                            />
+                          </div>
+                        </td>
+                        <td className="p-3 text-right">
+                          <div className="flex gap-2 justify-end">
+                            <button type="submit" className="p-2 rounded-md bg-emerald-50 text-emerald-600 border-none hover:bg-emerald-100 transition-colors cursor-pointer disabled:opacity-50" disabled={addMutation.isPending || updateMutation.isPending}>
+                              <Save size={18} />
+                            </button>
+                            <button type="button" onClick={cancelEdit} className="p-2 rounded-md bg-slate-100 text-slate-500 border-none hover:bg-slate-200 transition-colors cursor-pointer disabled:opacity-50" disabled={addMutation.isPending || updateMutation.isPending}>
+                              <X size={18} />
+                            </button>
+                          </div>
+                        </td>
+                      </>
+                    ) : (
+                      <>
+                        <td className="p-4 text-slate-700 font-medium">
+                          <div className="w-8 h-8 rounded-full bg-slate-100 text-slate-600 flex items-center justify-center text-sm font-bold">
+                            {pos.rank}
+                          </div>
+                        </td>
+                        <td className="p-4 text-slate-700 font-semibold">{pos.name}</td>
+                        <td className="p-4 text-slate-600">฿{pos.ic_rate?.toLocaleString() || 0}</td>
+                        <td className="p-4 text-slate-600">฿{pos.oc_rate?.toLocaleString() || 0}</td>
+                        <td className="p-4 text-right">
+                          <div className="flex gap-2 justify-end">
+                            <button 
+                              type="button"
+                              onClick={(e) => { e.preventDefault(); e.stopPropagation(); handleEdit(pos); }} 
+                              disabled={isAdding || !!editingId} 
+                              className="p-2 rounded-md border border-slate-200 text-blue-500 bg-white hover:bg-blue-50 transition-colors cursor-pointer disabled:opacity-50"
+                            >
+                              <Edit2 size={16} />
+                            </button>
+                            <button 
+                              type="button"
+                              onClick={() => handleDelete(pos.id)} 
+                              disabled={isAdding || !!editingId} 
+                              className="p-2 rounded-md border border-slate-200 text-red-500 bg-white hover:bg-red-50 transition-colors cursor-pointer disabled:opacity-50"
+                            >
+                              <Trash2 size={16} />
+                            </button>
+                          </div>
+                        </td>
+                      </>
+                    )}
+                  </tr>
+                )) : (!isAdding && (
+                  <tr>
+                    <td colSpan={5} className="p-12 text-center text-slate-500">
+                      ไม่พบข้อมูลตำแหน่ง
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </form>
+        </div>
       </div>
     </div>
   );
 }
-
-
-
-

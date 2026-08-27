@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { X, Save } from 'lucide-react';
+import { X, Save, Edit } from 'lucide-react';
 import { useUpdateFinanceLog } from '../hooks/useAccountingMutations';
 
 interface EditFinanceLogModalProps {
@@ -42,126 +42,80 @@ export default function EditFinanceLogModal({ isOpen, onClose, log }: EditFinanc
   };
 
   return (
-    <div className="modal-overlay" onClick={onClose}>
-      <div className="modal-content" onClick={e => e.stopPropagation()} style={{ maxWidth: '500px', width: '90%' }}>
-        <div className="modal-header">
-          <h2>แก้ไขรายการรายรับ-รายจ่าย</h2>
-          <button className="close-btn" onClick={onClose}><X size={20} /></button>
+    <div className="fixed inset-0 bg-slate-900/40 backdrop-blur-sm z-50 flex items-center justify-center p-4 sm:p-6 animate-in fade-in duration-200" onClick={onClose}>
+      <div 
+        className="bg-white rounded-[24px] w-full max-w-md overflow-hidden shadow-2xl animate-in slide-in-from-bottom-4 duration-300"
+        onClick={e => e.stopPropagation()}
+      >
+        <div className="flex items-center justify-between p-6 border-b border-slate-100">
+          <h2 className="text-xl font-black text-slate-800 flex items-center gap-2">
+            <div className="bg-blue-100 text-blue-600 p-2 rounded-xl">
+              <Edit size={20} />
+            </div>
+            แก้ไขรายรับ-รายจ่าย
+          </h2>
+          <button 
+            className="p-2 text-slate-400 hover:text-slate-700 hover:bg-slate-100 rounded-full transition-colors border-none bg-transparent" 
+            onClick={onClose}
+          >
+            <X size={20} />
+          </button>
         </div>
         
-        <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '1.25rem', marginTop: '1.5rem' }}>
-          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem' }}>
+        <form onSubmit={handleSubmit} className="p-6 flex flex-col gap-5">
+          <div className="flex bg-slate-100 p-1 rounded-xl">
             <button
               type="button"
-              className={`type-btn ${type === 'income' ? 'income active' : ''}`}
+              className={`flex-1 py-2.5 rounded-lg text-sm font-bold transition-all border-none ${type === 'income' ? 'bg-white text-emerald-600 shadow-sm' : 'text-slate-500 hover:text-slate-700 bg-transparent'}`}
               onClick={() => setType('income')}
-              style={{
-                padding: '0.75rem',
-                borderRadius: '8px',
-                border: '1px solid',
-                borderColor: type === 'income' ? '#10b981' : '#e2e8f0',
-                background: type === 'income' ? '#ecfdf5' : 'white',
-                color: type === 'income' ? '#047857' : '#64748b',
-                fontWeight: 600,
-                cursor: 'pointer',
-                transition: 'all 0.2s'
-              }}
             >
               รายรับ
             </button>
             <button
               type="button"
-              className={`type-btn ${type === 'expense' ? 'expense active' : ''}`}
+              className={`flex-1 py-2.5 rounded-lg text-sm font-bold transition-all border-none ${type === 'expense' ? 'bg-white text-rose-600 shadow-sm' : 'text-slate-500 hover:text-slate-700 bg-transparent'}`}
               onClick={() => setType('expense')}
-              style={{
-                padding: '0.75rem',
-                borderRadius: '8px',
-                border: '1px solid',
-                borderColor: type === 'expense' ? '#ef4444' : '#e2e8f0',
-                background: type === 'expense' ? '#fef2f2' : 'white',
-                color: type === 'expense' ? '#b91c1c' : '#64748b',
-                fontWeight: 600,
-                cursor: 'pointer',
-                transition: 'all 0.2s'
-              }}
             >
               รายจ่าย
             </button>
           </div>
 
           <div>
-            <label style={{ display: 'block', marginBottom: '0.5rem', fontWeight: 500, color: '#475569' }}>
-              จำนวนเงิน (บาท)
-            </label>
+            <label className="block text-sm font-bold text-slate-700 mb-1.5">จำนวนเงิน (บาท)</label>
             <input
               type="number"
               value={amount}
               onChange={(e) => setAmount(e.target.value === '' ? '' : Number(e.target.value))}
               placeholder="0"
-              style={{
-                width: '100%',
-                padding: '0.75rem 1rem',
-                borderRadius: '8px',
-                border: '1px solid #cbd5e1',
-                fontSize: '1rem',
-                boxSizing: 'border-box'
-              }}
               required
               min="1"
+              className="w-full px-4 py-3 rounded-xl border border-slate-200 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent font-medium"
             />
           </div>
 
           <div>
-            <label style={{ display: 'block', marginBottom: '0.5rem', fontWeight: 500, color: '#475569' }}>
-              รายละเอียด (ถ้ามี)
-            </label>
-            <input
-              type="text"
+            <label className="block text-sm font-bold text-slate-700 mb-1.5">รายละเอียดเพิ่มเติม (ถ้ามี)</label>
+            <textarea
               value={description}
               onChange={(e) => setDescription(e.target.value)}
-              placeholder="เช่น ค่ารักษาพยาบาล, ค่ายา ฯลฯ"
-              style={{
-                width: '100%',
-                padding: '0.75rem 1rem',
-                borderRadius: '8px',
-                border: '1px solid #cbd5e1',
-                fontSize: '1rem',
-                boxSizing: 'border-box'
-              }}
+              placeholder="เช่น ค่าไฟ, ค่ายา, ฯลฯ"
+              rows={3}
+              className="w-full px-4 py-3 rounded-xl border border-slate-200 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent font-medium resize-none"
             />
           </div>
 
-          <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '1rem', marginTop: '1rem' }}>
+          <div className="flex gap-3 pt-2 mt-2">
             <button
               type="button"
               onClick={onClose}
-              style={{
-                padding: '0.75rem 1.5rem',
-                borderRadius: '8px',
-                border: '1px solid #cbd5e1',
-                background: 'white',
-                color: '#475569',
-                fontWeight: 600,
-                cursor: 'pointer'
-              }}
+              className="flex-1 py-3.5 bg-slate-100 hover:bg-slate-200 text-slate-600 rounded-xl font-bold transition-colors border-none"
             >
               ยกเลิก
             </button>
             <button
               type="submit"
-              disabled={updateMutation.isPending}
-              style={{
-                padding: '0.75rem 1.5rem',
-                borderRadius: '8px',
-                border: 'none',
-                background: '#3b82f6',
-                color: 'white',
-                fontWeight: 600,
-                cursor: 'pointer',
-                display: 'flex',
-                alignItems: 'center',
-                gap: '0.5rem'
-              }}
+              disabled={updateMutation.isPending || amount === '' || Number(amount) <= 0}
+              className="flex-1 py-3.5 bg-blue-500 hover:bg-blue-600 text-white rounded-xl font-bold shadow-lg shadow-blue-500/30 transition-all disabled:opacity-50 border-none flex items-center justify-center gap-2"
             >
               <Save size={18} />
               {updateMutation.isPending ? 'กำลังบันทึก...' : 'บันทึกการเปลี่ยนแปลง'}

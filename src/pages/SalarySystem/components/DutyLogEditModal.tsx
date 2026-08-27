@@ -104,30 +104,30 @@ export default function DutyLogEditModal({ user, startDate, endDate, onClose }: 
   };
 
   return (
-    <div className="modal-overlay">
-      <div className="modal-content" style={{ maxWidth: '1100px', width: '95%' }}>
-        <div className="modal-header">
-          <h2 style={{ margin: 0, display: 'flex', alignItems: 'center', gap: '8px' }}>
-            <Pencil size={24} color="#3b82f6" />
+    <div className="fixed inset-0 bg-slate-900/50 backdrop-blur-sm z-50 flex items-center justify-center p-4 animate-in fade-in duration-200" onClick={onClose}>
+      <div className="bg-white rounded-3xl w-full max-w-5xl shadow-xl overflow-hidden animate-in zoom-in-95 duration-200" onClick={e => e.stopPropagation()}>
+        <div className="flex justify-between items-center px-6 py-5 border-b border-slate-100 bg-slate-50/50">
+          <h2 className="text-xl font-bold text-slate-800 m-0 flex items-center gap-2">
+            <Pencil size={24} className="text-[var(--primary)]" />
             แก้ไขประวัติเวร: {user.ic_name}
           </h2>
-          <button className="close-btn" onClick={onClose}>
+          <button className="p-2 -mr-2 text-slate-400 hover:text-slate-600 hover:bg-slate-100 rounded-full transition-colors cursor-pointer border-none bg-transparent" onClick={onClose}>
             <X size={24} />
           </button>
         </div>
 
-        <div className="modal-body" style={{ maxHeight: '70vh', overflowY: 'auto' }}>
+        <div className="p-6 max-h-[70vh] overflow-y-auto">
           {isLoading ? (
             <div style={{ textAlign: 'center', padding: '2rem', color: '#64748b' }}>กำลังโหลดข้อมูล...</div>
           ) : logs && logs.length > 0 ? (
             <div style={{ overflowX: 'auto' }}>
-              <table className="salary-table" style={{ fontSize: '0.9rem', width: '100%', minWidth: '950px' }}>
+              <table className="w-full text-left border-collapse min-w-[950px] text-sm">
                 <thead>
                   <tr>
-                    <th style={{ width: '35%' }}>วันที่เข้าเวร (Clock In)</th>
-                    <th style={{ width: '35%' }}>เวลาออกเวร (Clock Out)</th>
-                    <th style={{ width: '100px', textAlign: 'center' }}>พักเบรก (นาที)</th>
-                    <th style={{ width: '180px', textAlign: 'center' }}>จัดการ</th>
+                    <th className="p-4 text-slate-500 font-semibold border-b-2 border-slate-100 w-[35%]">วันที่เข้าเวร (Clock In)</th>
+                    <th className="p-4 text-slate-500 font-semibold border-b-2 border-slate-100 w-[35%]">เวลาออกเวร (Clock Out)</th>
+                    <th className="p-4 text-slate-500 font-semibold border-b-2 border-slate-100 w-[100px] text-center">พักเบรก (นาที)</th>
+                    <th className="p-4 text-slate-500 font-semibold border-b-2 border-slate-100 w-[180px] text-center">จัดการ</th>
                   </tr>
                 </thead>
                 <tbody>
@@ -135,85 +135,69 @@ export default function DutyLogEditModal({ user, startDate, endDate, onClose }: 
                     <tr key={log.id}>
                       {editingId === log.id ? (
                         <>
-                          <td>
+                          <td className="p-2 border-b border-slate-50">
                             <DateTimeInput 
                               value={editForm.clock_in}
                               onChange={(date: any) => setEditForm({...editForm, clock_in: date})}
                               placeholder="เวลาเข้าเวร"
                             />
                           </td>
-                          <td>
+                          <td className="p-2 border-b border-slate-50">
                             <DateTimeInput 
                               value={editForm.clock_out}
                               onChange={(date: any) => setEditForm({...editForm, clock_out: date})}
                               placeholder="เวลาออกเวร"
                             />
                           </td>
-                          <td>
+                          <td className="p-2 border-b border-slate-50">
                             <input 
                               type="number" 
                               value={editForm.total_break_minutes} 
                               onChange={(e) => setEditForm({...editForm, total_break_minutes: e.target.value as any})}
-                              className="modal-input"
-                              style={{ width: '100px', textAlign: 'center', padding: '0.5rem', borderRadius: '8px' }}
+                              className="w-[100px] text-center border border-slate-200 rounded-lg p-2 outline-none focus:border-[var(--primary)] mx-auto block"
                             />
                           </td>
-                          <td style={{ textAlign: 'center' }}>
-                            <div style={{ display: 'flex', gap: '8px', justifyContent: 'center' }}>
+                          <td className="p-2 border-b border-slate-50 text-center">
+                            <div className="flex gap-2 justify-center">
                               <button 
                                 onClick={() => handleSaveEdit(log.id)}
                                 disabled={isUpdating}
-                                style={{
-                                  background: '#10b981', color: 'white', border: 'none',
-                                  padding: '6px 12px', borderRadius: '6px', cursor: 'pointer',
-                                  display: 'flex', alignItems: 'center', gap: '4px'
-                                }}
+                                className="flex items-center gap-1.5 bg-green-500 text-white hover:bg-green-600 px-3 py-1.5 rounded-lg border-none cursor-pointer transition-colors text-sm font-medium disabled:opacity-50"
                               >
-                                <Save size={16} /> บันทึก
+                                <Save size={14} /> บันทึก
                               </button>
                               <button 
                                 onClick={handleCancelEdit}
                                 disabled={isUpdating}
-                                style={{
-                                  background: '#f1f5f9', color: '#64748b', border: '1px solid #cbd5e1',
-                                  padding: '6px 12px', borderRadius: '6px', cursor: 'pointer'
-                                }}
+                                className="flex items-center gap-1.5 bg-slate-100 text-slate-600 hover:bg-slate-200 px-3 py-1.5 rounded-lg border-none cursor-pointer transition-colors text-sm font-medium disabled:opacity-50"
                               >
-                                ยกเลิก
+                                <X size={14} /> ยกเลิก
                               </button>
                             </div>
                           </td>
                         </>
                       ) : (
                         <>
-                          <td style={{ color: log.clock_in ? '#1e293b' : '#ef4444' }}>{formatDate(log.clock_in)}</td>
-                          <td style={{ color: log.clock_out ? '#1e293b' : '#ef4444' }}>
+                          <td className="p-4 border-b border-slate-50 text-slate-700">{formatDate(log.clock_in)}</td>
+                          <td className="p-4 border-b border-slate-50 text-slate-700">
                             {formatDate(log.clock_out)}
-                            {!log.clock_out && <span style={{ fontSize: '0.8rem', marginLeft: '8px', color: '#ef4444' }}>(ยังไม่ออกเวร)</span>}
+                            {!log.clock_out && <span className="text-xs ml-2 text-red-500">(ยังไม่ออกเวร)</span>}
                           </td>
-                          <td style={{ textAlign: 'center' }}>{Math.floor(log.total_break_minutes || 0)}</td>
-                          <td style={{ textAlign: 'center' }}>
-                            <div style={{ display: 'flex', gap: '8px', justifyContent: 'center' }}>
+                          <td className="p-4 border-b border-slate-50 text-center text-slate-700">{Math.floor(log.total_break_minutes || 0)}</td>
+                          <td className="p-4 border-b border-slate-50">
+                            <div className="flex gap-2 justify-center">
                               <button 
                                 onClick={() => handleEditClick(log)}
-                                style={{
-                                  background: '#eff6ff', color: '#3b82f6', border: '1px solid #bfdbfe',
-                                  padding: '6px 12px', borderRadius: '6px', cursor: 'pointer',
-                                  display: 'flex', alignItems: 'center', gap: '4px'
-                                }}
+                                className="flex items-center gap-1.5 bg-blue-50 text-blue-600 hover:bg-blue-100 px-3 py-1.5 rounded-lg border-none cursor-pointer transition-colors text-sm font-medium"
                               >
-                                <Pencil size={16} /> แก้ไข
+                                <Pencil size={14} /> แก้ไข
                               </button>
                               <button 
                                 onClick={() => handleDelete(log.id)}
                                 disabled={isDeleting}
-                                style={{
-                                  background: '#fef2f2', color: '#ef4444', border: '1px solid #fecaca',
-                                  padding: '6px 12px', borderRadius: '6px', cursor: 'pointer',
-                                  display: 'flex', alignItems: 'center', gap: '4px'
-                                }}
+                                className="flex items-center gap-1.5 bg-red-50 text-red-600 hover:bg-red-100 px-3 py-1.5 rounded-lg border-none cursor-pointer transition-colors text-sm font-medium disabled:opacity-50"
                               >
-                                <Trash2 size={16} /> ลบ
+                                <Trash2 size={14} /> ลบ
                               </button>
                             </div>
                           </td>

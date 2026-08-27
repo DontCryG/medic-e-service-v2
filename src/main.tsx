@@ -3,8 +3,6 @@ import { createRoot } from 'react-dom/client'
 import { Sentry } from './lib/sentry'
 import { initSentry } from './lib/sentry'
 import './index.css'
-import './App.css'
-import './responsive.css'
 import App from './App.tsx'
 
 // Init Sentry BEFORE anything else renders
@@ -13,7 +11,7 @@ initSentry();
 const container = document.getElementById('root')!;
 
 // Auto-reload when Vite fails to fetch lazy-loaded chunks (happens after deployment)
-window.addEventListener('vite:preloadError', (event) => {
+window.addEventListener('vite:preloadError', () => {
   window.location.reload();
 });
 
@@ -38,11 +36,9 @@ createRoot(container).render(
           alignItems: 'center', justifyContent: 'center', fontFamily: 'var(--font-main, sans-serif)',
           background: '#f8fafc', gap: '1rem', padding: '2rem', textAlign: 'center'
         }}>
-          <div style={{ fontSize: '3rem' }}>⚠️</div>
-          <h2 style={{ color: '#0f172a', margin: 0 }}>เกิดข้อผิดพลาดที่ไม่คาดคิด</h2>
-          <p style={{ color: '#64748b', margin: 0 }}>
-            ระบบได้บันทึกข้อผิดพลาดนี้แล้ว กรุณาลองใหม่อีกครั้ง
-          </p>
+          <div style={{ fontSize: '3rem' }}>🚨</div>
+          <h2 style={{ color: '#0f172a', margin: 0 }}>ระบบขัดข้องชั่วคราว</h2>
+          <p style={{ color: '#64748b', margin: 0 }}>พบข้อผิดพลาดบางอย่าง ลองรีเฟรชหน้าเว็บอีกครั้ง หรือติดต่อผู้ดูแลระบบ</p>
           <p style={{ color: '#94a3b8', fontSize: '0.8rem', margin: 0 }}>
             {(error as Error)?.message}
           </p>
@@ -54,7 +50,7 @@ createRoot(container).render(
               fontWeight: 600, cursor: 'pointer', fontSize: '1rem'
             }}
           >
-            ลองใหม่อีกครั้ง
+            รีเฟรชหน้าเว็บ
           </button>
         </div>
         );

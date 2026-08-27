@@ -1,17 +1,14 @@
 import { useState } from 'react';
-import { Outlet, useLocation } from 'react-router-dom';
-import { AnimatePresence, motion } from 'framer-motion';
+import { Outlet } from 'react-router-dom';
 import Sidebar from './Sidebar';
 import Header from './Header';
-import './Dashboard.css';
 
 export default function MainLayout() {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [isSidebarCollapsed, setIsSidebarCollapsed] = useState(false);
-  const location = useLocation();
-
+  
   return (
-    <div className={`dashboard-layout ${isSidebarCollapsed ? 'sidebar-collapsed' : ''}`}>
+    <div className="flex h-screen bg-slate-50 overflow-hidden text-slate-800">
       <Sidebar 
         isMobileMenuOpen={isMobileMenuOpen}
         setIsMobileMenuOpen={setIsMobileMenuOpen}
@@ -19,25 +16,17 @@ export default function MainLayout() {
         setIsCollapsed={setIsSidebarCollapsed}
       />
 
-      <main className="dashboard-main">
+      <main className="flex-1 flex flex-col min-w-0 overflow-hidden relative">
         <Header 
           setIsMobileMenuOpen={setIsMobileMenuOpen}
           isSidebarCollapsed={isSidebarCollapsed}
           setIsSidebarCollapsed={setIsSidebarCollapsed}
         />
         
-        <div className="dashboard-content">
-          <AnimatePresence mode="wait">
-            <motion.div
-              key={location.pathname}
-              initial={{ opacity: 0, y: 8 }}
-              animate={{ opacity: 1, y: 0 }}
-              exit={{ opacity: 0, y: -8 }}
-              transition={{ duration: 0.2, ease: "easeOut" }}
-            >
+        <div className="flex-1 overflow-auto p-4 md:p-6 lg:p-8 relative">
+          
               <Outlet />
-            </motion.div>
-          </AnimatePresence>
+            
         </div>
       </main>
     </div>

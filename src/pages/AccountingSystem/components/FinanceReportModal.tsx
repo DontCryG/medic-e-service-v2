@@ -1,245 +1,151 @@
-import { Printer, X } from 'lucide-react';
+import React, { useMemo, useEffect } from 'react';
 import { useFinanceLogs } from '../hooks/useAccountingQueries';
 
 interface FinanceReportModalProps {
-  isOpen?: boolean;
+  isOpen: boolean;
   onClose: () => void;
-  startDate?: string;
-  endDate?: string;
+  startDate: Date | null;
+  endDate: Date | null;
 }
 
-export default function FinanceReportModal({ onClose, startDate, endDate }: FinanceReportModalProps) {
-  const { data: logs = [] } = useFinanceLogs();
+export default function FinanceReportModal({ isOpen, onClose, startDate, endDate }: FinanceReportModalProps) {
+  const { data: financeLogs = [] } = useFinanceLogs();
 
-  // Filter logs by date range for the report
-  const filteredLogs = logs.filter(log => {
-    if (!startDate && !endDate) return true;
-    const logDate = new Date(log.created_at);
-    logDate.setHours(0, 0, 0, 0);
-    
-    if (startDate) {
-      const start = new Date(startDate);
-      start.setHours(0, 0, 0, 0);
-      if (logDate < start) return false;
+  const filteredLogs = useMemo(() => {
+    return financeLogs.filter(log => {
+      const logDate = new Date(log.created_at);
+      if (startDate && logDate < startDate) return false;
+      if (endDate && logDate > endDate) return false;
+      return true;
+    });
+  }, [financeLogs, startDate, endDate]);
+
+  const { totalIncome, totalExpense } = useMemo(() => {
+    return filteredLogs.reduce((acc, log) => {
+      if (log.type === 'income') acc.totalIncome += log.amount;
+      else acc.totalExpense += log.amount;
+      return acc;
+    }, { totalIncome: 0, totalExpense: 0, periodBalance: 0 });
+  }, [filteredLogs]);
+
+  const finalBalance = totalIncome - totalExpense;
+
+  useEffect(() => {
+    if (isOpen) {
+      const handleAfterPrint = () => {
+        onClose();
+      };
+      
+      window.addEventListener('afterprint', handleAfterPrint);
+      
+      const timer = setTimeout(() => {
+        window.print();
+        setTimeout(() => onClose(), 1000);
+      }, 100);
+      
+      return () => {
+        clearTimeout(timer);
+        window.removeEventListener('afterprint', handleAfterPrint);
+      };
     }
-    if (endDate) {
-      const end = new Date(endDate);
-      end.setHours(0, 0, 0, 0);
-      if (logDate > end) return false;
-    }
-    return true;
-  });
+  }, [isOpen, onClose]);
 
-  const totalIncome = filteredLogs.filter(l => l.type === 'income').reduce((acc, curr) => acc + curr.amount, 0);
-  const totalExpense = filteredLogs.filter(l => l.type === 'expense').reduce((acc, curr) => acc + curr.amount, 0);
-  const periodBalance = totalIncome - totalExpense;
-
-  const handlePrint = () => {
-    window.print();
-  };
+  if (!isOpen) return null;
 
   return (
-    <div className="modal-overlay" onClick={onClose} style={{ zIndex: 9999 }}>
-      <style>
-        {`
-          @media print {
-            body * {
-              visibility: hidden;
-            }
-            .print-area, .print-area * {
-              visibility: visible;
-            }
-            .modal-overlay {
-              position: absolute !important;
-              left: 0 !important;
-              top: 0 !important;
-              background: transparent !important;
-              display: block !important;
-              padding: 0 !important;
-              overflow: visible !important;
-              height: auto !important;
-            }
-            .print-area {
-              position: static !important;
-              width: 100% !important;
-              max-width: 100% !important;
-              padding: 0 !important;
-              margin: 0 !important;
-              display: block !important;
-              max-height: none !important;
-              overflow: visible !important;
-              box-shadow: none !important;
-              border: none !important;
-            }
-            .no-print {
-              display: none !important;
-            }
-            @page { size: portrait; margin: 1cm; }
-          }
-
-          .report-table {
-            width: 100%;
-            border-collapse: collapse;
-            margin-bottom: 2rem;
-            font-size: 0.85rem;
-            table-layout: fixed;
-            word-break: break-word;
-          }
-          
-          .report-table th, .report-table td {
-            border: 1px solid #1e293b;
-            padding: 0.5rem;
-            color: #0f172a;
-          }
-          
-          .report-table th {
-            background-color: #f8fafc;
-            font-weight: bold;
-            text-align: center;
-          }
-
-          .text-right { text-align: right; }
-          .text-center { text-align: center; }
-
-          .close-btn {
-            background: none;
-            border: none;
-            color: #64748b;
-            cursor: pointer;
-            padding: 0.5rem;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            border-radius: 50%;
-            transition: all 0.2s;
-          }
-          .close-btn:hover {
-            background: #f1f5f9;
-            color: #0f172a;
-          }
-          
-          .modal-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            border-bottom: 1px solid #e2e8f0;
-            padding-bottom: 1rem;
-            margin-bottom: 2rem;
-          }
-
-          .signature-box {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            width: 200px;
-          }
-          
-          .signature-line {
-            width: 100%;
-            border-bottom: 1px solid #0f172a;
-            margin-bottom: 0.5rem;
-            height: 40px;
-          }
-        `}
-      </style>
-      
-      <div 
-        className="print-area" 
-        style={{ width: '100%', maxWidth: '900px', padding: '2.5rem', background: '#fff', maxHeight: '90vh', overflowY: 'auto', borderRadius: '16px' }}
-        onClick={e => e.stopPropagation()}
-      >
-        <div className="modal-header no-print">
-          <h2 style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', color: '#1e293b', margin: 0 }}>
-            <Printer size={24} /> ตัวอย่างก่อนพิมพ์ (รายงานการเงิน)
-          </h2>
-          <div style={{ display: 'flex', gap: '1rem' }}>
-            <button 
-              onClick={handlePrint}
-              style={{ background: '#3b82f6', color: 'white', border: 'none', padding: '0.5rem 1.5rem', borderRadius: '8px', cursor: 'pointer', fontWeight: 600, display: 'flex', alignItems: 'center', gap: '0.5rem' }}
-            >
-              <Printer size={18} /> พิมพ์รายงาน
-            </button>
-            <button className="close-btn" onClick={onClose}><X size={24} /></button>
+    <div className="hidden print:block print:absolute print:inset-0 print:bg-white print:z-[9999] text-slate-800 font-sans" style={{ WebkitPrintColorAdjust: 'exact', printColorAdjust: 'exact' }}>
+      <div className="max-w-[210mm] mx-auto p-10 print:p-0">
+        
+        {/* Header Section */}
+        <div className="flex justify-between items-end border-b-2 border-slate-200 pb-6 mb-8">
+          <div>
+            <h1 className="text-3xl font-black text-slate-900 tracking-tight mb-1">Medic Services</h1>
+            <h2 className="text-xl font-bold text-slate-500">สำนักงานแพทย์ WIP TOWN</h2>
           </div>
-        </div>
-
-        {/* Print Document Content */}
-        <div style={{ color: '#0f172a' }}>
-          <div style={{ textAlign: 'center', marginBottom: '2rem' }}>
-            <h1 style={{ fontSize: '1.5rem', margin: '0 0 0.5rem 0' }}>หน่วยงานแพทย์ (Medic Services)</h1>
-            <h2 style={{ fontSize: '1.25rem', margin: '0 0 0.5rem 0', fontWeight: 'normal' }}>รายงานสรุปบัญชีการเงินหน่วยงานแพทย์</h2>
-            <p style={{ margin: 0, fontSize: '1rem' }}>
+          <div className="text-right">
+            <h3 className="text-2xl font-black text-blue-600 mb-2">รายงานสรุปบัญชีการเงิน</h3>
+            <p className="text-sm font-medium text-slate-500 bg-slate-100 px-3 py-1 rounded-full inline-block">
               {(startDate || endDate) 
-                ? `ข้อมูลสรุปตั้งแต่วันที่ ${startDate ? new Date(startDate).toLocaleDateString('th-TH') : '-'} ถึง ${endDate ? new Date(endDate).toLocaleDateString('th-TH') : 'ปัจจุบัน'}`
-                : `ข้อมูลสรุปประจำวันที่ ${new Date().toLocaleDateString('th-TH', { year: 'numeric', month: 'long', day: 'numeric' })}`
+                ? `วันที่ ${startDate ? new Date(startDate).toLocaleDateString('th-TH') : '-'} - ${endDate ? new Date(endDate).toLocaleDateString('th-TH') : 'ปัจจุบัน'}`
+                : `ข้อมูลภาพรวม ณ วันที่ ${new Date().toLocaleDateString('th-TH', { year: 'numeric', month: 'short', day: 'numeric' })}`
               }
             </p>
           </div>
-
-          {/* Section 1: Summary */}
-          <table className="report-table" style={{ width: '60%', margin: '0 auto 2rem auto' }}>
-            <thead>
-              <tr>
-                <th colSpan={2}>สรุปยอดรวม (ในช่วงเวลาที่กำหนด)</th>
-              </tr>
-            </thead>
-            <tbody>
-              <tr>
-                <td>รายรับรวม</td>
-                <td className="text-right" style={{ fontWeight: 'bold' }}>{totalIncome.toLocaleString()}</td>
-              </tr>
-              <tr>
-                <td>รายจ่ายรวม</td>
-                <td className="text-right" style={{ fontWeight: 'bold' }}>{totalExpense.toLocaleString()}</td>
-              </tr>
-              <tr>
-                <td style={{ fontWeight: 'bold' }}>ส่วนต่างยอดเงิน</td>
-                <td className="text-right" style={{ fontWeight: 'bold' }}>{periodBalance.toLocaleString()}</td>
-              </tr>
-            </tbody>
-          </table>
-
-          {/* Section 2: Statement */}
-          <table className="report-table">
-            <thead>
-              <tr>
-                <th colSpan={4}>รายการเคลื่อนไหว</th>
-              </tr>
-              <tr>
-                <th style={{ width: '15%' }}>วันที่-เวลา</th>
-                <th>รายละเอียด</th>
-                <th style={{ width: '15%' }}>ประเภท</th>
-                <th style={{ width: '20%' }}>จำนวนเงิน (บาท)</th>
-              </tr>
-            </thead>
-            <tbody>
-              {filteredLogs.length === 0 ? (
-                <tr>
-                  <td colSpan={4} style={{ textAlign: 'center', padding: '2rem', color: '#94a3b8' }}>ไม่มีรายการเคลื่อนไหว</td>
-                </tr>
-              ) : (
-                filteredLogs.map(log => (
-                  <tr key={log.id}>
-                    <td className="text-center">
-                      {new Date(log.created_at).toLocaleDateString('th-TH')}
-                      <br/>
-                      <span style={{ fontSize: '0.85em', color: '#64748b' }}>{new Date(log.created_at).toLocaleTimeString('th-TH')}</span>
-                    </td>
-                    <td>{log.description || '-'}</td>
-                    <td className="text-center">
-                      {log.type === 'income' ? 'รายรับ' : 'รายจ่าย'}
-                    </td>
-                    <td className="text-right" style={{ fontWeight: 'bold' }}>
-                      {log.type === 'income' ? '+' : '-'}{log.amount.toLocaleString()}
-                    </td>
-                  </tr>
-                ))
-              )}
-            </tbody>
-          </table>
-
-          <div style={{ marginTop: '2rem' }}></div>
         </div>
+
+        {/* Summary Cards (Print friendly) */}
+        <div className="grid grid-cols-3 gap-6 mb-10">
+          <div className="bg-slate-50 border border-slate-200 rounded-2xl p-5">
+            <p className="text-sm font-bold text-slate-500 mb-1">รายรับรวม (Income)</p>
+            <p className="text-2xl font-black text-emerald-600">฿ {totalIncome.toLocaleString()}</p>
+          </div>
+          <div className="bg-slate-50 border border-slate-200 rounded-2xl p-5">
+            <p className="text-sm font-bold text-slate-500 mb-1">รายจ่ายรวม (Expense)</p>
+            <p className="text-2xl font-black text-rose-600">฿ {totalExpense.toLocaleString()}</p>
+          </div>
+          <div className="bg-blue-50 border border-blue-200 rounded-2xl p-5">
+            <p className="text-sm font-bold text-blue-600 mb-1">ยอดสุทธิ (Net Balance)</p>
+            <p className="text-2xl font-black text-blue-700">฿ {finalBalance.toLocaleString()}</p>
+          </div>
+        </div>
+
+        {/* Table Section */}
+        <div className="mb-4">
+          <h4 className="text-lg font-bold text-slate-800 mb-3 flex items-center gap-2">
+            รายการความเคลื่อนไหว
+            <div className="h-px bg-slate-200 flex-1 ml-4"></div>
+          </h4>
+        </div>
+
+        <table className="w-full text-sm text-left">
+          <thead>
+            <tr className="border-b-2 border-slate-800 text-slate-800">
+              <th className="py-3 font-bold w-[20%]">วันเวลา</th>
+              <th className="py-3 font-bold w-[15%]">ประเภท</th>
+              <th className="py-3 font-bold">รายละเอียด</th>
+              <th className="py-3 font-bold w-[20%] text-right">จำนวนเงิน (บาท)</th>
+            </tr>
+          </thead>
+          <tbody>
+            {filteredLogs.length === 0 ? (
+              <tr>
+                <td colSpan={4} className="py-8 text-center text-slate-400 font-bold border-b border-slate-200">
+                  ไม่มีรายการเคลื่อนไหวในช่วงเวลาที่กำหนด
+                </td>
+              </tr>
+            ) : (
+              filteredLogs.map((log, index) => (
+                <tr key={log.id} className={`border-b border-slate-200 ${index % 2 === 0 ? 'bg-white' : 'bg-slate-50/50'}`}>
+                  <td className="py-4 align-top">
+                    <div className="font-bold text-slate-700">{new Date(log.created_at).toLocaleDateString('th-TH')}</div>
+                    <div className="text-xs text-slate-500">{new Date(log.created_at).toLocaleTimeString('th-TH')}</div>
+                  </td>
+                  <td className="py-4 align-top">
+                    <span className={`px-2 py-1 rounded text-xs font-bold ${log.type === 'income' ? 'bg-emerald-100 text-emerald-700' : 'bg-rose-100 text-rose-700'}`}>
+                      {log.type === 'income' ? 'รายรับ' : 'รายจ่าย'}
+                    </span>
+                  </td>
+                  <td className="py-4 align-top font-medium text-slate-600">
+                    {log.description || '-'}
+                  </td>
+                  <td className={`py-4 align-top text-right font-black ${log.type === 'income' ? 'text-emerald-600' : 'text-rose-600'}`}>
+                    {log.type === 'income' ? '+' : '-'}{log.amount.toLocaleString()}
+                  </td>
+                </tr>
+              ))
+            )}
+          </tbody>
+        </table>
+
+        {/* Footer / Signatures */}
+        <div className="mt-20 pt-8 border-t border-slate-200 flex justify-end">
+          <div className="text-center w-64">
+            <div className="border-b border-slate-400 border-dashed h-8 mb-2"></div>
+            <p className="text-sm font-bold text-slate-600 mb-1">ผู้จัดทำรายงาน / ผู้ตรวจสอบ</p>
+            <p className="text-xs text-slate-400">วันที่ ........................................................</p>
+          </div>
+        </div>
+
       </div>
     </div>
   );

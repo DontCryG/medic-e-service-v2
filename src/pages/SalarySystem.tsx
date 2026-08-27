@@ -1,7 +1,6 @@
-import { useState } from 'react';
-import { CalendarDays, Download } from 'lucide-react';
+﻿import { useState } from 'react';
+import { CalendarDays, Printer } from 'lucide-react';
 import SmartDatePicker from '../components/common/SmartDatePicker';
-import './SalarySystem.css';
 
 import SalarySummary from './SalarySystem/components/SalarySummary';
 import SalaryTable from './SalarySystem/components/SalaryTable';
@@ -40,52 +39,18 @@ export default function SalarySystem({ profile: _profile }: SalarySystemProps) {
 
   const { data: salaryData, isLoading, error } = useSalaryData(startDate as Date, endDate as Date);
 
-  const handleExportCsv = () => {
-    if (!salaryData) return;
-    
-    let csvContent = "data:text/csv;charset=utf-8,\uFEFF";
-    csvContent += "ชื่อ-สกุล,ตำแหน่ง,เวลาทำงาน (ชั่วโมง),เวลาทำงาน (นาที),เงิน IC,สตอรี่ (เคส),เงินสตอรี่,เงิน OC,เงินโบนัส,กาชา IC,กาชา Promote,กาชาหน่วยงาน,เหรียญหน่วยงาน\n";
-    
-    salaryData.forEach(item => {
-      const row = [
-        item.ic_name,
-        item.position_name,
-        item.total_hours,
-        item.total_minutes,
-        item.ic_salary,
-        item.story_count,
-        item.story_money,
-        item.oc_money,
-        (item as any).bonus_cash || 0,
-        item.gacha_ic,
-        item.gacha_promote,
-        item.agency_gacha,
-        item.coins
-      ].join(",");
-      csvContent += row + "\n";
-    });
-
-    const encodedUri = encodeURI(csvContent);
-    const link = document.createElement("a");
-    link.setAttribute("href", encodedUri);
-    link.setAttribute("download", `payroll_${(startDate as Date).toISOString().split('T')[0]}.csv`);
-    document.body.appendChild(link);
-    link.click();
-    document.body.removeChild(link);
-  };
-
   const handlePrint = () => {
     setIsReportOpen(true);
   };
 
   return (
-    <div className="salary-system-container " style={{ display: 'flex', flexDirection: 'column', gap: '2rem' }}>
+    <div className="flex flex-col gap-8 w-full max-w-7xl mx-auto">
       {/* Header and Controls */}
-      <div className="salary-controls-header" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '1.5rem' }}>
-        <div style={{ display: 'flex', alignItems: 'center', gap: '1rem', background: 'white', padding: '1rem 1.5rem', borderRadius: '16px', boxShadow: '0 4px 15px rgba(0,0,0,0.05)', border: '1px solid var(--border-color)', flexWrap: 'wrap' }}>
-          <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
-            <CalendarDays size={20} color="#64748b" />
-            <label style={{ fontSize: '0.95rem', color: 'var(--text-secondary)', fontWeight: 500, whiteSpace: 'nowrap' }}>ตั้งแต่วันที่:</label>
+      <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-6">
+        <div className="flex flex-wrap items-center gap-4 bg-white p-4 px-6 rounded-3xl shadow-[0_10px_40px_-10px_rgba(0,0,0,0.05)] border border-[var(--border-color)]">
+          <div className="flex items-center gap-3">
+            <CalendarDays size={20} className="text-[var(--primary)]" />
+            <label className="text-[0.95rem] text-slate-500 font-semibold whitespace-nowrap">ตั้งแต่วันที่:</label>
             <SmartDatePicker
               selected={startDate}
               onChange={(date: Date | null) => {
@@ -100,9 +65,9 @@ export default function SalarySystem({ profile: _profile }: SalarySystemProps) {
               className="date-picker-input"
             />
           </div>
-          <div style={{ width: '1px', height: '24px', background: '#e2e8f0', margin: '0 0.5rem' }}></div>
-          <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
-            <label style={{ fontSize: '0.95rem', color: 'var(--text-secondary)', fontWeight: 500, whiteSpace: 'nowrap' }}>ถึงวันที่:</label>
+          <div className="w-[1px] h-6 bg-slate-200 mx-2 hidden sm:block"></div>
+          <div className="flex items-center gap-3">
+            <label className="text-[0.95rem] text-slate-500 font-semibold whitespace-nowrap">ถึงวันที่:</label>
             <SmartDatePicker
               selected={endDate}
               onChange={(date: Date | null) => {
@@ -120,68 +85,31 @@ export default function SalarySystem({ profile: _profile }: SalarySystemProps) {
           </div>
         </div>
 
-        <div style={{ display: 'flex', gap: '0.75rem' }}>
-          <button 
-            onClick={handleExportCsv}
-            disabled={!salaryData || salaryData.length === 0}
-            style={{ 
-              display: 'flex', 
-              alignItems: 'center', 
-              gap: '0.5rem', 
-              background: '#64748b', 
-              color: 'white', 
-              border: 'none', 
-              padding: '0.75rem 1.5rem', 
-              borderRadius: '12px', 
-              cursor: (!salaryData || salaryData.length === 0) ? 'not-allowed' : 'pointer',
-              fontWeight: 600,
-              fontSize: '0.95rem',
-              boxShadow: '0 4px 15px rgba(100,116,139,0.2)',
-              opacity: (!salaryData || salaryData.length === 0) ? 0.7 : 1,
-              transition: 'all 0.2s'
-            }}
-          >
-            <Download size={18} /> ส่งออก CSV
-          </button>
+        <div className="flex gap-3">
           
           <button 
             onClick={handlePrint}
             disabled={!salaryData || salaryData.length === 0}
-            style={{ 
-              display: 'flex', 
-              alignItems: 'center', 
-              gap: '0.5rem', 
-              background: '#ef4444', 
-              color: 'white', 
-              border: 'none', 
-              padding: '0.75rem 1.5rem', 
-              borderRadius: '12px', 
-              cursor: (!salaryData || salaryData.length === 0) ? 'not-allowed' : 'pointer',
-              fontWeight: 600,
-              fontSize: '0.95rem',
-              boxShadow: '0 4px 15px rgba(239,68,68,0.2)',
-              opacity: (!salaryData || salaryData.length === 0) ? 0.7 : 1,
-              transition: 'all 0.2s'
-            }}
+            className={`flex items-center gap-2 px-6 py-2.5 rounded-xl font-semibold text-[0.95rem] border-none text-white transition-all shadow-sm ${(!salaryData || salaryData.length === 0) ? 'bg-purple-300 opacity-70 cursor-not-allowed' : 'bg-[var(--primary)] hover:brightness-110 cursor-pointer hover:-translate-y-0.5'}`}
           >
-            <Download size={18} /> พิมพ์ / บันทึก PDF
+            <Printer size={18} /> พิมพ์ / บันทึก PDF
           </button>
         </div>
       </div>
 
       {error ? (
-        <div style={{ color: '#ef4444', background: '#fef2f2', padding: '1rem', borderRadius: '12px', textAlign: 'center' }}>
+        <div className="text-red-500 bg-red-50 p-4 rounded-xl text-center font-medium">
           เกิดข้อผิดพลาดในการโหลดข้อมูล: {(error as Error).message}
         </div>
       ) : isLoading ? (
-        <div style={{ display: 'flex', justifyContent: 'center', padding: '4rem' }}>
+        <div className="flex justify-center p-16">
           <div className="spinner"></div>
         </div>
       ) : salaryData ? (
         <div id="salary-table-container">
           <SalarySummary data={salaryData} />
           
-          <div style={{ marginTop: '2rem' }}>
+          <div className="mt-8">
             <SalaryTable 
               data={salaryData} 
               onOpenDutyLogModal={setDutyLogModalUser}

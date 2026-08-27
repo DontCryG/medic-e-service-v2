@@ -2,7 +2,6 @@ import { useState, useRef } from 'react';
 import DutyControls from './DutySystem/components/DutyControls';
 import LiveUsersList from './DutySystem/components/LiveUsersList';
 import DutyHistoryTable from './DutySystem/components/DutyHistoryTable';
-import './DutySystem.css';
 import { supabase } from '@/lib/supabase';
 
 // Import our new hooks
@@ -10,7 +9,7 @@ import { useCurrentSession, useLiveUsers, useDutyHistory } from './DutySystem/ho
 import { useClockIn, useToggleBreak, useClockOut, useAdminToggleBreak, useAdminClockOut } from './DutySystem/hooks/useDutyMutations';
 import { useDutyRealtime } from './DutySystem/hooks/useDutyRealtime';
 import Swal from 'sweetalert2';
-import { Gift } from 'lucide-react';
+
 
 import SpecialDutyModal from './DutySystem/components/SpecialDutyModal';
 
@@ -175,22 +174,13 @@ export default function DutySystem({ profile }: DutySystemProps) {
   const isMutating = clockInMutation.isPending || toggleBreakMutation.isPending || clockOutMutation.isPending;
 
   return (
-    <div className="duty-container">
-      {profile?.role === 'admin' && (
-        <div style={{ marginBottom: '1.5rem', display: 'flex', justifyContent: 'flex-end' }}>
-          <button 
-            onClick={() => setShowSpecialDutyModal(true)}
-            className="btn-special"
-          >
-            <Gift size={20} />
-            มอบเวลาพิเศษ (สอบหมอ/พี่เลี้ยง)
-          </button>
-        </div>
-      )}
+    <div className="w-full max-w-[1400px] mx-auto flex flex-col gap-8 animate-in fade-in duration-300">
+      
 
       {showSpecialDutyModal && <SpecialDutyModal onClose={() => setShowSpecialDutyModal(false)} />}
 
-      <DutyControls 
+      <DutyControls
+        onSpecialDutyClick={() => setShowSpecialDutyModal(true)} 
         profile={profile}
         avatarUrl={profile?.avatar_url}
         currentSession={currentSession}
@@ -200,7 +190,7 @@ export default function DutySystem({ profile }: DutySystemProps) {
         onClockOut={handleClockOut}
       />
 
-      <div className="duty-content-grid">
+      <div className="grid grid-cols-1 gap-8">
         <LiveUsersList 
           liveUsers={liveUsers}
           profile={profile}

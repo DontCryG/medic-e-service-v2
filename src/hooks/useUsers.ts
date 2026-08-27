@@ -34,12 +34,15 @@ export const useUsers = () => {
         
       if (error) throw error;
       
-      const map = (data || []).reduce((acc: Record<string, any>, userItem) => {
+      // Filter out fake volunteer users (discord_id should be numeric 17-20 chars)
+      const fetchedData = (data || []).filter(u => /^\d{17,20}$/.test(u.discord_id));
+      
+      const map = fetchedData.reduce((acc: Record<string, any>, userItem) => {
         acc[userItem.discord_id] = userItem;
         return acc;
       }, {});
       
-      return { raw: data || [], map };
+      return { raw: fetchedData, map };
     },
     enabled: !!user,
     staleTime: 30 * 1000, 

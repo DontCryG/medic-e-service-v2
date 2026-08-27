@@ -1,5 +1,6 @@
 import type { SalaryResult } from '../utils/salaryCalculations';
-import { Printer, X } from 'lucide-react';
+import { useEffect } from 'react';
+import { createPortal } from 'react-dom';
 
 interface SalaryReportModalProps {
   data: SalaryResult[];
@@ -15,17 +16,44 @@ export default function SalaryReportModal({ data, startDate, endDate, onClose }:
     return date.toLocaleDateString('th-TH', { day: '2-digit', month: 'short', year: 'numeric' });
   };
 
-  const handlePrint = () => {
-    window.print();
-  };
+  useEffect(() => {
+    const originalTitle = document.title;
+    
+    const today = new Date();
+    const d = today.getDate().toString().padStart(2, '0');
+    const m = (today.getMonth() + 1).toString().padStart(2, '0');
+    const y = today.getFullYear();
+    document.title = `Payslip-${d}-${m}-${y}`;
 
-  return (
-    <div className="modal-overlay" onClick={onClose} style={{ zIndex: 9999 }}>
+    let timer = setTimeout(() => {
+      window.print();
+    }, 500);
+    
+    const handleAfterPrint = () => {
+      document.title = originalTitle;
+      onClose();
+    };
+    window.addEventListener('afterprint', handleAfterPrint);
+    
+    return () => {
+      clearTimeout(timer);
+      document.title = originalTitle;
+      window.removeEventListener('afterprint', handleAfterPrint);
+    };
+  }, [startDate, onClose]);
+
+  const modalContent = (
+    <div className="fixed inset-0 z-[-9999] opacity-0 pointer-events-none print:opacity-100 print:z-[9999] print:bg-white print:static print:inset-auto print:block">
       <style>
         {`
           @media print {
-            body * {
-              visibility: hidden;
+            html, body {
+              background-color: white !important;
+              height: auto !important;
+              min-height: 0 !important;
+            }
+            #root {
+              display: none !important;
             }
             .print-area, .print-area * {
               visibility: visible;
@@ -43,53 +71,40 @@ export default function SalaryReportModal({ data, startDate, endDate, onClose }:
             }
             .print-area {
               position: static !important;
+              left: 0 !important;
+              top: 0 !important;
               width: 100% !important;
-              max-width: 100% !important;
-              padding: 0 !important;
+              background-color: white !important;
+              padding: 20px !important;
               margin: 0 !important;
               box-shadow: none !important;
               border: none !important;
-              max-height: none !important;
+              
               overflow: visible !important;
             }
-            .report-table {
-              page-break-inside: auto;
-            }
-            .report-table tr {
-              page-break-inside: avoid;
-              page-break-after: auto;
-            }
-            .report-table thead {
-              display: table-header-group;
-            }
-            .report-table tfoot {
-              display: table-row-group;
-            }
-            .no-print {
-              display: none !important;
-            }
-            @page { size: landscape; margin: 1cm; }
+            @page { size: landscape; margin: 0; }
           }
 
-          .report-table {
+            .report-table {
             width: 100%;
             border-collapse: collapse;
             margin-bottom: 2rem;
             font-size: 0.85rem;
-            
-            word-break: break-word;
           }
           
           .report-table th, .report-table td {
-            border: 1px solid #1e293b;
-            padding: 0.5rem;
-            color: #0f172a;
+            border: 1px solid #e2e8f0;
+            padding: 0.75rem 0.5rem;
+            color: #334155;
           }
+
+          
           
           .report-table th {
             background-color: #f8fafc;
-            font-weight: bold;
+            font-weight: 600;
             text-align: center;
+            color: #475569;
           }
 
           .text-right { text-align: right; }
@@ -138,32 +153,22 @@ export default function SalaryReportModal({ data, startDate, endDate, onClose }:
       </style>
       
       <div 
-        className="print-area" 
-        style={{ width: '100%', maxWidth: '1100px', padding: '2.5rem', background: '#fff', maxHeight: '90vh', overflowY: 'auto', borderRadius: '16px' }}
+        className="print-area print-color-exact" 
+        style={{ width: '100%', background: '#fff', padding: '20px' }}
         onClick={e => e.stopPropagation()}
       >
-        <div className="modal-header no-print">
-          <h2 style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', color: '#1e293b', margin: 0 }}>
-            <Printer size={24} /> ตัวอย่างก่อนพิมพ์ (รายงานสรุปเงินเดือน)
-          </h2>
-          <div style={{ display: 'flex', gap: '1rem' }}>
-            <button 
-              onClick={handlePrint}
-              style={{ background: '#3b82f6', color: 'white', border: 'none', padding: '0.5rem 1.5rem', borderRadius: '8px', cursor: 'pointer', fontWeight: 600, display: 'flex', alignItems: 'center', gap: '0.5rem' }}
-            >
-              <Printer size={18} /> พิมพ์รายงาน
-            </button>
-            <button className="close-btn" onClick={onClose}><X size={24} /></button>
-          </div>
-        </div>
+        
 
         {/* Print Document Content */}
         <div style={{ color: '#0f172a' }}>
-          <div style={{ textAlign: 'center', marginBottom: '2rem' }}>
-            <h1 style={{ fontSize: '1.5rem', margin: '0 0 0.5rem 0' }}>หน่วยงานแพทย์ (Medic Services)</h1>
-            <h2 style={{ fontSize: '1.25rem', margin: '0 0 0.5rem 0', fontWeight: 'normal' }}>รายงานสรุปการคำนวณเงินเดือน และสวัสดิการบุคลากร</h2>
-            <p style={{ margin: 0, fontSize: '1rem' }}>ประจำรอบวันที่: {formatDate(startDate)} - {formatDate(endDate)}</p>
-          </div>
+          <div className="flex flex-col items-center justify-center mb-8">
+              <img src="/logo.png" alt="Hospital Logo" className="w-20 h-20 object-contain mb-4" />
+              <div style={{ textAlign: 'center' }}>
+            <h1 className="text-2xl font-bold text-slate-800 mb-2">หน่วยงานแพทย์ (Medic Services)</h1>
+            <h2 className="text-lg font-medium text-slate-500 mb-2">รายงานสรุปการคำนวณเงินเดือน และสวัสดิการบุคลากร</h2>
+            <p className="text-sm text-slate-400 mb-8">ประจำรอบวันที่: {formatDate(startDate)} - {formatDate(endDate)}</p>
+              </div>
+            </div>
 
                               <table className="report-table">
             <thead>
@@ -206,8 +211,7 @@ export default function SalaryReportModal({ data, startDate, endDate, onClose }:
                   <td className="text-center">{item.coins > 0 ? item.coins : '-'}</td>
                 </tr>
               ))}
-            </tbody>
-            <tfoot>
+            
               <tr>
                 <th colSpan={2} className="text-right">รวมทั้งสิ้น</th>
                 <th className="text-right" style={{ whiteSpace: 'nowrap' }}>{sortedData.reduce((acc, curr) => acc + curr.ic_salary, 0).toLocaleString()}</th>
@@ -221,11 +225,13 @@ export default function SalaryReportModal({ data, startDate, endDate, onClose }:
                 <th className="text-right" style={{ whiteSpace: 'nowrap' }}>{sortedData.reduce((acc, curr) => acc + curr.oc_money, 0).toLocaleString()}</th>
                 <th className="text-center">{sortedData.reduce((acc, curr) => acc + curr.coins, 0)}</th>
               </tr>
-            </tfoot>
+            </tbody>
           </table>
 
         </div>
       </div>
     </div>
   );
+
+  return createPortal(modalContent, document.body);
 }

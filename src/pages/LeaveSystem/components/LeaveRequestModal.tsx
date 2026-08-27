@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { X, Calendar } from 'lucide-react';
+import { X, ClipboardList } from 'lucide-react';
 import { useCreateLeave } from '../hooks/useLeaveMutations';
 import { supabase } from '@/lib/supabase';
 import Swal from 'sweetalert2';
@@ -16,6 +16,7 @@ export default function LeaveRequestModal({ onClose, profile }: LeaveRequestModa
   const [startDate, setStartDate] = useState<Date | null>(new Date());
   const [endDate, setEndDate] = useState<Date | null>(new Date());
   const [reason, setReason] = useState('');
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
   const createLeaveMutation = useCreateLeave();
 
@@ -37,7 +38,7 @@ export default function LeaveRequestModal({ onClose, profile }: LeaveRequestModa
         .in('status', ['pending', 'approved']);
       
       if (pastVacations && pastVacations.length > 0) {
-        Swal.fire('ไม่สามารถยื่นลาพักร้อนได้', 'คุณได้ใช้สิทธิ์ลาพักร้อนไปแล้ว (สิทธิ์มีเพียง 1 ครั้ง)', 'error');
+        Swal.fire('ไม่สามารถยื่นคำขอได้', 'คุณเคยใช้สิทธิ์ลาพักร้อนไปแล้ว  (สิทธิ์ลาได้ 1 ครั้ง)', 'error');
         return;
       }
 
@@ -54,11 +55,12 @@ export default function LeaveRequestModal({ onClose, profile }: LeaveRequestModa
       }));
 
       if (distinctDays.size < 30) {
-        Swal.fire('ไม่สามารถยื่นลาพักร้อนได้', `คุณต้องเข้าเวรครบ 30 วันก่อนถึงจะใช้สิทธิ์ได้ (ปัจจุบันเข้าเวรแล้ว ${distinctDays.size} วัน)`, 'error');
+        Swal.fire('ไม่สามารถยื่นคำขอได้', `คุณมีชั่วโมงการทำงานไม่ครบ 30 วันตามเงื่อนไขสิทธิ์ลาพักร้อน (ปัจจุบันทำงานไปแล้ว ${distinctDays.size} วัน)`, 'error');
         return;
       }
     }
 
+    setIsSubmitting(true);
     createLeaveMutation.mutate({
       discord_id: profile.discord_id,
       leave_type: leaveType,
@@ -67,106 +69,113 @@ export default function LeaveRequestModal({ onClose, profile }: LeaveRequestModa
       reason
     }, {
       onSuccess: () => {
+        setIsSubmitting(false);
         onClose();
+      },
+      onError: () => {
+        setIsSubmitting(false);
       }
     });
   };
 
   return (
-    <div className="modal-overlay">
-      <div className="modal-content" style={{ maxWidth: '500px' }}>
-        <div className="modal-header">
-          <h2 className="modal-title" style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-            <Calendar size={22} color="#3b82f6" />
-            ยื่นใบลางาน
+    <div className="fixed inset-0 bg-slate-900/50 backdrop-blur-sm z-50 flex items-center justify-center p-4 animate-in fade-in duration-200" onClick={onClose}>
+      <div className="bg-white rounded-3xl w-full max-w-lg shadow-xl overflow-hidden animate-in zoom-in-95 duration-200" onClick={e => e.stopPropagation()}>
+        <div className="flex justify-between items-center px-6 py-5 border-b border-slate-100 bg-slate-50/50">
+          <h2 className="text-xl font-bold text-slate-800 m-0 flex items-center gap-2">
+            <ClipboardList size={22} className={
+              leaveType === 'vacation' ? 'text-green-500' :
+              leaveType === 'resign' ? 'text-red-500' : 'text-[var(--primary)]'
+            } />
+            ยื่นใบลา
           </h2>
-          <button className="close-btn" onClick={onClose}><X size={20} /></button>
+          <button type="button" className="p-2 -mr-2 text-slate-400 hover:text-slate-600 hover:bg-slate-100 rounded-full transition-colors cursor-pointer border-none bg-transparent" onClick={onClose}>
+            <X size={20} />
+          </button>
         </div>
 
-        <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '1.2rem' }}>
+        <form onSubmit={handleSubmit} className="p-6 flex flex-col gap-5">
           <div>
-            <label style={{ display: 'block', marginBottom: '0.5rem', fontWeight: 500, color: 'var(--text-secondary)' }}>
+            <label className="block text-sm font-semibold text-slate-700 mb-2">
               ประเภทการลา
             </label>
             <SmartSelect
               value={leaveType}
               onChange={setLeaveType}
               options={[
-                { value: 'leave', label: 'ลางาน' },
+                { value: 'leave', label: 'ลากิจ' },
                 { value: 'vacation', label: 'ลาพักร้อน' },
                 { value: 'resign', label: 'ลาออก' }
               ]}
             />
           </div>
 
-          <div style={{ display: 'grid', gridTemplateColumns: leaveType === 'resign' ? '1fr' : '1fr 1fr', gap: '1rem' }}>
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
             <div>
-              <label style={{ display: 'block', marginBottom: '0.5rem', fontWeight: 500, color: 'var(--text-secondary)' }}>
-                {leaveType === 'resign' ? 'วันที่ลาออก' : 'ตั้งแต่วันที่'}
+              <label className="block text-sm font-semibold text-slate-700 mb-2">
+                วันที่เริ่มต้น
               </label>
-              <SmartDatePicker
-                selected={startDate}
-                onChange={(date: Date | null) => setStartDate(date)}
-                selectsStart
-                startDate={startDate}
-                endDate={leaveType === 'resign' ? startDate : endDate}
-              />
+              <div className="w-full h-[42px]">
+                <SmartDatePicker
+                  selected={startDate}
+                  onChange={(date: Date | null) => {
+                    setStartDate(date);
+                    if (date && endDate && date > endDate) {
+                      setEndDate(date);
+                    }
+                  }}
+                  placeholderText="เลือกวันที่เริ่ม"
+                />
+              </div>
             </div>
             {leaveType !== 'resign' && (
               <div>
-                <label style={{ display: 'block', marginBottom: '0.5rem', fontWeight: 500, color: 'var(--text-secondary)' }}>
-                  ถึงวันที่
+                <label className="block text-sm font-semibold text-slate-700 mb-2">
+                  วันที่สิ้นสุด
                 </label>
-                <SmartDatePicker
-                  selected={endDate}
-                  onChange={(date: Date | null) => setEndDate(date)}
-                  selectsEnd
-                  startDate={startDate}
-                  endDate={endDate}
-                  minDate={startDate || undefined}
-                />
+                <div className="w-full h-[42px]">
+                  <SmartDatePicker
+                    selected={endDate}
+                    onChange={(date: Date | null) => setEndDate(date)}
+                    placeholderText="เลือกวันที่สิ้นสุด"
+                  />
+                </div>
               </div>
             )}
           </div>
 
           <div>
-            <label style={{ display: 'block', marginBottom: '0.5rem', fontWeight: 500, color: 'var(--text-secondary)' }}>
-              เหตุผลการลา
+            <label className="block text-sm font-semibold text-slate-700 mb-2">
+              เหตุผล
             </label>
-            <textarea 
-              className="form-input"
-              value={reason}
-              onChange={e => setReason(e.target.value)}
-              rows={4}
+            <textarea
               required
-              placeholder="ระบุเหตุผลการลาของคุณ..."
-              style={{ width: '100%', padding: '0.75rem', borderRadius: '8px', border: '1px solid var(--border-color)', background: 'var(--bg-color)', resize: 'vertical' }}
-            ></textarea>
+              value={reason}
+              onChange={(e) => setReason(e.target.value)}
+              placeholder="ระบุเหตุผลการลา..."
+              rows={4}
+              className="w-full px-4 py-3 rounded-xl border border-slate-200 bg-slate-50 text-slate-800 text-sm focus:outline-none focus:ring-2 focus:ring-[var(--primary)]/20 focus:border-[var(--primary)] transition-all resize-none"
+            />
           </div>
 
-          <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '1rem', marginTop: '0.5rem' }}>
+          <div className="flex gap-3 justify-end mt-4">
             <button 
               type="button" 
+              className="px-6 py-2.5 rounded-xl border border-slate-200 text-slate-600 font-semibold hover:bg-slate-50 transition-colors cursor-pointer bg-white w-full sm:w-auto" 
               onClick={onClose}
-              style={{ padding: '0.75rem 1.5rem', borderRadius: '8px', background: 'transparent', border: '1px solid var(--border-color)', cursor: 'pointer', fontWeight: 600 }}
             >
               ยกเลิก
             </button>
             <button 
               type="submit" 
-              disabled={createLeaveMutation.isPending}
-              style={{ 
-                padding: '0.75rem 1.5rem', 
-                borderRadius: '8px', 
-                background: '#3b82f6', 
-                color: 'white', 
-                border: 'none', 
-                cursor: createLeaveMutation.isPending ? 'not-allowed' : 'pointer',
-                fontWeight: 600,
-                opacity: createLeaveMutation.isPending ? 0.7 : 1
-              }}
+              className={`px-6 py-2.5 rounded-xl border-none font-semibold text-white transition-all w-full sm:w-auto cursor-pointer ${
+                leaveType === 'vacation' ? 'bg-green-500 hover:bg-green-600 shadow-green-500/20' :
+                leaveType === 'resign' ? 'bg-red-500 hover:bg-red-600 shadow-red-500/20' :
+                'bg-[var(--primary)] hover:opacity-90 shadow-sm'
+              } shadow-md hover:shadow-lg hover:-translate-y-0.5 disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none`}
+              disabled={isSubmitting || createLeaveMutation.isPending}
             >
-              {createLeaveMutation.isPending ? 'กำลังส่งข้อมูล...' : 'ส่งคำขอลา'}
+              {(isSubmitting || createLeaveMutation.isPending) ? 'กำลังบันทึก...' : 'ยืนยันการลา'}
             </button>
           </div>
         </form>

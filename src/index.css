@@ -1,4 +1,27 @@
-@import url('https://fonts.googleapis.com/css2?family=Prompt:wght@300;400;500;600;700&family=Kanit:wght@300;400;500;600;700&display=swap');
+﻿@import url('https://fonts.googleapis.com/css2?family=Prompt:wght@300;400;500;600;700&family=Kanit:wght@300;400;500;600;700&display=swap');
+@import "tailwindcss/theme";
+@import "tailwindcss/utilities";
+
+@theme {
+  --color-primary: var(--primary);
+  --color-primary-hover: var(--primary-hover);
+  --color-discord: var(--discord);
+  --color-discord-hover: var(--discord-hover);
+  --color-success: var(--success);
+  --color-success-hover: var(--success-hover);
+  --color-danger: var(--danger);
+  --color-danger-hover: var(--danger-hover);
+  --color-warning: var(--warning);
+  --color-warning-hover: var(--warning-hover);
+  
+  --color-bg-color: var(--bg-color);
+  --color-surface: var(--surface-color);
+  --color-text-primary: var(--text-primary);
+  --color-text-secondary: var(--text-secondary);
+  --color-border-color: var(--border-color);
+}
+
+
 
 /* Hide scrollbar for Chrome, Safari and Opera */
 ::-webkit-scrollbar {
@@ -35,6 +58,8 @@
   --surface-color: #ffffff;
   --text-primary: #1e293b;
   --text-secondary: #64748b;
+  --text-tertiary: #94a3b8;    /* slate-400 */
+  --primary-light: #ede9fe;    /* violet-100 */
   --border-color: #e2e8f0;
   
   /* Typography */
@@ -456,4 +481,78 @@ button:active:not(:disabled) {
   overflow-y: auto;
   box-shadow: 0 20px 40px -10px rgba(0, 0, 0, 0.1);
   position: relative;
+}
+
+/* Basic Reset for Form Elements (Since Preflight is disabled) */
+input, select, textarea, button {
+  font-family: inherit;
+  font-size: 100%;
+  line-height: normal;
+  margin: 0;
+}
+
+button {
+  background-color: transparent;
+  border: none;
+  cursor: pointer;
+  padding: 0;
+  color: inherit;
+}
+/* Ensure border-box sizing since Preflight is disabled */
+*, ::before, ::after {
+  box-sizing: border-box;
+}/* Modern React Datepicker Styles */
+.react-datepicker {
+  border: 1px solid #e2e8f0 !important;
+  border-radius: 16px !important;
+  box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1) !important;
+  font-family: inherit !important;
+}
+
+.react-datepicker__header {
+  background-color: white !important;
+  border-bottom: 1px solid #e2e8f0 !important;
+  border-top-left-radius: 16px !important;
+  border-top-right-radius: 16px !important;
+  padding-top: 12px !important;
+}
+
+.react-datepicker__current-month, 
+.react-datepicker-time__header, 
+.react-datepicker-year-header {
+  font-weight: 700 !important;
+  color: #1e293b !important;
+}
+
+.react-datepicker__day-name, 
+.react-datepicker__day, 
+.react-datepicker__time-name {
+  color: #475569 !important;
+  border-radius: 8px !important;
+  margin: 0.166rem !important;
+}
+
+.react-datepicker__day:hover {
+  background-color: #f1f5f9 !important;
+}
+
+.react-datepicker__day--selected, 
+.react-datepicker__day--keyboard-selected,
+.react-datepicker__day--in-selecting-range, 
+.react-datepicker__day--in-range {
+  background-color: #7c3aed !important;
+  color: white !important;
+}
+
+.react-datepicker__triangle {
+  display: none !important;
+}
+
+/* Disabled Date styling for react-datepicker */
+.react-datepicker__day--disabled {
+  color: #cbd5e1 !important;
+  background-color: #f8fafc !important;
+  text-decoration: line-through;
+  cursor: not-allowed !important;
+  opacity: 0.6;
 }

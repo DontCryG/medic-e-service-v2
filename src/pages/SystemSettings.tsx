@@ -2,7 +2,6 @@ import { useState } from 'react';
 import { Settings, Users, Shield, DollarSign, RefreshCw } from 'lucide-react';
 import Swal from 'sweetalert2';
 import { broadcastForceReload } from '@/hooks/useAppRealtime';
-import './SystemSettings.css';
 
 import PositionSettings from './SystemSettings/components/PositionSettings';
 import GangFamilySettings from './SystemSettings/components/GangFamilySettings';
@@ -16,7 +15,7 @@ export default function SystemSettings() {
   const handleForceRefresh = async () => {
     const result = await Swal.fire({
       title: 'บังคับ Refresh หน้าจอ?',
-      text: 'การกระทำนี้จะสั่งให้หน้าเว็บของผู้ใช้งานทุกคน (ที่กำลังเปิดเว็บอยู่) ถูก Refresh ใหม่ทันที (เพื่ออัปเดตโค้ดล่าสุด)',
+      text: 'การกระทำนี้จะสั่งให้หน้าเว็บของผู้ใช้งานทุกคน (ที่กำลังเปิดเว็บอยู่) ถูก Refresh ใหม่ทันที เพื่ออัปเดตโค้ดล่าสุด',
       icon: 'warning',
       showCancelButton: true,
       confirmButtonColor: '#ef4444',
@@ -33,42 +32,49 @@ export default function SystemSettings() {
   };
 
   return (
-    <div className="settings-container fade-in">
-      <div className="settings-header" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
+    <div className="max-w-[1400px] mx-auto p-4 sm:p-6 lg:p-8 animate-in fade-in duration-500">
+      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-8">
         <div>
-          <h1 style={{ fontSize: '2rem', marginBottom: '0.5rem', display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
-            <Settings size={32} className="text-primary" />
+          <h1 className="text-3xl font-bold text-slate-800 m-0 flex items-center gap-3">
+            <Settings size={32} className="text-[var(--primary)]" />
             ตั้งค่าระบบ
           </h1>
-          <p style={{ color: 'var(--text-secondary)' }}>จัดการข้อมูลตำแหน่ง แก๊ง ครอบครัว และตั้งค่าราคาการรักษา</p>
+          <p className="text-slate-500 mt-2 text-[0.95rem]">
+            จัดการข้อมูลตำแหน่ง, แก๊ง, ครอบครัว, และตั้งค่าราคาการรักษา
+          </p>
         </div>
         <button 
           onClick={handleForceRefresh}
-          className="settings-tab-btn"
-          style={{ borderColor: 'var(--danger)', color: 'var(--danger)', display: 'flex', gap: '0.5rem', alignItems: 'center' }}
+          className="flex items-center gap-2 px-5 py-2.5 rounded-md border-2 border-red-500 text-red-500 font-semibold bg-transparent hover:bg-red-50 transition-colors cursor-pointer"
         >
           <RefreshCw size={18} />
           Force Refresh (All Users)
         </button>
       </div>
 
-      <div className="settings-tabs" style={{ marginBottom: '1rem', width: 'fit-content' }}>
+      <div className="flex bg-slate-100 p-1.5 rounded-[16px] w-fit mb-8 overflow-x-auto max-w-full">
         <button 
-          className={`settings-tab-btn ${activeTab === 'positions' ? 'active positions' : ''}`}
+          className={`flex items-center gap-2 px-6 py-2.5 rounded-md text-[0.95rem] font-semibold cursor-pointer border-none transition-all whitespace-nowrap ${
+            activeTab === 'positions' ? 'bg-white text-[var(--primary)] shadow-sm' : 'bg-transparent text-slate-500 hover:text-slate-700'
+          }`}
           onClick={() => setActiveTab('positions')}
         >
           <Users size={18} />
           ตำแหน่งและค่าตอบแทน
         </button>
         <button 
-          className={`settings-tab-btn ${activeTab === 'gangs' ? 'active general' : ''}`}
+          className={`flex items-center gap-2 px-6 py-2.5 rounded-md text-[0.95rem] font-semibold cursor-pointer border-none transition-all whitespace-nowrap ${
+            activeTab === 'gangs' ? 'bg-white text-[var(--primary)] shadow-sm' : 'bg-transparent text-slate-500 hover:text-slate-700'
+          }`}
           onClick={() => setActiveTab('gangs')}
         >
           <Shield size={18} />
           กลุ่มและแฟมิลี่
         </button>
         <button 
-          className={`settings-tab-btn ${activeTab === 'pricing' ? 'active reports' : ''}`}
+          className={`flex items-center gap-2 px-6 py-2.5 rounded-md text-[0.95rem] font-semibold cursor-pointer border-none transition-all whitespace-nowrap ${
+            activeTab === 'pricing' ? 'bg-white text-[var(--primary)] shadow-sm' : 'bg-transparent text-slate-500 hover:text-slate-700'
+          }`}
           onClick={() => setActiveTab('pricing')}
         >
           <DollarSign size={18} />
@@ -76,7 +82,7 @@ export default function SystemSettings() {
         </button>
       </div>
 
-      <div className="settings-card">
+      <div className="bg-white rounded-3xl p-6 sm:p-8 shadow-[0_10px_40px_-10px_rgba(0,0,0,0.05)] border border-[var(--border-color)]">
         {activeTab === 'positions' && <PositionSettings />}
         {activeTab === 'gangs' && <GangFamilySettings />}
         {activeTab === 'pricing' && <PricingSettings />}

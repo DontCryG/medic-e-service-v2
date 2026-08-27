@@ -5,8 +5,6 @@ import { useQueue } from './hooks/useQueue';
 import { useQueueMutations } from './hooks/useQueueMutations';
 import { QueueRow } from './components/QueueRow';
 import { HistoryModal } from './components/HistoryModal';
-import './QueueSystem.css';
-import './QueueModal.css'; // Add this for Modal styles
 
 export function QueueSystem() {
   const { user } = useAuthStore();
@@ -32,18 +30,18 @@ export function QueueSystem() {
   const mainQueueUsers = queueUsers.filter(u => !(u.status_record?.status === 'story' && u.status_record?.story_locked === true));
 
   return (
-    <div className="queue-container">
-      <div className="queue-header">
+    <div className="p-4 md:p-6 lg:p-8 bg-slate-50 min-h-full text-slate-800">
+      <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 mb-6">
         <div>
-          <h1 className="queue-title">ระบบจัดการคิว (Queue System)</h1>
-          <p className="queue-subtitle">
+          <h1 className="text-2xl font-bold text-slate-800 m-0 flex items-center gap-2">ระบบจัดการคิว (Queue System)</h1>
+          <p className="text-sm text-slate-500 m-0 mt-1">
             แสดงสถานะหมอที่กำลังเข้าเวรปัจจุบัน 
             <span style={{ marginLeft: '8px', color: realtimeConnected ? '#10b981' : '#ef4444' }}>
               ● {realtimeConnected ? 'เชื่อมต่อแล้ว (Realtime)' : 'ขาดการเชื่อมต่อ (Offline)'}
             </span>
           </p>
         </div>
-        <div className="queue-header-actions" style={{ display: 'flex', gap: '1rem', flexWrap: 'wrap' }}>
+        <div className="flex flex-wrap gap-4 w-full md:w-auto">
           <div style={{ display: 'flex', gap: '0.5rem' }}>
             <input 
               type="text" 
@@ -80,24 +78,24 @@ export function QueueSystem() {
               เพิ่มอาสา
             </button>
           </div>
-          <button className="history-btn" onClick={() => setIsHistoryOpen(true)}>
+          <button className="flex flex-1 md:flex-none justify-center items-center gap-2 px-4 py-2.5 bg-white border border-slate-200 rounded-xl text-sm font-semibold text-slate-700 cursor-pointer transition-all hover:bg-slate-50 hover:-translate-y-[1px] shadow-sm hover:shadow-md" onClick={() => setIsHistoryOpen(true)}>
             <History size={18} />
             ประวัติการจัดการ
           </button>
         </div>
       </div>
 
-      <div className="queue-card">
-        <div className="queue-table-wrapper">
-          <table className="queue-table">
+      <div className="bg-white rounded-2xl shadow-sm border border-slate-200 overflow-visible mb-8">
+        <div className="w-full overflow-x-auto pb-[120px] -mb-[120px]">
+          <table className="w-full min-w-[900px] text-left border-collapse">
             <thead>
               <tr>
-                <th className="col-name">รายชื่อ</th>
-                <th className="col-unavailable">ไม่สะดวก</th>
-                <th className="col-queued">คิว</th>
-                <th className="col-manager">หมอรันคิว</th>
-                <th className="col-story">สตอรี่</th>
-                <th className="col-story-time">รายละเอียดสตอรี่</th>
+                <th className="p-4 text-xs font-bold text-slate-500 uppercase tracking-wider border-b border-slate-200 bg-slate-50" style={{ width: '25%' }}>รายชื่อ</th>
+                <th className="p-4 text-xs font-bold text-slate-500 uppercase tracking-wider border-b border-slate-200 bg-slate-50 text-center" style={{ width: '10%' }}>ไม่สะดวก</th>
+                <th className="p-4 text-xs font-bold text-slate-500 uppercase tracking-wider border-b border-slate-200 bg-slate-50 text-center" style={{ width: '10%' }}>คิว</th>
+                <th className="p-4 text-xs font-bold text-slate-500 uppercase tracking-wider border-b border-slate-200 bg-slate-50 text-center" style={{ width: '10%' }}>หมอรันคิว</th>
+                <th className="p-4 text-xs font-bold text-slate-500 uppercase tracking-wider border-b border-slate-200 bg-slate-50 text-center" style={{ width: '10%' }}>สตอรี่</th>
+                <th className="p-4 text-xs font-bold text-slate-500 uppercase tracking-wider border-b border-slate-200 bg-slate-50" style={{ width: '35%' }}>รายละเอียดสตอรี่</th>
               </tr>
             </thead>
             <tbody>
@@ -133,7 +131,7 @@ export function QueueSystem() {
       </div>
 
       {storyLockedUsers.length > 0 && (
-        <div className="queue-card" style={{ marginTop: '24px', borderTop: '4px solid #f43f5e' }}>
+        <div className="bg-white rounded-2xl shadow-md border-t-4 border-t-rose-500 border border-slate-200 overflow-visible mb-8 mt-6">
           <div style={{ padding: '16px 24px', borderBottom: '1px solid #e2e8f0', backgroundColor: '#fff1f2', display: 'flex', alignItems: 'center' }}>
             <h2 style={{ fontSize: '1.25rem', fontWeight: 600, color: '#e11d48', margin: 0 }}>
               คิวสตอรี่ (Story Queue)
@@ -142,13 +140,13 @@ export function QueueSystem() {
               {storyLockedUsers.length} คน
             </span>
           </div>
-          <div className="queue-table-wrapper">
-            <table className="queue-table">
+          <div className="w-full overflow-x-auto pb-[120px] -mb-[120px]">
+            <table className="w-full min-w-[900px] text-left border-collapse">
               <thead>
                 <tr>
-                  <th className="col-name">ชื่อผู้เล่น</th>
-                  <th className="col-story">สตอรี่</th>
-                  <th className="col-story-time">รายละเอียดสตอรี่</th>
+                  <th className="p-4 text-xs font-bold text-slate-500 uppercase tracking-wider border-b border-slate-200 bg-slate-50" style={{ width: '25%' }}>ชื่อผู้เล่น</th>
+                  <th className="p-4 text-xs font-bold text-slate-500 uppercase tracking-wider border-b border-slate-200 bg-slate-50 text-center" style={{ width: '10%' }}>สตอรี่</th>
+                  <th className="p-4 text-xs font-bold text-slate-500 uppercase tracking-wider border-b border-slate-200 bg-slate-50" style={{ width: '35%' }}>รายละเอียดสตอรี่</th>
                 </tr>
               </thead>
               <tbody>

@@ -1,417 +1,264 @@
-import { useState } from 'react';
-import { Package, ArrowDownToLine, ArrowUpFromLine, Clock } from 'lucide-react';
-import { useAuthStore } from '@/store/authStore';
+import { useState, useMemo } from 'react';
 import { useInventoryLogs, useInventoryStock } from '../hooks/useAccountingQueries';
 import { useAddInventoryLog, useDeleteInventoryLog } from '../hooks/useAccountingMutations';
+import { useAuthStore } from '@/store/authStore';
+import { PackagePlus, PackageMinus, Package, Printer, Clock, Trash2, Edit2 } from 'lucide-react';
+import Swal from 'sweetalert2';
+import DatePicker from 'react-datepicker';
+import "react-datepicker/dist/react-datepicker.css";
 import InventoryReportModal from './InventoryReportModal';
 import EditInventoryLogModal from './EditInventoryLogModal';
-import CustomDatePicker from '@/components/common/CustomDatePicker';
-import Swal from 'sweetalert2';
-import { Edit2, Trash2 } from 'lucide-react';
 
 export default function InventoryTab() {
   const { user } = useAuthStore();
-  const { data: logs = [], isLoading } = useInventoryLogs();
-  const addMutation = useAddInventoryLog();
+  const { data: inventoryLogs = [], isLoading } = useInventoryLogs();
   const stocks = useInventoryStock();
-
-  const [isReportOpen, setIsReportOpen] = useState(false);
-  const [showDropdown, setShowDropdown] = useState(false);
-  const [editingLog, setEditingLog] = useState<any>(null);
-  
+  const addMutation = useAddInventoryLog();
   const deleteMutation = useDeleteInventoryLog();
-  
-  // Date Range Filter
-  const [startDate, setStartDate] = useState<string>(() => {
-    const d = new Date();
-    const day = d.getDay() === 0 ? 6 : d.getDay() - 1;
-    d.setDate(d.getDate() - day);
-    return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
-  });
-  const [endDate, setEndDate] = useState<string>(() => {
-    const d = new Date();
-    const day = d.getDay() === 0 ? 6 : d.getDay() - 1;
-    d.setDate(d.getDate() - day + 6);
-    return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
-  });
 
+  const addInventoryLog = (data: any) => addMutation.mutateAsync(data);
+  const deleteInventoryLog = (id: string) => deleteMutation.mutateAsync(id);
+  
   const [type, setType] = useState<'receive' | 'disburse'>('receive');
   const [itemName, setItemName] = useState('');
-  
-  // States for receive
-  const [receiveQuantity, setReceiveQuantity] = useState<number | ''>('');
-  
-  // States for disburse
-  const [qtyPerPerson, setQtyPerPerson] = useState<number | ''>('');
-  const [peopleCount, setPeopleCount] = useState<number | ''>('');
-  
+  const [quantity, setQuantity] = useState<number | ''>('');
   const [description, setDescription] = useState('');
 
-  // Filter logs by date range
-  const filteredLogs = logs.filter(log => {
-    if (!startDate && !endDate) return true;
-    const logDate = new Date(log.created_at);
-    logDate.setHours(0, 0, 0, 0);
-    
-    if (startDate) {
-      const start = new Date(startDate);
-      start.setHours(0, 0, 0, 0);
-      if (logDate < start) return false;
-    }
-    if (endDate) {
-      const end = new Date(endDate);
-      end.setHours(0, 0, 0, 0);
-      if (logDate > end) return false;
-    }
-    return true;
+  // Date filters
+  const [startDate, setStartDate] = useState<Date | null>(() => {
+    const curr = new Date();
+    const day = curr.getDay();
+    const diffToMonday = curr.getDate() - day + (day === 0 ? -6 : 1);
+    const start = new Date(curr.setDate(diffToMonday));
+    start.setHours(0,0,0,0);
+    return start;
+  });
+  const [endDate, setEndDate] = useState<Date | null>(() => {
+    const curr = new Date();
+    const day = curr.getDay();
+    const diffToMonday = curr.getDate() - day + (day === 0 ? -6 : 1);
+    const end = new Date(curr.setDate(diffToMonday + 6));
+    end.setHours(23,59,59,999);
+    return end;
   });
 
-  const totalItemsCount = stocks.reduce((acc, curr) => acc + curr.quantity, 0);
-  const totalReceive = filteredLogs.filter(l => l.type === 'receive').reduce((acc, curr) => acc + curr.quantity, 0);
-  const totalDisburse = filteredLogs.filter(l => l.type === 'disburse').reduce((acc, curr) => acc + curr.quantity, 0);
+  const [isReportOpen, setIsReportOpen] = useState(false);
+  const [editingLog, setEditingLog] = useState<any>(null);
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!user?.discord_id || !itemName.trim()) return;
-
-    let finalQuantity = 0;
-    let finalDescription = description;
-    let metadata = null;
-
-    if (type === 'receive') {
-      if (receiveQuantity === '' || receiveQuantity <= 0) return;
-      finalQuantity = Number(receiveQuantity);
-    } else {
-      if (qtyPerPerson === '' || qtyPerPerson <= 0 || peopleCount === '' || peopleCount <= 0) return;
-      
-      finalQuantity = Number(qtyPerPerson) * Number(peopleCount);
-      
-      // Check stock
-      const currentStock = stocks.find(s => s.name.toLowerCase() === itemName.trim().toLowerCase())?.quantity || 0;
-      if (finalQuantity > currentStock) {
-        Swal.fire({
-          icon: 'error',
-          title: 'สต็อกไม่เพียงพอ!',
-          text: `คุณต้องการแจก ${finalQuantity} ชิ้น แต่มีสต็อกเพียง ${currentStock} ชิ้น`
-        });
-        return;
-      }
-
-      // Auto format description
-      const autoDesc = `แจก ${qtyPerPerson} ชิ้น/คน จำนวน ${peopleCount} คน (รวม ${finalQuantity} ชิ้น)`;
-      finalDescription = description ? `${autoDesc}\nหมายเหตุ: ${description}` : autoDesc;
-      
-      metadata = {
-        qty_per_person: Number(qtyPerPerson),
-        people_count: Number(peopleCount)
-      };
+    if (quantity === '' || quantity <= 0 || !itemName.trim()) return;
+    
+    try {
+      await addInventoryLog({
+        type,
+        item_name: itemName.trim(),
+        quantity: Number(quantity),
+        description,
+        created_by: user?.discord_id || ''
+      });
+      setItemName('');
+      setQuantity('');
+      setDescription('');
+      Swal.fire({
+        icon: 'success',
+        title: 'บันทึกสำเร็จ',
+        toast: true,
+        position: 'top-end',
+        showConfirmButton: false,
+        timer: 1500
+      });
+    } catch (err: any) {
+      Swal.fire({ icon: 'error', title: 'เกิดข้อผิดพลาด', text: err.message });
     }
-
-    addMutation.mutate({
-      discord_id: user.discord_id,
-      type,
-      item_name: itemName.trim(),
-      quantity: finalQuantity,
-      description: finalDescription,
-      metadata
-    }, {
-      onSuccess: () => {
-        setItemName('');
-        setReceiveQuantity('');
-        setQtyPerPerson('');
-        setPeopleCount('');
-        setDescription('');
-      }
-    });
   };
 
-  return (
-    <div style={{ display: 'flex', flexDirection: 'column', gap: '2rem' }}>
-      
-      {/* Date Range Filter */}
-      <div className="table-card" style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', minWidth: 0, padding: '1rem 1.5rem' }}>
-        <div style={{ display: 'flex', alignItems: 'center', gap: '1rem', flexWrap: 'wrap' }}>
-          <span style={{ fontWeight: 600, color: '#334155' }}>สรุปรายงานช่วงวันที่:</span>
-          <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-            <CustomDatePicker value={startDate} onChange={setStartDate} placeholder="เริ่มต้น" />
-            <span style={{ color: '#64748b' }}>ถึง</span>
-            <CustomDatePicker value={endDate} onChange={setEndDate} placeholder="สิ้นสุด" />
-            {(startDate || endDate) && (
-              <button 
-                onClick={() => { setStartDate(''); setEndDate(''); }}
-                style={{ background: 'none', border: 'none', color: '#ef4444', cursor: 'pointer', fontSize: '0.9rem', padding: '0.5rem' }}
-              >
-                ล้างตัวกรอง
-              </button>
-            )}
-          </div>
-        </div>
+  const filteredLogs = useMemo(() => {
+    return inventoryLogs.filter(log => {
+      const logDate = new Date(log.created_at);
+      if (startDate && logDate < startDate) return false;
+      if (endDate && logDate > endDate) return false;
+      return true;
+    });
+  }, [inventoryLogs, startDate, endDate]);
 
-        <button
+  const summary = useMemo(() => {
+    return filteredLogs.reduce((acc, log) => {
+      if (log.type === 'receive') acc.receive += log.quantity;
+      else acc.disburse += log.quantity;
+      return acc;
+    }, { receive: 0, disburse: 0 });
+  }, [filteredLogs]);
+
+
+
+  return (
+    <div className="flex flex-col gap-6">
+      <div className="print:hidden flex flex-col gap-6">
+      {/* Date Filters & Print */}
+      <div className="flex flex-wrap items-center justify-between gap-4">
+        <div className="flex flex-wrap items-center gap-3">
+          <div className="flex items-center gap-2 bg-white border border-slate-200 rounded-xl px-4 py-2 shadow-sm w-full sm:w-auto">
+            <span className="text-sm font-bold text-slate-600">ตั้งแต่:</span>
+            <DatePicker 
+              selected={startDate} 
+              onChange={(date: Date | null) => { if(date) date.setHours(0,0,0,0); setStartDate(date); }}
+              selectsStart startDate={startDate} endDate={endDate}
+              dateFormat="dd/MM/yyyy"
+              className="w-[100px] outline-none text-sm font-bold text-slate-800 bg-transparent cursor-pointer"
+            />
+            <span className="text-sm font-bold text-slate-600">ถึง:</span>
+            <DatePicker 
+              selected={endDate} 
+              onChange={(date: Date | null) => { if(date) date.setHours(23,59,59,999); setEndDate(date); }}
+              selectsEnd startDate={startDate} endDate={endDate} minDate={startDate || undefined}
+              dateFormat="dd/MM/yyyy"
+              className="w-[100px] outline-none text-sm font-bold text-slate-800 bg-transparent cursor-pointer"
+            />
+          </div>
+          <button 
+            onClick={() => {
+              setStartDate(null); setEndDate(null);
+            }}
+            className="px-4 py-2 bg-white border border-slate-200 hover:bg-slate-50 text-slate-600 rounded-xl text-sm font-bold transition-all shadow-sm"
+          >
+            ดูทั้งหมด
+          </button>
+        </div>
+        
+        <button 
           onClick={() => setIsReportOpen(true)}
-          style={{
-            display: 'flex',
-            alignItems: 'center',
-            gap: '0.5rem',
-            padding: '0.5rem 1rem',
-            background: '#f8fafc',
-            border: '1px solid #e2e8f0',
-            borderRadius: '8px',
-            color: '#334155',
-            fontWeight: 600,
-            cursor: 'pointer',
-            transition: 'all 0.2s',
-            fontSize: '0.95rem'
-          }}
-          onMouseEnter={e => {
-            e.currentTarget.style.background = '#f1f5f9';
-            e.currentTarget.style.borderColor = '#cbd5e1';
-          }}
-          onMouseLeave={e => {
-            e.currentTarget.style.background = '#f8fafc';
-            e.currentTarget.style.borderColor = '#e2e8f0';
-          }}
+          className="flex items-center gap-2 px-5 py-2.5 bg-sky-600 hover:bg-sky-700 text-white rounded-xl font-bold shadow-md shadow-sky-500/20 transition-all hover:-translate-y-0.5"
         >
-          ดูรายงานสรุป
+          <Printer size={18} /> ออกรายงาน (Print)
         </button>
       </div>
 
-      <div className="summary-cards">
+      {/* Summary Cards */}
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+        <div className="bg-white p-6 rounded-2xl shadow-sm border border-slate-100 flex items-center gap-5">
+          <div className="w-14 h-14 rounded-2xl flex items-center justify-center bg-emerald-100 text-emerald-600">
+            <PackagePlus size={28} strokeWidth={2.5} />
+          </div>
+          <div>
+            <h3 className="text-sm font-bold text-slate-500 mb-1">รับเข้า (ชิ้น)</h3>
+            <p className="text-2xl font-black text-slate-800">{summary.receive.toLocaleString()}</p>
+          </div>
+        </div>
         
-        {/* Total Items Card */}
-        <div style={{ display: 'flex', flexDirection: 'column', overflow: 'hidden', borderRadius: '8px', boxShadow: '0 1px 3px rgba(0,0,0,0.1)' }}>
-          <div style={{ background: '#475569', padding: '0.5rem 1rem', color: 'white' }}>
-            <Package size={24} />
+        <div className="bg-white p-6 rounded-2xl shadow-sm border border-slate-100 flex items-center gap-5">
+          <div className="w-14 h-14 rounded-2xl flex items-center justify-center bg-amber-100 text-amber-600">
+            <PackageMinus size={28} strokeWidth={2.5} />
           </div>
-          <div style={{ background: '#f1f5f9', padding: '1rem' }}>
-            <h3 style={{ margin: 0, fontSize: '1.1rem', color: '#1e293b', fontWeight: 600 }}>สิ่งของคงคลังรวม</h3>
-            <p style={{ margin: 0, fontSize: '1.2rem', color: '#475569', marginTop: '0.25rem' }}>{totalItemsCount.toLocaleString()} ชิ้น</p>
-          </div>
-        </div>
-
-        {/* Receive Card */}
-        <div style={{ display: 'flex', flexDirection: 'column', overflow: 'hidden', borderRadius: '8px', boxShadow: '0 1px 3px rgba(0,0,0,0.1)' }}>
-          <div style={{ background: '#0ea5e9', padding: '0.5rem 1rem', color: 'white' }}>
-            <ArrowDownToLine size={24} />
-          </div>
-          <div style={{ background: '#e0f2fe', padding: '1rem' }}>
-            <h3 style={{ margin: 0, fontSize: '1.1rem', color: '#1e293b', fontWeight: 600 }}>รับเข้าสะสม</h3>
-            <p style={{ margin: 0, fontSize: '1.2rem', color: '#0369a1', marginTop: '0.25rem' }}>{totalReceive.toLocaleString()} ชิ้น</p>
+          <div>
+            <h3 className="text-sm font-bold text-slate-500 mb-1">เบิกออก (ชิ้น)</h3>
+            <p className="text-2xl font-black text-slate-800">{summary.disburse.toLocaleString()}</p>
           </div>
         </div>
 
-        {/* Disburse Card */}
-        <div style={{ display: 'flex', flexDirection: 'column', overflow: 'hidden', borderRadius: '8px', boxShadow: '0 1px 3px rgba(0,0,0,0.1)' }}>
-          <div style={{ background: '#f59e0b', padding: '0.5rem 1rem', color: 'white' }}>
-            <ArrowUpFromLine size={24} />
+        <div className="bg-white p-6 rounded-2xl shadow-sm border border-slate-100 flex items-center gap-5">
+          <div className="w-14 h-14 rounded-2xl flex items-center justify-center bg-purple-100 text-purple-600">
+            <Package size={28} strokeWidth={2.5} />
           </div>
-          <div style={{ background: '#fef3c7', padding: '1rem' }}>
-            <h3 style={{ margin: 0, fontSize: '1.1rem', color: '#1e293b', fontWeight: 600 }}>เบิกออกสะสม</h3>
-            <p style={{ margin: 0, fontSize: '1.2rem', color: '#b45309', marginTop: '0.25rem' }}>{totalDisburse.toLocaleString()} ชิ้น</p>
+          <div>
+            <h3 className="text-sm font-bold text-slate-500 mb-1">จำนวนรายการสิ่งของทั้งหมด</h3>
+            <p className="text-2xl font-black text-slate-800">
+              {stocks.length} รายการ
+            </p>
           </div>
         </div>
-
       </div>
 
-      <div className="content-grid">
-        <div className="form-card">
-          <h2 style={{ fontSize: '1.25rem', marginBottom: '1.5rem', color: 'var(--text-primary)' }}>บันทึกสิ่งของ</h2>
-          
-          <div className="type-selector">
-            <button 
-              className={`type-btn income ${type === 'receive' ? 'active' : ''}`}
-              onClick={() => setType('receive')}
-              style={{ color: type === 'receive' ? '#10b981' : undefined }}
-            >
-              <ArrowDownToLine size={18} /> รับเข้า
-            </button>
-            <button 
-              className={`type-btn expense ${type === 'disburse' ? 'active' : ''}`}
-              onClick={() => setType('disburse')}
-              style={{ color: type === 'disburse' ? '#f59e0b' : undefined }}
-            >
-              <ArrowUpFromLine size={18} /> เบิกออกแจกจ่าย
-            </button>
-          </div>
+      {/* Form & Table Grid */}
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+        
+        {/* Form */}
+        <div className="bg-white p-6 rounded-3xl shadow-sm border border-slate-100 lg:col-span-1 h-fit">
+          <h2 className="text-xl font-black text-slate-800 mb-6 flex items-center gap-2">
+            บันทึกรายการใหม่
+          </h2>
+          <form onSubmit={handleSubmit} className="flex flex-col gap-4">
+            
+            <div className="flex bg-slate-100 p-1 rounded-xl">
+              <button 
+                type="button"
+                className={`flex-1 py-2.5 rounded-lg text-sm font-bold transition-all border-none ${type === 'receive' ? 'bg-white text-emerald-600 shadow-sm' : 'text-slate-500 hover:text-slate-700 bg-transparent'}`}
+                onClick={() => setType('receive')}
+              >
+                รับเข้า
+              </button>
+              <button 
+                type="button"
+                className={`flex-1 py-2.5 rounded-lg text-sm font-bold transition-all border-none ${type === 'disburse' ? 'bg-white text-amber-600 shadow-sm' : 'text-slate-500 hover:text-slate-700 bg-transparent'}`}
+                onClick={() => setType('disburse')}
+              >
+                เบิกออก
+              </button>
+            </div>
 
-          <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '1.25rem' }}>
-            <div className="modal-form-group" style={{ position: 'relative' }}>
-              <label>ชื่อสิ่งของ <span style={{ color: '#ef4444' }}>*</span></label>
+            <div>
+              <label className="block text-sm font-bold text-slate-700 mb-1.5">ชื่อสิ่งของ</label>
               <input 
                 type="text" 
                 value={itemName}
-                onChange={(e) => {
-                  setItemName(e.target.value);
-                  setShowDropdown(true);
-                }}
-                onFocus={() => setShowDropdown(true)}
-                onBlur={() => setTimeout(() => setShowDropdown(false), 200)}
-                placeholder="เช่น Medkit, Bandage, วิทยุ..."
+                onChange={(e) => setItemName(e.target.value)}
+                placeholder="ระบุชื่อสิ่งของ..."
                 required
-                style={{ width: '100%', padding: '0.75rem', borderRadius: '8px', border: '1px solid #e2e8f0' }}
+                className="w-full px-4 py-3 rounded-xl border border-slate-200 focus:outline-none focus:ring-2 focus:ring-sky-500 focus:border-transparent font-medium"
               />
-              
-              {/* Custom Autocomplete Dropdown */}
-              {showDropdown && stocks.length > 0 && (
-                <div style={{
-                  position: 'absolute',
-                  top: '100%',
-                  left: 0,
-                  right: 0,
-                  marginTop: '4px',
-                  background: '#ffffff',
-                  border: '1px solid #e2e8f0',
-                  borderRadius: '8px',
-                  boxShadow: '0 10px 15px -3px rgba(0, 0, 0, 0.1)',
-                  maxHeight: '200px',
-                  overflowY: 'auto',
-                  zIndex: 50
-                }}>
-                  {stocks.filter(s => s.name.toLowerCase().includes(itemName.toLowerCase())).map(s => (
-                    <div 
-                      key={s.name}
-                      onMouseDown={(e) => {
-                        e.preventDefault(); // Prevent blur
-                        setItemName(s.name);
-                        setShowDropdown(false);
-                      }}
-                      style={{
-                        padding: '0.75rem 1rem',
-                        cursor: 'pointer',
-                        borderBottom: '1px solid #f1f5f9',
-                        display: 'flex',
-                        justifyContent: 'space-between',
-                        alignItems: 'center',
-                        transition: 'background-color 0.2s'
-                      }}
-                      onMouseEnter={(e) => e.currentTarget.style.backgroundColor = '#f8fafc'}
-                      onMouseLeave={(e) => e.currentTarget.style.backgroundColor = '#ffffff'}
-                    >
-                      <span style={{ fontWeight: 500, color: '#334155' }}>{s.name}</span>
-                      <span style={{ 
-                        fontSize: '0.85rem', 
-                        color: s.quantity <= 0 ? '#ef4444' : '#64748b',
-                        background: s.quantity <= 0 ? '#fef2f2' : '#f1f5f9',
-                        padding: '2px 8px',
-                        borderRadius: '12px'
-                      }}>
-                        เหลือ {s.quantity.toLocaleString()} ชิ้น
-                      </span>
-                    </div>
-                  ))}
-                  
-                  {/* Show "Add new item" hint if no exact match and user typed something */}
-                  {itemName.trim() && !stocks.some(s => s.name.toLowerCase() === itemName.trim().toLowerCase()) && (
-                    <div style={{ padding: '0.75rem 1rem', color: '#0ea5e9', fontSize: '0.9rem', fontStyle: 'italic', background: '#f0f9ff' }}>
-                      กดบันทึกเพื่อเพิ่ม "{itemName}" เป็นของใหม่ในคลัง
-                    </div>
-                  )}
-                </div>
-              )}
+            </div>
+
+            <div>
+              <label className="block text-sm font-bold text-slate-700 mb-1.5">จำนวน (ชิ้น)</label>
+              <input 
+                type="number" 
+                min="1"
+                value={quantity}
+                onChange={(e) => setQuantity(Number(e.target.value))}
+                placeholder="0"
+                required
+                className="w-full px-4 py-3 rounded-xl border border-slate-200 focus:outline-none focus:ring-2 focus:ring-sky-500 focus:border-transparent font-medium"
+              />
             </div>
             
-            {type === 'receive' ? (
-              <div className="modal-form-group">
-                <label>จำนวนที่รับเข้า <span style={{ color: '#ef4444' }}>*</span></label>
-                <input 
-                  type="number" 
-                  min="1"
-                  value={receiveQuantity}
-                  onChange={(e) => setReceiveQuantity(Number(e.target.value))}
-                  placeholder="ระบุจำนวน..."
-                  required
-                  style={{ width: '100%', padding: '0.75rem', borderRadius: '8px', border: '1px solid #e2e8f0' }}
-                />
-              </div>
-            ) : (
-              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem' }}>
-                <div className="modal-form-group">
-                  <label>แจกจำนวนต่อคน <span style={{ color: '#ef4444' }}>*</span></label>
-                  <input 
-                    type="number" 
-                    min="1"
-                    value={qtyPerPerson}
-                    onChange={(e) => setQtyPerPerson(Number(e.target.value))}
-                    placeholder="ชิ้น/คน"
-                    required
-                    style={{ width: '100%', padding: '0.75rem', borderRadius: '8px', border: '1px solid #e2e8f0' }}
-                  />
-                </div>
-                <div className="modal-form-group">
-                  <label>จำนวนคน <span style={{ color: '#ef4444' }}>*</span></label>
-                  <input 
-                    type="number" 
-                    min="1"
-                    value={peopleCount}
-                    onChange={(e) => setPeopleCount(Number(e.target.value))}
-                    placeholder="กี่คน"
-                    required
-                    style={{ width: '100%', padding: '0.75rem', borderRadius: '8px', border: '1px solid #e2e8f0' }}
-                  />
-                </div>
-                {Number(qtyPerPerson) > 0 && Number(peopleCount) > 0 && (
-                  <div style={{ gridColumn: 'span 2', padding: '0.5rem', background: '#f8fafc', borderRadius: '6px', fontSize: '0.85rem', color: '#0369a1', border: '1px dashed #bae6fd' }}>
-                    รวมของที่ต้องใช้ทั้งหมด: <strong>{(Number(qtyPerPerson) * Number(peopleCount)).toLocaleString()}</strong> ชิ้น
-                  </div>
-                )}
-              </div>
-            )}
-            
-            <div className="modal-form-group">
-              <label>รายละเอียดเพิ่มเติม</label>
+            <div>
+              <label className="block text-sm font-bold text-slate-700 mb-1.5">รายละเอียดเพิ่มเติม</label>
               <textarea 
                 value={description}
                 onChange={(e) => setDescription(e.target.value)}
                 placeholder="ระบุรายละเอียด (ถ้ามี)..."
                 rows={2}
-                style={{ width: '100%', padding: '0.75rem', borderRadius: '8px', border: '1px solid #e2e8f0', resize: 'vertical' }}
+                className="w-full px-4 py-3 rounded-xl border border-slate-200 focus:outline-none focus:ring-2 focus:ring-sky-500 focus:border-transparent font-medium resize-none"
               />
             </div>
 
             <button 
               type="submit" 
-              disabled={addMutation.isPending}
-              style={{
-                width: '100%',
-                padding: '0.875rem',
-                borderRadius: '8px',
-                border: 'none',
-                background: type === 'receive' ? '#10b981' : '#f59e0b',
-                color: 'white',
-                fontWeight: 600,
-                cursor: 'pointer',
-                marginTop: '0.5rem',
-                opacity: addMutation.isPending ? 0.7 : 1
-              }}
+              disabled={quantity === '' || quantity <= 0 || !itemName.trim()}
+              className={`w-full py-3.5 rounded-xl font-black text-white shadow-lg transition-all border-none mt-2 ${
+                type === 'receive' 
+                  ? 'bg-emerald-500 hover:bg-emerald-600 shadow-emerald-500/30' 
+                  : 'bg-amber-500 hover:bg-amber-600 shadow-amber-500/30'
+              } disabled:opacity-50 disabled:cursor-not-allowed active:scale-[0.98]`}
             >
-              {addMutation.isPending ? 'กำลังบันทึก...' : `บันทึก${type === 'receive' ? 'รับเข้าคลัง' : 'เบิกของแจกจ่าย'}`}
+              บันทึก{type === 'receive' ? 'รับเข้า' : 'เบิกออก'}
             </button>
           </form>
         </div>
 
-        <div className="table-card" style={{ display: 'flex', flexDirection: 'column', gap: '2rem', minWidth: 0 }}>
+        {/* Table & Current Stock */}
+        <div className="bg-white p-6 rounded-3xl shadow-sm border border-slate-100 lg:col-span-2 overflow-hidden flex flex-col">
           
-          <div>
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1rem' }}>
-              <h2 style={{ fontSize: '1.25rem', color: 'var(--text-primary)', margin: 0 }}>สรุปของในคลัง</h2>
-            </div>
+          <div className="mb-6">
+            <h2 className="text-xl font-black text-slate-800 mb-4">สถานะคลังยาปัจจุบัน</h2>
             {stocks.length === 0 ? (
-              <div style={{ color: 'var(--text-tertiary)', fontSize: '0.9rem' }}>ยังไม่มีรายการสิ่งของในคลัง</div>
+              <div className="text-slate-500 text-sm font-medium">ไม่มีรายการสิ่งของในคลังยา</div>
             ) : (
-              <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.75rem', maxHeight: '250px', overflowY: 'auto', paddingRight: '0.5rem' }}>
+              <div className="flex flex-wrap gap-2 max-h-[120px] overflow-y-auto pr-2 custom-scrollbar">
                 {stocks.map(stock => (
-                  <div key={stock.name} style={{
-                    padding: '0.5rem 1rem',
-                    background: '#f8fafc',
-                    border: '1px solid #cbd5e1',
-                    borderRadius: '20px',
-                    fontSize: '0.9rem',
-                    display: 'flex',
-                    alignItems: 'center',
-                    gap: '0.5rem'
-                  }}>
-                    <span style={{ fontWeight: 600, color: 'var(--text-primary)' }}>{stock.name}</span>
-                    <span style={{ color: stock.quantity <= 0 ? '#ef4444' : '#059669', fontWeight: 600 }}>
+                  <div key={stock.name} className="px-3 py-1.5 bg-slate-50 border border-slate-200 rounded-lg text-sm flex items-center gap-2">
+                    <span className="font-bold text-slate-700">{stock.name}</span>
+                    <span className={`font-black ${stock.quantity <= 0 ? 'text-rose-500' : 'text-emerald-600'}`}>
                       {stock.quantity.toLocaleString()}
                     </span>
                   </div>
@@ -420,108 +267,92 @@ export default function InventoryTab() {
             )}
           </div>
 
-          <div>
-            <h2 style={{ fontSize: '1.25rem', marginBottom: '1rem', color: 'var(--text-primary)' }}>ประวัติทำรายการ</h2>
-            {isLoading ? (
-              <div style={{ padding: '2rem', textAlign: 'center' }} className="spinner"></div>
-            ) : logs.length === 0 ? (
-              <div style={{ textAlign: 'center', padding: '2rem', color: 'var(--text-tertiary)' }}>
-                ไม่มีประวัติทำรายการ
-              </div>
-            ) : (
-              <div style={{ overflowX: 'auto', width: '100%', maxHeight: '400px', overflowY: 'auto' }}>
-                <table className="req-admin-table" style={{ width: '100%', minWidth: '700px' }}>
-                  <thead style={{ position: 'sticky', top: 0, zIndex: 10, background: '#ffffff' }}>
-                    <tr>
-                      <th style={{ whiteSpace: 'nowrap' }}>วันที่/เวลา</th>
-                      <th style={{ whiteSpace: 'nowrap' }}>ผู้ทำรายการ</th>
-                      <th style={{ whiteSpace: 'nowrap' }}>ประเภท</th>
-                      <th style={{ whiteSpace: 'nowrap' }}>สิ่งของ</th>
-                      <th style={{ textAlign: 'right', whiteSpace: 'nowrap' }}>จำนวน</th>
-                      <th style={{ whiteSpace: 'nowrap' }}>รายละเอียด</th>
-                      {user?.role === 'admin' && <th style={{ whiteSpace: 'nowrap', textAlign: 'center' }}>จัดการ</th>}
-                    </tr>
-                  </thead>
-                <tbody>
-                  {filteredLogs.map(log => (
-                    <tr key={log.id}>
-                      <td style={{ whiteSpace: 'nowrap' }}>
-                        <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', color: 'var(--text-secondary)' }}>
+          <h2 className="text-xl font-black text-slate-800 mb-4">ประวัติการทำรายการ</h2>
+          
+          <div className="flex-1 overflow-x-auto">
+            <table className="w-full min-w-[600px] text-left border-collapse">
+              <thead>
+                <tr className="border-b-2 border-slate-100">
+                  <th className="pb-4 font-bold text-slate-500 whitespace-nowrap">วันเวลา</th>
+                  <th className="pb-4 font-bold text-slate-500 whitespace-nowrap">ผู้ทำรายการ</th>
+                  <th className="pb-4 font-bold text-slate-500 whitespace-nowrap">ประเภท</th>
+                  <th className="pb-4 font-bold text-slate-500 whitespace-nowrap">สิ่งของ</th>
+                  <th className="pb-4 font-bold text-slate-500 whitespace-nowrap text-right">จำนวน</th>
+                  <th className="pb-4 font-bold text-slate-500 whitespace-nowrap pl-6">รายละเอียด</th>
+                  {user?.role === 'admin' && <th className="pb-4 font-bold text-slate-500 whitespace-nowrap text-center">จัดการ</th>}
+                </tr>
+              </thead>
+              <tbody className="text-sm">
+                {isLoading ? (
+                  <tr>
+                    <td colSpan={7} className="py-8 text-center text-slate-500 font-bold">กำลังโหลดข้อมูล...</td>
+                  </tr>
+                ) : filteredLogs.length === 0 ? (
+                  <tr>
+                    <td colSpan={7} className="py-8 text-center text-slate-500 font-bold">ไม่มีประวัติการทำรายการ</td>
+                  </tr>
+                ) : (
+                  filteredLogs.map(log => (
+                    <tr key={log.id} className="border-b border-slate-50 hover:bg-slate-50 transition-colors">
+                      <td className="py-4 whitespace-nowrap text-slate-500 font-medium">
+                        <div className="flex items-center gap-1.5">
                           <Clock size={14} />
                           {new Date(log.created_at).toLocaleString('th-TH')}
                         </div>
                       </td>
-                      <td style={{ whiteSpace: 'nowrap' }}>{log.users?.ic_name || 'Unknown'}</td>
-                      <td style={{ whiteSpace: 'nowrap' }}>
-                        <span style={{
-                          padding: '4px 10px',
-                          borderRadius: '20px',
-                          fontSize: '0.8rem',
-                          fontWeight: 600,
-                          background: log.type === 'receive' ? '#dcfce7' : '#fef3c7',
-                          color: log.type === 'receive' ? '#166534' : '#92400e',
-                          display: 'inline-block',
-                          whiteSpace: 'nowrap'
-                        }}>
+                      <td className="py-4 whitespace-nowrap font-bold text-slate-700">{log.users?.ic_name || 'Unknown'}</td>
+                      <td className="py-4 whitespace-nowrap">
+                        <span className={`px-3 py-1 rounded-full text-xs font-bold ${log.type === 'receive' ? 'bg-emerald-100 text-emerald-700' : 'bg-amber-100 text-amber-700'}`}>
                           {log.type === 'receive' ? 'รับเข้า' : 'เบิกออก'}
                         </span>
                       </td>
-                      <td style={{ fontWeight: 600, color: '#334155', whiteSpace: 'nowrap' }}>{log.item_name}</td>
-                      <td style={{ 
-                        textAlign: 'right', 
-                        fontWeight: 600,
-                        color: log.type === 'receive' ? '#10b981' : '#f59e0b',
-                        whiteSpace: 'nowrap'
-                      }}>
+                      <td className="py-4 whitespace-nowrap font-bold text-slate-700">{log.item_name}</td>
+                      <td className={`py-4 whitespace-nowrap text-right font-black ${log.type === 'receive' ? 'text-emerald-500' : 'text-amber-500'}`}>
                         {log.type === 'receive' ? '+' : '-'}{log.quantity.toLocaleString()}
                       </td>
-                      <td style={{ color: 'var(--text-secondary)', whiteSpace: 'pre-wrap', fontSize: '0.85rem' }}>{log.description || '-'}</td>
+                      <td className="py-4 pl-6 text-slate-600">{log.description || '-'}</td>
                       {user?.role === 'admin' && (
-                        <td style={{ whiteSpace: 'nowrap', textAlign: 'center' }}>
-                          <button
-                            onClick={() => setEditingLog(log)}
-                            style={{
-                              background: 'none', border: 'none', color: '#3b82f6', cursor: 'pointer', padding: '4px', marginRight: '8px'
-                            }}
-                            title="แก้ไข"
-                          >
-                            <Edit2 size={16} />
-                          </button>
-                          <button
-                            onClick={() => {
-                              Swal.fire({
-                                title: 'ยืนยันการลบ?',
-                                text: "คุณต้องการลบรายการนี้ใช่หรือไม่?",
-                                icon: 'warning',
-                                showCancelButton: true,
-                                confirmButtonColor: '#ef4444',
-                                cancelButtonColor: '#94a3b8',
-                                confirmButtonText: 'ลบข้อมูล',
-                                cancelButtonText: 'ยกเลิก'
-                              }).then((result) => {
-                                if (result.isConfirmed) {
-                                  deleteMutation.mutate(log.id);
-                                }
-                              });
-                            }}
-                            style={{
-                              background: 'none', border: 'none', color: '#ef4444', cursor: 'pointer', padding: '4px'
-                            }}
-                            title="ลบ"
-                          >
-                            <Trash2 size={16} />
-                          </button>
+                        <td className="py-4 whitespace-nowrap">
+                          <div className="flex items-center justify-center gap-2">
+                            <button 
+                              onClick={() => setEditingLog(log)}
+                              className="p-2 bg-slate-100 text-slate-500 hover:bg-blue-500 hover:text-white rounded-lg transition-colors border-none"
+                            >
+                              <Edit2 size={16} />
+                            </button>
+                            <button 
+                              onClick={() => {
+                                Swal.fire({
+                                  title: 'ยืนยันการลบ?',
+                                  text: "คุณต้องการลบรายการนี้ใช่หรือไม่?",
+                                  icon: 'warning',
+                                  showCancelButton: true,
+                                  confirmButtonColor: '#ef4444',
+                                  cancelButtonColor: '#94a3b8',
+                                  confirmButtonText: 'ใช่, ลบเลย',
+                                  cancelButtonText: 'ยกเลิก'
+                                }).then(async (result) => {
+                                  if (result.isConfirmed) {
+                                    await deleteInventoryLog(log.id);
+                                  }
+                                });
+                              }}
+                              className="p-2 bg-rose-50 text-rose-500 hover:bg-rose-500 hover:text-white rounded-lg transition-colors border-none"
+                            >
+                              <Trash2 size={16} />
+                            </button>
+                          </div>
                         </td>
                       )}
                     </tr>
-                  ))}
-                </tbody>
-              </table>
-              </div>
-            )}
+                  ))
+                )}
+              </tbody>
+            </table>
           </div>
-
         </div>
+      </div>
+
       </div>
 
       {isReportOpen && (

@@ -3,7 +3,6 @@ import { useAccountingRealtime } from './hooks/useAccountingRealtime';
 import FinanceTab from './components/FinanceTab';
 import InventoryTab from './components/InventoryTab';
 import { Wallet, Package, LineChart } from 'lucide-react';
-import '../AccountingSystem.css';
 
 export function AccountingSystem() {
   // Connect Realtime
@@ -12,35 +11,44 @@ export function AccountingSystem() {
   const [activeTab, setActiveTab] = useState<'finance' | 'item'>('finance');
 
   return (
-    <div className="accounting-container ">
-      <div className="accounting-header">
+    <div className="p-6 md:p-8 bg-slate-50 min-h-screen text-slate-800">
+      <div className="print:hidden">
+      {/* Header */}
+      <div className="flex flex-col md:flex-row md:items-end justify-between gap-4 mb-8">
         <div>
-          <h1 style={{ fontSize: '2rem', marginBottom: '0.5rem', color: 'var(--text-primary)', display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
-            <LineChart size={32} color="var(--primary)" />
-            ระบบบัญชี & คลังสิ่งของ
+          <h1 className="text-3xl font-black text-slate-800 flex items-center gap-3 mb-2">
+            <div className="bg-blue-100 text-blue-600 p-2 rounded-xl">
+              <LineChart size={28} />
+            </div>
+            ระบบบัญชี & คลังยา
           </h1>
-          <p style={{ color: 'var(--text-secondary)' }}>
-            จัดการรายรับ-รายจ่ายของหน่วยงาน และระบบเบิกจ่ายสิ่งของ
+          <p className="text-slate-500 font-medium ml-1">
+            จัดการรายรับ-รายจ่ายของคลินิก และระบบคลังยา
           </p>
         </div>
       </div>
 
-      <div className="accounting-tabs" style={{ marginBottom: '2rem' }}>
+      {/* Tabs */}
+      <div className="flex flex-col sm:flex-row bg-slate-200/60 p-1.5 rounded-2xl w-full sm:w-fit overflow-x-auto shadow-inner mb-8">
         <button 
-          className={`accounting-tab-btn ${activeTab === 'finance' ? 'active finance' : ''}`}
+          className={`flex flex-1 sm:flex-none items-center justify-center gap-2 px-6 py-3 rounded-xl text-sm font-bold transition-all whitespace-nowrap border-none ${activeTab === 'finance' ? 'bg-white text-emerald-600 shadow-sm' : 'text-slate-500 hover:text-slate-700 hover:bg-slate-200/50 bg-transparent'}`}
           onClick={() => setActiveTab('finance')}
         >
           <Wallet size={18} /> ระบบบัญชี (การเงิน)
         </button>
         <button 
-          className={`accounting-tab-btn ${activeTab === 'item' ? 'active item' : ''}`}
+          className={`flex flex-1 sm:flex-none items-center justify-center gap-2 px-6 py-3 rounded-xl text-sm font-bold transition-all whitespace-nowrap border-none ${activeTab === 'item' ? 'bg-white text-sky-600 shadow-sm' : 'text-slate-500 hover:text-slate-700 hover:bg-slate-200/50 bg-transparent'}`}
           onClick={() => setActiveTab('item')}
         >
-          <Package size={18} /> ระบบคลังสิ่งของ
+          <Package size={18} /> ระบบคลังยา
         </button>
       </div>
 
-      {activeTab === 'finance' ? <FinanceTab /> : <InventoryTab />}
+      </div>
+      {/* Tab Content */}
+      <div className="mt-6">
+        {activeTab === 'finance' ? <FinanceTab /> : <InventoryTab />}
+      </div>
     </div>
   );
 }

@@ -58,7 +58,7 @@ export function useQueue(currentUserId: string | undefined) {
       if (volsRes.data?.value) {
         try {
           volunteers = JSON.parse(volsRes.data.value);
-        } catch (e) {}
+        } catch { /* eslint-disable-next-line no-empty */ }
       }
 
       // Map normal users

@@ -1,12 +1,11 @@
 import { useState, useEffect, useMemo } from 'react';
-import { X, Filter, Plus, Edit2, Trash2, Save } from 'lucide-react';
 import { supabase } from '@/lib/supabase';
+import { X, Filter, Calendar, Save, Trash2, Edit2, Plus, Clock, Users, History } from 'lucide-react';
+import DatePicker from 'react-datepicker';
+import "react-datepicker/dist/react-datepicker.css";
 import SmartDatePicker from '../../../components/common/SmartDatePicker';
-import SmartTimePicker from '../../../components/common/SmartTimePicker';
 import SmartSelect from '../../../components/common/SmartSelect';
 import Swal from 'sweetalert2';
-import { useQueueMutations } from '../hooks/useQueueMutations';
-import { useGangs, useFamilies } from '../../SystemSettings/hooks/useGangsFamilies';
 
 interface HistoryModalProps {
   isOpen: boolean;
@@ -20,55 +19,77 @@ export function HistoryModal({ isOpen, onClose, isAdmin = false }: HistoryModalP
   const [storyLogs, setStoryLogs] = useState<any[]>([]);
   const [loading, setLoading] = useState(false);
 
-  // Date filters
-  const [startDate, setStartDate] = useState<Date | null>(new Date(new Date().setHours(0, 0, 0, 0)));
-  const [endDate, setEndDate] = useState<Date | null>(new Date(new Date().setHours(23, 59, 59, 999)));
+  const [startDate, setStartDate] = useState<Date | null>(null);
+  const [endDate, setEndDate] = useState<Date | null>(null);
 
-  // Admin Story Management
-  const { addStoryLog, updateStoryLog, deleteStoryLog } = useQueueMutations();
-  const { data: gangs = [] } = useGangs();
-  const { data: families = [] } = useFamilies();
-  const combinedGangs = useMemo(() => {
-    return [...gangs, ...families].map(g => g.name).sort();
-  }, [gangs, families]);
-
-  const [allDoctors, setAllDoctors] = useState<{discord_id: string, ic_name: string}[]>([]);
-  const [isAdding, setIsAdding] = useState(false);
+  const [allDoctors, setAllDoctors] = useState<any[]>([]);
   const [editingId, setEditingId] = useState<string | null>(null);
+  const [isAdding, setIsAdding] = useState(false);
   const [editForm, setEditForm] = useState<any>({});
   const [showDoctorDropdown, setShowDoctorDropdown] = useState(false);
 
-  const factionOptions = useMemo(() => {
-    const gangOpts = gangs.map(g => ({ value: g.name, label: g.name }));
-    const famOpts = families.map(f => ({ value: f.name, label: f.name }));
-    return [...gangOpts, ...famOpts];
-  }, [gangs, families]);
+  const factionOptions = [
+    { value: '[ MD ] MEDIC', label: '[ MD ] MEDIC' },
+    { value: '[ PL ] POLICE', label: '[ PL ] POLICE' },
+    { value: '[ CG ] CHANG', label: '[ CG ] CHANG' },
+    { value: '[ 1D ] ONEDAY', label: '[ 1D ] ONEDAY' },
+    { value: '[ OBS ] OBSIDIAN', label: '[ OBS ] OBSIDIAN' },
+    { value: '[ 777 ] JEDWAI', label: '[ 777 ] JEDWAI' },
+    { value: '[ R ] REQUIEM', label: '[ R ] REQUIEM' },
+    { value: '[ RJJ ] ROI JOOB', label: '[ RJJ ] ROI JOOB' },
+    { value: '[ YAK ] YAKUZA', label: '[ YAK ] YAKUZA' },
+    { value: '[ MFYL ] MEFANYUNG LADY', label: '[ MFYL ] MEFANYUNG LADY' },
+    { value: '[ SU ] STEPUP', label: '[ SU ] STEPUP' },
+    { value: '[ MRD ] MAIRAKDEE', label: '[ MRD ] MAIRAKDEE' },
+    { value: '[ B ] BARBARIAN', label: '[ B ] BARBARIAN' }
+  ];
 
   const storyTypeOptions = [
     { value: 'ไฟต์ตรง (1 คน)', label: 'ไฟต์ตรง (1 คน)' },
     { value: 'ไฟต์ตรง (2 คน)', label: 'ไฟต์ตรง (2 คน)' },
-    { value: 'บั๊มรถ (1 คน)', label: 'บั๊มรถ (1 คน)' },
-    { value: 'บั๊มรถ (2 คน)', label: 'บั๊มรถ (2 คน)' },
+    { value: 'รับของ (1 คน)', label: 'รับของ (1 คน)' },
+    { value: 'รับของ (2 คน)', label: 'รับของ (2 คน)' },
   ];
+
+  
+  const handleSetDefaultDates = (tab: 'manager' | 'story' | 'summary') => {
+    if (tab === 'manager' || tab === 'story') {
+      const start = new Date(); start.setHours(0, 0, 0, 0);
+      const end = new Date(); end.setHours(23, 59, 59, 999);
+      setStartDate(start);
+      setEndDate(end);
+    } else if (tab === 'summary') {
+      const curr = new Date();
+      const day = curr.getDay(); // 0 = Sunday, 1 = Monday, etc.
+      const diffToMonday = curr.getDate() - day + (day === 0 ? -6 : 1);
+      
+      const start = new Date(new Date().setDate(diffToMonday));
+      start.setHours(0, 0, 0, 0);
+      
+      const end = new Date(start);
+      end.setDate(start.getDate() + 6);
+      end.setHours(23, 59, 59, 999);
+      
+      setStartDate(start);
+      setEndDate(end);
+    }
+  };
+
+  useEffect(() => {
+    if (isOpen) {
+      handleSetDefaultDates(activeTab);
+    }
+  }, [isOpen, activeTab]);
 
   const fetchLogs = async () => {
     setLoading(true);
     try {
-      let managerQuery = supabase
-        .from('queue_manager_logs')
-        .select(`*, users (ic_name)`)
-        .order('start_time', { ascending: false });
-
-      let storyQuery = supabase
-        .from('story_logs')
-        .select(`*, users (ic_name)`)
-        .order('start_time', { ascending: false });
+      let managerQuery = supabase.from('queue_manager_logs').select(`*, users (ic_name)`).order('start_time', { ascending: false });
+      let storyQuery = supabase.from('story_logs').select(`*, users (ic_name)`).order('start_time', { ascending: false });
 
       if (startDate && endDate) {
-        const startIso = startDate.toISOString();
-        const endIso = endDate.toISOString();
-        managerQuery = managerQuery.gte('start_time', startIso).lte('start_time', endIso);
-        storyQuery = storyQuery.gte('start_time', startIso).lte('start_time', endIso);
+        managerQuery = managerQuery.gte('start_time', startDate.toISOString()).lte('start_time', endDate.toISOString());
+        storyQuery = storyQuery.gte('start_time', startDate.toISOString()).lte('start_time', endDate.toISOString());
       } else {
         managerQuery = managerQuery.limit(100);
         storyQuery = storyQuery.limit(100);
@@ -86,7 +107,7 @@ export function HistoryModal({ isOpen, onClose, isAdmin = false }: HistoryModalP
         setStoryLogs(data || []);
       }
     } catch (err) {
-      console.error('Error fetching history:', err);
+      console.error(err);
     } finally {
       setLoading(false);
     }
@@ -95,6 +116,7 @@ export function HistoryModal({ isOpen, onClose, isAdmin = false }: HistoryModalP
   useEffect(() => {
     if (!isOpen) return;
     fetchLogs();
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [isOpen, activeTab, startDate, endDate]);
 
   useEffect(() => {
@@ -105,38 +127,23 @@ export function HistoryModal({ isOpen, onClose, isAdmin = false }: HistoryModalP
     }
   }, [isAdmin, activeTab, allDoctors.length]);
 
-  // Compute summary report
   const summaryData = useMemo(() => {
     const summaryMap: Record<string, any> = {};
-
     managerLogs.forEach(log => {
       const did = log.discord_id;
       if (!summaryMap[did]) {
-        summaryMap[did] = {
-          ic_name: log.users?.ic_name || 'Unknown',
-          total_manager_mins: 0,
-          total_stories: 0,
-          daily_manager_mins: {}
-        };
+        summaryMap[did] = { ic_name: log.users?.ic_name || 'Unknown', total_manager_mins: 0, daily_manager_mins: {}, total_stories: 0 };
       }
-      summaryMap[did].total_manager_mins += log.duration_minutes || 0;
-      
-      const dayKey = new Date(log.start_time).toLocaleDateString('th-TH');
-      if (!summaryMap[did].daily_manager_mins) {
-        summaryMap[did].daily_manager_mins = {};
-      }
-      summaryMap[did].daily_manager_mins[dayKey] = (summaryMap[did].daily_manager_mins[dayKey] || 0) + (log.duration_minutes || 0);
+      const duration = log.end_time ? (new Date(log.end_time).getTime() - new Date(log.start_time).getTime()) / 60000 : 0;
+      summaryMap[did].total_manager_mins += duration;
+      const dateKey = new Date(log.start_time).toLocaleDateString('en-GB');
+      summaryMap[did].daily_manager_mins[dateKey] = (summaryMap[did].daily_manager_mins[dateKey] || 0) + duration;
     });
 
     storyLogs.forEach(log => {
       const did = log.discord_id;
       if (!summaryMap[did]) {
-        summaryMap[did] = {
-          ic_name: log.users?.ic_name || 'Unknown',
-          total_manager_mins: 0,
-          total_stories: 0,
-          daily_manager_mins: {}
-        };
+        summaryMap[did] = { ic_name: log.users?.ic_name || 'Unknown', total_manager_mins: 0, daily_manager_mins: {}, total_stories: 0 };
       }
       summaryMap[did].total_stories += 1;
     });
@@ -158,565 +165,295 @@ export function HistoryModal({ isOpen, onClose, isAdmin = false }: HistoryModalP
       const dateStr = new Date(log.start_time).toLocaleDateString('th-TH');
       const did = log.discord_id;
       const key = `${dateStr}_${did}`;
-
       if (!groups[key]) {
-        groups[key] = {
-          id: key,
-          dateStr,
-          ic_name: log.users?.ic_name,
-          first_start: log.start_time,
-          last_end: log.end_time || log.start_time,
-          total_mins: 0,
-          timestamp_for_sort: new Date(log.start_time).getTime()
-        };
-      } else {
-        if (new Date(log.start_time) < new Date(groups[key].first_start)) {
-          groups[key].first_start = log.start_time;
-        }
-        if (log.end_time && new Date(log.end_time) > new Date(groups[key].last_end)) {
-          groups[key].last_end = log.end_time;
-        }
+        groups[key] = { id: key, dateStr, ic_name: log.users?.ic_name, first_start: log.start_time, last_end: log.end_time || log.start_time, total_mins: 0, timestamp_for_sort: new Date(log.start_time).getTime() };
       }
-      groups[key].total_mins += (log.duration_minutes || 0);
+      const duration = log.end_time ? (new Date(log.end_time).getTime() - new Date(log.start_time).getTime()) / 60000 : 0;
+      groups[key].total_mins += duration;
+      if (new Date(log.start_time) < new Date(groups[key].first_start)) groups[key].first_start = log.start_time;
+      if (log.end_time && new Date(log.end_time) > new Date(groups[key].last_end)) groups[key].last_end = log.end_time;
     });
-
     return Object.values(groups).sort((a: any, b: any) => b.timestamp_for_sort - a.timestamp_for_sort);
   }, [managerLogs]);
 
-  const handleClearFilters = () => {
-    setStartDate(null);
-    setEndDate(null);
-  };
-
+  const handleClearFilters = () => { setStartDate(null); setEndDate(null); };
   const handleTodayFilter = () => {
-    const start = new Date();
-    start.setHours(0, 0, 0, 0);
-    const end = new Date();
-    end.setHours(23, 59, 59, 999);
-    setStartDate(start);
-    setEndDate(end);
+    const start = new Date(); start.setHours(0, 0, 0, 0);
+    const end = new Date(); end.setHours(23, 59, 59, 999);
+    setStartDate(start); setEndDate(end);
   };
 
   const handleAddStory = () => {
-    setEditForm({
-      discord_id: '',
-      doctorSearchText: '',
-      start_time: new Date().toISOString().slice(0, 16),
-      gang_1: '',
-      gang_2: '',
-      story_type: 'ไฟต์ตรง (1 คน)'
-    });
-    setIsAdding(true);
-    setEditingId(null);
+    setEditForm({ discord_id: '', doctorSearchText: '', start_time: new Date().toISOString().slice(0, 16), gang_1: '', gang_2: '', story_type: 'ไฟต์ตรง (1 คน)' });
+    setIsAdding(true); setEditingId(null);
   };
 
   const handleEditStory = (log: any) => {
-    const st = new Date(log.start_time);
-    const offset = st.getTimezoneOffset() * 60000;
-    const localISOTime = (new Date(st.getTime() - offset)).toISOString().slice(0, 16);
-    
-    setEditForm({
-      discord_id: log.discord_id,
-      doctorSearchText: log.users?.ic_name || '',
-      start_time: localISOTime,
-      gang_1: log.gang_1,
-      gang_2: log.gang_2,
-      story_type: log.story_type
-    });
-    setEditingId(log.id);
-    setIsAdding(false);
+    setEditForm({ discord_id: log.discord_id, doctorSearchText: log.users?.ic_name, start_time: new Date(log.start_time).toISOString().slice(0, 16), gang_1: log.gang_1, gang_2: log.gang_2, story_type: log.story_type });
+    setEditingId(log.id); setIsAdding(false);
+  };
+
+  const cancelEdit = () => { setEditingId(null); setIsAdding(false); setEditForm({}); };
+
+  const handleDeleteStory = async (id: string) => {
+    const res = await Swal.fire({ title: 'ยืนยันการลบ?', text: 'คุณต้องการลบประวัติสตอรี่นี้ใช่หรือไม่?', icon: 'warning', showCancelButton: true, confirmButtonColor: '#ef4444', confirmButtonText: 'ลบ', cancelButtonText: 'ยกเลิก' });
+    if (res.isConfirmed) {
+      await supabase.from('story_logs').delete().eq('id', id);
+      fetchLogs();
+    }
   };
 
   const handleSaveStory = async () => {
     if (!editForm.discord_id || !editForm.start_time) {
-      Swal.fire({ icon: 'error', title: 'แจ้งเตือน', text: 'กรุณากรอกข้อมูลให้ครบถ้วน' });
-      return;
+      Swal.fire('ข้อมูลไม่ครบ', 'กรุณาเลือกชื่อหมอและเวลา', 'error'); return;
     }
-    
-    try {
-      const payload = {
-        discord_id: editForm.discord_id,
-        gang_1: editForm.gang_1 || null,
-        gang_2: editForm.gang_2 || null,
-        story_type: editForm.story_type,
-        start_time: new Date(editForm.start_time).toISOString(),
-      };
-
-      if (isAdding) {
-        await addStoryLog(payload);
-      } else if (editingId) {
-        await updateStoryLog({ id: editingId, ...payload });
-      }
-      
-      setIsAdding(false);
-      setEditingId(null);
-      fetchLogs(); // refresh
-    } catch (err: any) {
-      console.error(err);
-      Swal.fire({ icon: 'error', title: 'แจ้งเตือน', text: 'เกิดข้อผิดพลาด: ' + err.message });
-    }
-  };
-
-  const handleDeleteStory = async (id: string) => {
-    const result = await Swal.fire({
-      title: 'ยืนยันการลบประวัติสตอรี่นี้?',
-      icon: 'warning',
-      showCancelButton: true,
-      confirmButtonColor: '#3085d6',
-      cancelButtonColor: '#d33',
-      confirmButtonText: 'ยืนยัน',
-      cancelButtonText: 'ยกเลิก'
-    });
-
-    if (result.isConfirmed) {
-      try {
-        await deleteStoryLog(id);
-        fetchLogs();
-      } catch (err) {
-        console.error(err);
-      }
-    }
-  };
-
-  const cancelEdit = () => {
-    setIsAdding(false);
-    setEditingId(null);
+    const payload = { discord_id: editForm.discord_id, gang_1: editForm.gang_1 || null, gang_2: editForm.gang_2 || null, story_type: editForm.story_type, start_time: new Date(editForm.start_time).toISOString() };
+    if (isAdding) { await supabase.from('story_logs').insert([payload]); } 
+    else if (editingId) { await supabase.from('story_logs').update(payload).eq('id', editingId); }
+    setIsAdding(false); setEditingId(null); fetchLogs();
   };
 
   if (!isOpen) return null;
 
   return (
-    <div className="modal-overlay" onClick={onClose}>
-      <div 
-        className="queue-modal-content" 
-        onClick={e => e.stopPropagation()}
-        style={{ maxWidth: activeTab === 'story' ? '1200px' : '900px', transition: 'max-width 0.3s ease' }}
-      >
-        <div className="modal-header">
-          <h2>ประวัติระบบคิว & รายงาน</h2>
-          <button className="close-btn" onClick={onClose}>
+    <div className="fixed inset-0 bg-slate-900/40 backdrop-blur-sm flex items-center justify-center z-50 p-4" onClick={onClose}>
+      <div className="bg-white rounded-[24px] w-full max-w-5xl max-h-[90vh] flex flex-col shadow-2xl overflow-hidden" onClick={e => e.stopPropagation()}>
+        
+        {/* Header */}
+        <div className="px-6 py-5 border-b border-slate-100 flex justify-between items-center">
+          <h2 className="text-xl font-bold text-slate-800 flex items-center gap-3 m-0">
+            <div className="bg-emerald-100 text-emerald-600 p-2 rounded-xl"><History size={20} /></div>
+            ประวัติระบบคิว & รายงาน
+          </h2>
+          <button className="p-2 text-slate-400 hover:text-slate-700 hover:bg-slate-100 rounded-full transition-colors border-none bg-transparent" onClick={onClose}>
             <X size={20} />
           </button>
         </div>
 
-        <div className="modal-switcher" style={{ paddingBottom: '12px' }}>
-          <button 
-            className={`switcher-btn ${activeTab === 'manager' ? 'active-blue' : 'inactive'}`}
-            onClick={() => setActiveTab('manager')}
-          >
-            ประวัติหมอรันคิว
-          </button>
-          <button 
-            className={`switcher-btn ${activeTab === 'story' ? 'active-purple' : 'inactive'}`}
-            onClick={() => setActiveTab('story')}
-          >
-            ประวัติสตอรี่
-          </button>
-          <button 
-            className={`switcher-btn ${activeTab === 'summary' ? 'active-green' : 'inactive'}`}
-            onClick={() => setActiveTab('summary')}
-            style={{ background: activeTab === 'summary' ? '#10b981' : undefined, color: activeTab === 'summary' ? 'white' : undefined }}
-          >
-            สรุปรายงาน
-          </button>
-        </div>
+        {/* Tabs & Filters */}
+        <div className="bg-slate-50/50 border-b border-slate-100 p-6">
+          <div className="flex flex-col gap-4">
+            
+            {/* Tabs */}
+            <div className="flex bg-slate-100 p-1 rounded-xl w-full sm:w-fit overflow-x-auto shadow-inner">
+              <button 
+                className={`flex flex-1 sm:flex-none items-center justify-center gap-2 px-6 py-2.5 rounded-lg text-sm font-bold transition-all whitespace-nowrap ${activeTab === "manager" ? "bg-white text-blue-600 shadow-sm border-none" : "text-slate-500 hover:text-slate-700 hover:bg-slate-200/50 border-none bg-transparent"}`}
+                onClick={() => setActiveTab('manager')}
+              >
+                <Users size={16} /> ประวัติหมอรับคิว
+              </button>
+              <button 
+                className={`flex flex-1 sm:flex-none items-center justify-center gap-2 px-6 py-2.5 rounded-lg text-sm font-bold transition-all whitespace-nowrap ${activeTab === "story" ? "bg-white text-purple-600 shadow-sm border-none" : "text-slate-500 hover:text-slate-700 hover:bg-slate-200/50 border-none bg-transparent"}`}
+                onClick={() => setActiveTab('story')}
+              >
+                <Clock size={16} /> ประวัติสตอรี่
+              </button>
+              <button 
+                className={`flex flex-1 sm:flex-none items-center justify-center gap-2 px-6 py-2.5 rounded-lg text-sm font-bold transition-all whitespace-nowrap ${activeTab === "summary" ? "bg-white text-emerald-600 shadow-sm border-none" : "text-slate-500 hover:text-slate-700 hover:bg-slate-200/50 border-none bg-transparent"}`}
+                onClick={() => setActiveTab('summary')}
+              >
+                <Calendar size={16} /> สรุปรายงาน
+              </button>
+            </div>
 
-        {/* Date Filters */}
-        <div style={{ 
-          display: 'flex', 
-          justifyContent: 'space-between',
-          alignItems: 'flex-start', 
-          padding: '0 24px 16px 24px',
-          borderBottom: '1px solid var(--qs-border, #e2e8f0)',
-          gap: '16px',
-          flexWrap: 'wrap'
-        }}>
-          <div style={{ display: 'flex', gap: '12px', flexWrap: 'wrap', alignItems: 'center' }}>
-            <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
-              <Filter size={16} color="#64748b" />
-              <span style={{ fontSize: '0.85rem', color: '#64748b', fontWeight: 500 }}>ตั้งแต่:</span>
-              <SmartDatePicker 
-                selected={startDate} 
-                onChange={setStartDate} 
-                selectsStart
-                startDate={startDate}
-                endDate={endDate}
-                className="filter-input-small"
-              />
+            {/* Filters */}
+            <div className="flex flex-wrap items-center gap-3">
+              <div className="flex items-center gap-2 bg-white border border-slate-200 rounded-xl px-3 py-1.5 shadow-sm w-full sm:w-auto">
+                <Filter size={16} className="text-slate-400 shrink-0" />
+                <span className="text-sm font-medium text-slate-600 shrink-0 mr-1">ตั้งแต่:</span>
+                <DatePicker selected={startDate} onChange={setStartDate} selectsStart startDate={startDate} endDate={endDate} dateFormat="dd/MM/yyyy" placeholderText="เริ่มต้น" className="w-[80px] sm:w-[100px] outline-none text-sm font-medium text-slate-700 bg-transparent" />
+                <span className="text-sm font-medium text-slate-600 shrink-0 mx-1">ถึง:</span>
+                <DatePicker selected={endDate} onChange={setEndDate} selectsEnd startDate={startDate} endDate={endDate} minDate={startDate || undefined} dateFormat="dd/MM/yyyy" placeholderText="สิ้นสุด" className="w-[80px] sm:w-[100px] outline-none text-sm font-medium text-slate-700 bg-transparent" />
+              </div>
+              <div className="flex items-center gap-2 w-full sm:w-auto">
+                <button onClick={handleTodayFilter} className="flex-1 sm:flex-none px-4 py-2 bg-blue-50 hover:bg-blue-100 text-blue-600 rounded-xl border-none text-sm font-bold transition-colors whitespace-nowrap">วันนี้</button>
+                <button onClick={handleClearFilters} className="flex-1 sm:flex-none px-4 py-2 bg-white border border-slate-200 hover:bg-slate-50 text-slate-600 rounded-xl text-sm font-bold transition-colors whitespace-nowrap shadow-sm">ดูทั้งหมด</button>
+              </div>
+              {isAdmin && activeTab === 'story' && (
+                <button onClick={handleAddStory} className="ml-auto w-full sm:w-auto flex items-center justify-center gap-1.5 px-4 py-2 bg-purple-500 hover:bg-purple-600 text-white rounded-xl font-bold text-sm shadow-md border-none transition-colors whitespace-nowrap hover:-translate-y-0.5 active:translate-y-0">
+                  <Plus size={16} strokeWidth={3} /> เพิ่มประวัติย้อนหลัง
+                </button>
+              )}
             </div>
-            <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
-              <span style={{ fontSize: '0.85rem', color: '#64748b', fontWeight: 500 }}>ถึง:</span>
-              <SmartDatePicker 
-                selected={endDate} 
-                onChange={setEndDate} 
-                selectsEnd
-                startDate={startDate}
-                endDate={endDate}
-                minDate={startDate || undefined}
-                className="filter-input-small"
-              />
-            </div>
-            <div style={{ display: 'flex', gap: '8px' }}>
-              <button 
-                onClick={handleTodayFilter}
-                style={{ padding: '6px 12px', borderRadius: '8px', border: '1px solid #e2e8f0', background: 'white', color: '#3b82f6', cursor: 'pointer', fontSize: '0.85rem', fontWeight: 600 }}
-              >
-                วันนี้
-              </button>
-              <button 
-                onClick={handleClearFilters}
-                style={{ padding: '6px 12px', borderRadius: '8px', border: '1px solid #e2e8f0', background: 'white', color: '#64748b', cursor: 'pointer', fontSize: '0.85rem', fontWeight: 500 }}
-              >
-                ดูทั้งหมด
-              </button>
-            </div>
+
           </div>
-          {isAdmin && activeTab === 'story' && (
-             <button 
-               onClick={handleAddStory}
-               style={{ display: 'flex', alignItems: 'center', gap: '4px', padding: '8px 16px', background: '#8b5cf6', color: 'white', border: 'none', borderRadius: '8px', cursor: 'pointer', fontWeight: 600, fontSize: '0.85rem', whiteSpace: 'nowrap', flexShrink: 0 }}
-             >
-               <Plus size={16} /> เพิ่มประวัติย้อนหลัง
-             </button>
-          )}
         </div>
 
-        <div className="history-list">
+        {/* Content Area */}
+        <div className="flex-1 overflow-y-auto bg-white">
           {loading ? (
-            <div className="loading-state">กำลังโหลดข้อมูล...</div>
+            <div className="flex flex-col items-center justify-center h-64 text-emerald-500 gap-3">
+              <div className="w-8 h-8 border-4 border-emerald-200 border-t-emerald-500 rounded-full animate-spin"></div>
+              <span className="font-bold">กำลังโหลดข้อมูล...</span>
+            </div>
           ) : activeTab === 'summary' ? (
-            <table className="history-table">
+            <table className="w-full text-left border-collapse">
               <thead>
                 <tr>
-                  <th>ชื่อแพทย์</th>
-                  <th>เวลารันคิวสะสม</th>
-                  <th>เข้าสตอรี่</th>
-                  <th style={{ color: '#10b981' }}>โบนัสเวลา (จำนวนวัน)</th>
+                  <th className="sticky top-0 bg-slate-50 p-4 text-xs font-extrabold text-slate-500 uppercase tracking-wider border-b border-slate-200 z-10">ชื่อแพทย์</th>
+                  <th className="sticky top-0 bg-slate-50 p-4 text-xs font-extrabold text-slate-500 uppercase tracking-wider border-b border-slate-200 z-10">เวลารับคิวสะสม</th>
+                  <th className="sticky top-0 bg-slate-50 p-4 text-xs font-extrabold text-slate-500 uppercase tracking-wider border-b border-slate-200 z-10">เข้าสตอรี่</th>
+                  <th className="sticky top-0 bg-slate-50 p-4 text-xs font-extrabold text-slate-500 uppercase tracking-wider border-b border-slate-200 z-10">โบนัสเวลา (จำนวนวัน)</th>
                 </tr>
               </thead>
               <tbody>
-                {summaryData.length > 0 ? summaryData.map((data, idx) => {
-                  const totalRoundedMins = Math.round(data.total_manager_mins);
-                  const hours = Math.floor(totalRoundedMins / 60);
-                  const mins = totalRoundedMins % 60;
+                {summaryData.length > 0 ? summaryData.map((data: any, idx: number) => {
+                  const hours = Math.floor(data.total_manager_mins / 60);
+                  const mins = Math.floor(data.total_manager_mins % 60);
                   return (
-                    <tr key={idx}>
-                      <td>{data.ic_name}</td>
-                      <td>{hours > 0 ? `${hours} ชม. ` : ''}{mins} นาที</td>
-                      <td>{data.total_stories > 0 ? `${data.total_stories} เคส` : '-'}</td>
-                      <td style={{ fontWeight: data.bonusDays > 0 ? 'bold' : 'normal', color: data.bonusDays > 0 ? '#10b981' : 'inherit' }}>
+                    <tr key={idx} className="hover:bg-slate-50 transition-colors">
+                      <td className="p-4 border-b border-slate-100 text-[0.95rem] text-slate-800 font-medium">{data.ic_name}</td>
+                      <td className="p-4 border-b border-slate-100 text-[0.95rem] text-slate-600">{hours > 0 ? `${hours} ชม. ` : ''}{mins} นาที</td>
+                      <td className="p-4 border-b border-slate-100 text-[0.95rem] text-slate-600">{data.total_stories > 0 ? `${data.total_stories} เคส` : '-'}</td>
+                      <td className={`p-4 border-b border-slate-100 text-[0.95rem] font-bold ${data.bonusDays > 0 ? 'text-emerald-500' : 'text-slate-400'}`}>
                         {data.bonusDays > 0 ? `${data.bonusDays} วัน (+${data.bonusDays * 2} ชม.)` : '-'}
                       </td>
                     </tr>
                   );
-                }) : (
-                  <tr>
-                    <td colSpan={4} className="empty-state">ไม่มีข้อมูลในช่วงเวลาที่เลือก</td>
-                  </tr>
-                )}
+                }) : <tr><td colSpan={4} className="p-16 text-center text-slate-400 font-medium text-lg">ไม่มีข้อมูลรายงานในช่วงเวลานี้</td></tr>}
               </tbody>
             </table>
           ) : activeTab === 'manager' ? (
-            <table className="history-table">
+            <table className="w-full text-left border-collapse">
               <thead>
                 <tr>
-                  <th>วันที่</th>
-                  <th>หมอรันคิว</th>
-                  <th>รวมเวลา (นาที)</th>
+                  <th className="sticky top-0 bg-slate-50 p-4 text-xs font-extrabold text-slate-500 uppercase tracking-wider border-b border-slate-200 z-10">วันที่</th>
+                  <th className="sticky top-0 bg-slate-50 p-4 text-xs font-extrabold text-slate-500 uppercase tracking-wider border-b border-slate-200 z-10">หมอรับคิว</th>
+                  <th className="sticky top-0 bg-slate-50 p-4 text-xs font-extrabold text-slate-500 uppercase tracking-wider border-b border-slate-200 z-10">รวมเวลา (นาที)</th>
                 </tr>
               </thead>
               <tbody>
-                {groupedManagerLogs.length > 0 ? groupedManagerLogs.map(log => (
-                  <tr key={log.id}>
-                    <td>{log.dateStr}</td>
-                    <td>{log.ic_name}</td>
-                    <td>{Math.round(log.total_mins)}</td>
+                {groupedManagerLogs.length > 0 ? groupedManagerLogs.map((log: any) => (
+                  <tr key={log.id} className="hover:bg-slate-50 transition-colors">
+                    <td className="p-4 border-b border-slate-100 text-[0.95rem] text-slate-600">{log.dateStr}</td>
+                    <td className="p-4 border-b border-slate-100 text-[0.95rem] text-slate-800 font-medium">{log.ic_name}</td>
+                    <td className="p-4 border-b border-slate-100 text-[0.95rem] text-slate-600">{Math.round(log.total_mins)}</td>
                   </tr>
-                )) : (
-                  <tr>
-                    <td colSpan={3} className="empty-state">ไม่มีประวัติหมอรันคิว</td>
-                  </tr>
-                )}
+                )) : <tr><td colSpan={3} className="p-16 text-center text-slate-400 font-medium text-lg">ไม่มีข้อมูลหมอรับคิวในช่วงเวลานี้</td></tr>}
               </tbody>
             </table>
           ) : (
-            <table className="history-table">
+            <table className="w-full text-left border-collapse">
               <thead>
                 <tr>
-                  <th>วันที่-เวลา</th>
-                  <th>ชื่อหมอ</th>
-                  <th>แก๊ง</th>
-                  <th>รูปแบบ</th>
-                  {isAdmin && <th style={{ width: '80px', textAlign: 'center' }}>จัดการ</th>}
+                  <th className="sticky top-0 bg-slate-50 p-4 text-xs font-extrabold text-slate-500 uppercase tracking-wider border-b border-slate-200 z-10">วันที่-เวลา</th>
+                  <th className="sticky top-0 bg-slate-50 p-4 text-xs font-extrabold text-slate-500 uppercase tracking-wider border-b border-slate-200 z-10">ชื่อหมอ</th>
+                  <th className="sticky top-0 bg-slate-50 p-4 text-xs font-extrabold text-slate-500 uppercase tracking-wider border-b border-slate-200 z-10">แก๊ง</th>
+                  <th className="sticky top-0 bg-slate-50 p-4 text-xs font-extrabold text-slate-500 uppercase tracking-wider border-b border-slate-200 z-10">รูปแบบ</th>
+                  {isAdmin && <th className="sticky top-0 bg-slate-50 p-4 text-xs font-extrabold text-slate-500 uppercase tracking-wider border-b border-slate-200 z-10 text-center">จัดการ</th>}
                 </tr>
               </thead>
               <tbody>
-                {isAdding && (
-                  <tr style={{ background: '#f8fafc' }}>
-                    <td style={{ padding: '0.75rem', width: '260px' }}>
-                      <div style={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
-                        <SmartDatePicker
-                          selected={editForm.start_time ? new Date(editForm.start_time) : new Date()}
-                          onChange={(date: Date | null) => {
-                            if (date) {
-                              const oldDate = editForm.start_time ? new Date(editForm.start_time) : new Date();
-                              date.setHours(oldDate.getHours(), oldDate.getMinutes());
-                              const offset = date.getTimezoneOffset() * 60000;
-                              const localISOTime = (new Date(date.getTime() - offset)).toISOString().slice(0, 16);
-                              setEditForm({...editForm, start_time: localISOTime});
-                            }
-                          }}
-                          dateFormat="dd/MM/yyyy"
-                          className="date-input"
-                          wrapperClassName="w-full"
-                          placeholderText="วันที่"
-                        />
-                        <SmartTimePicker
-                          value={editForm.start_time ? editForm.start_time.split('T')[1] : ''}
-                          onChange={(timeStr: string) => {
-                            if (timeStr && timeStr.includes(':')) {
-                              const [hh, mm] = timeStr.split(':');
-                              const date = editForm.start_time ? new Date(editForm.start_time) : new Date();
-                              date.setHours(parseInt(hh, 10), parseInt(mm, 10));
-                              const offset = date.getTimezoneOffset() * 60000;
-                              const localISOTime = (new Date(date.getTime() - offset)).toISOString().slice(0, 16);
-                              setEditForm({...editForm, start_time: localISOTime});
-                            }
-                          }}
-                          style={{ width: '100px' }}
-                        />
-                      </div>
-                    </td>
-                    <td style={{ padding: '0.75rem', position: 'relative' }}>
-                      <input
-                        type="text"
-                        value={editForm.doctorSearchText ?? ''}
-                        onChange={(e) => {
-                          setEditForm({...editForm, doctorSearchText: e.target.value, discord_id: ''});
-                          setShowDoctorDropdown(true);
-                        }}
-                        onFocus={() => setShowDoctorDropdown(true)}
-                        onBlur={() => setTimeout(() => setShowDoctorDropdown(false), 200)}
-                        placeholder="ค้นหาชื่อแพทย์"
-                        style={{ width: '100%', maxWidth: '220px', padding: '0.35rem 0.5rem', borderRadius: '8px', border: '1px solid #cbd5e1', fontSize: '0.85rem', boxSizing: 'border-box' }}
-                      />
-                      {showDoctorDropdown && allDoctors.length > 0 && (
-                        <div style={{ position: 'absolute', top: '100%', left: '0.75rem', right: '0.75rem', marginTop: '2px', background: '#ffffff', border: '1px solid #e2e8f0', borderRadius: '8px', boxShadow: '0 10px 15px -3px rgba(0, 0, 0, 0.1)', maxHeight: '180px', overflowY: 'auto', zIndex: 50 }}>
-                          {allDoctors.filter(d => d.ic_name.toLowerCase().includes((editForm.doctorSearchText || '').toLowerCase())).map(d => (
-                              <div 
-                                key={d.discord_id}
-                                onMouseDown={(e) => {
-                                  e.preventDefault();
-                                  setEditForm({ ...editForm, discord_id: d.discord_id, doctorSearchText: d.ic_name });
-                                  setShowDoctorDropdown(false);
-                                }}
-                                style={{ padding: '0.5rem 0.75rem', cursor: 'pointer', borderBottom: '1px solid #f1f5f9', fontSize: '0.85rem', transition: 'background-color 0.2s', textAlign: 'left' }}
-                                onMouseEnter={(e) => e.currentTarget.style.backgroundColor = '#f8fafc'}
-                                onMouseLeave={(e) => e.currentTarget.style.backgroundColor = '#ffffff'}
-                              >
-                                {d.ic_name}
-                              </div>
-                            ))}
-                        </div>
-                      )}
-                    </td>
-                    <td style={{ padding: '0.75rem' }}>
-                      <div style={{ display: 'flex', gap: '4px', alignItems: 'center' }}>
-                        <div style={{ width: '200px' }}>
-                          <SmartSelect
-                            options={factionOptions.filter(opt => opt.value !== editForm.gang_2)}
-                            value={editForm.gang_1 || ''}
-                            onChange={(val) => setEditForm({...editForm, gang_1: val})}
-                            searchable
-                            placeholder="- Gang 1 -"
-                          />
-                        </div>
-                        <span style={{ fontSize: '0.8rem', color: '#64748b' }}>vs</span>
-                        <div style={{ width: '200px' }}>
-                          <SmartSelect
-                            options={factionOptions.filter(opt => opt.value !== editForm.gang_1)}
-                            value={editForm.gang_2 || ''}
-                            onChange={(val) => setEditForm({...editForm, gang_2: val})}
-                            searchable
-                            placeholder="- Gang 2 -"
-                          />
-                        </div>
-                      </div>
-                    </td>
-                    <td style={{ padding: '0.75rem' }}>
-                      <div style={{ width: '200px' }}>
-                        <SmartSelect
-                          options={storyTypeOptions}
-                          value={editForm.story_type}
-                          onChange={(val) => setEditForm({...editForm, story_type: val})}
-                        />
-                      </div>
-                    </td>
-                    {isAdmin && (
-                      <td style={{ padding: '0.75rem', textAlign: 'center' }}>
-                        <div style={{ display: 'flex', gap: '0.5rem', justifyContent: 'center' }}>
-                          <button onClick={handleSaveStory} style={{ background: 'transparent', border: 'none', color: '#16a34a', cursor: 'pointer' }}><Save size={18} /></button>
-                          <button onClick={cancelEdit} style={{ background: 'transparent', border: 'none', color: '#ef4444', cursor: 'pointer' }}><X size={18} /></button>
-                        </div>
-                      </td>
-                    )}
-                  </tr>
-                )}
-                {storyLogs.length > 0 ? storyLogs.map(log => {
-                  const isEd = editingId === log.id;
-                  return (
-                    <tr key={log.id}>
-                      <td style={{ fontSize: '0.9rem' }}>
-                        {isEd ? (
-                        <div style={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
-                          <SmartDatePicker
-                            selected={editForm.start_time ? new Date(editForm.start_time) : new Date()}
-                            onChange={(date: Date | null) => {
-                              if (date) {
-                                const oldDate = editForm.start_time ? new Date(editForm.start_time) : new Date();
-                                date.setHours(oldDate.getHours(), oldDate.getMinutes());
-                                const offset = date.getTimezoneOffset() * 60000;
-                                const localISOTime = (new Date(date.getTime() - offset)).toISOString().slice(0, 16);
-                                setEditForm({...editForm, start_time: localISOTime});
-                              }
-                            }}
-                            dateFormat="dd/MM/yyyy"
-                            className="date-input"
-                            wrapperClassName="w-full"
-                            placeholderText="วันที่"
-                          />
-                          <SmartTimePicker
-                            value={editForm.start_time ? editForm.start_time.split('T')[1] : ''}
-                            onChange={(timeStr: string) => {
-                              if (timeStr && timeStr.includes(':')) {
-                                const [hh, mm] = timeStr.split(':');
-                                const date = editForm.start_time ? new Date(editForm.start_time) : new Date();
-                                date.setHours(parseInt(hh, 10), parseInt(mm, 10));
-                                const offset = date.getTimezoneOffset() * 60000;
-                                const localISOTime = (new Date(date.getTime() - offset)).toISOString().slice(0, 16);
-                                setEditForm({...editForm, start_time: localISOTime});
-                              }
-                            }}
-                            style={{ width: '100px' }}
-                          />
-                        </div>
-                        ) : (
-                          new Date(log.start_time).toLocaleString('th-TH', { 
-                            dateStyle: 'short', timeStyle: 'short' 
-                          })
-                        )}
-                      </td>
-                      <td style={{ position: 'relative' }}>
-                        {isEd ? (
-                          <>
-                            <input
-                              type="text"
-                              value={editForm.doctorSearchText ?? ''}
-                              onChange={(e) => {
-                                setEditForm({...editForm, doctorSearchText: e.target.value, discord_id: ''});
-                                setShowDoctorDropdown(true);
-                              }}
-                              onFocus={() => setShowDoctorDropdown(true)}
-                              onBlur={() => setTimeout(() => setShowDoctorDropdown(false), 200)}
-                              placeholder="ค้นหาชื่อแพทย์"
-                              style={{ width: '100%', maxWidth: '220px', padding: '0.35rem 0.5rem', borderRadius: '8px', border: '1px solid #cbd5e1', fontSize: '0.85rem', boxSizing: 'border-box' }}
-                            />
-                            {showDoctorDropdown && allDoctors.length > 0 && (
-                              <div style={{ position: 'absolute', top: '100%', left: '0', right: '0', marginTop: '2px', background: '#ffffff', border: '1px solid #e2e8f0', borderRadius: '8px', boxShadow: '0 10px 15px -3px rgba(0, 0, 0, 0.1)', maxHeight: '180px', overflowY: 'auto', zIndex: 50 }}>
-                                {allDoctors.filter(d => d.ic_name.toLowerCase().includes((editForm.doctorSearchText || '').toLowerCase())).map(d => (
-                                    <div 
-                                      key={d.discord_id}
-                                      onMouseDown={(e) => {
-                                        e.preventDefault();
-                                        setEditForm({ ...editForm, discord_id: d.discord_id, doctorSearchText: d.ic_name });
-                                        setShowDoctorDropdown(false);
-                                      }}
-                                      style={{ padding: '0.5rem 0.75rem', cursor: 'pointer', borderBottom: '1px solid #f1f5f9', fontSize: '0.85rem', transition: 'background-color 0.2s', textAlign: 'left' }}
-                                      onMouseEnter={(e) => e.currentTarget.style.backgroundColor = '#f8fafc'}
-                                      onMouseLeave={(e) => e.currentTarget.style.backgroundColor = '#ffffff'}
-                                    >
-                                      {d.ic_name}
-                                    </div>
-                                  ))}
-                              </div>
-                            )}
-                          </>
-                        ) : (
-                          log.users?.ic_name
-                        )}
-                      </td>
-                      <td>
-                        {isEd ? (
-                          <div style={{ display: 'flex', gap: '4px', alignItems: 'center' }}>
-                            <div style={{ width: '200px' }}>
-                              <SmartSelect
-                                options={factionOptions.filter(opt => opt.value !== editForm.gang_2)}
-                                value={editForm.gang_1 || ''}
-                                onChange={(val) => setEditForm({...editForm, gang_1: val})}
-                                searchable
-                                placeholder="- Gang 1 -"
-                              />
-                            </div>
-                            <span style={{ fontSize: '0.8rem', color: '#64748b' }}>vs</span>
-                            <div style={{ width: '200px' }}>
-                              <SmartSelect
-                                options={factionOptions.filter(opt => opt.value !== editForm.gang_1)}
-                                value={editForm.gang_2 || ''}
-                                onChange={(val) => setEditForm({...editForm, gang_2: val})}
-                                searchable
-                                placeholder="- Gang 2 -"
-                              />
-                            </div>
-                          </div>
-                        ) : (
-                          <span style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                            {log.gang_1 ? <span className="gang-badge" style={{ fontSize: '0.8rem' }}>{log.gang_1}</span> : '-'}
-                            <span style={{ color: '#94a3b8', fontSize: '0.8rem' }}>vs</span>
-                            {log.gang_2 ? <span className="gang-badge" style={{ fontSize: '0.8rem' }}>{log.gang_2}</span> : '-'}
-                          </span>
-                        )}
-                      </td>
-                      <td style={{ whiteSpace: 'nowrap' }}>
-                        {isEd ? (
-                          <div style={{ width: '200px' }}>
-                            <SmartSelect
-                              options={storyTypeOptions}
-                              value={editForm.story_type}
-                              onChange={(val) => setEditForm({...editForm, story_type: val})}
-                            />
-                          </div>
-                        ) : (
-                          log.story_type
-                        )}
-                      </td>
-                      {isAdmin && (
-                        <td style={{ textAlign: 'center' }}>
-                          {isEd ? (
-                            <div style={{ display: 'flex', gap: '0.5rem', justifyContent: 'center' }}>
-                              <button onClick={handleSaveStory} style={{ background: 'transparent', border: 'none', color: '#16a34a', cursor: 'pointer' }}><Save size={18} /></button>
-                              <button onClick={cancelEdit} style={{ background: 'transparent', border: 'none', color: '#ef4444', cursor: 'pointer' }}><X size={18} /></button>
-                            </div>
-                          ) : (
-                            <div style={{ display: 'flex', gap: '0.5rem', justifyContent: 'center' }}>
-                              <button onClick={() => handleEditStory(log)} style={{ background: 'transparent', border: 'none', color: '#64748b', cursor: 'pointer' }}><Edit2 size={16} /></button>
-                              <button onClick={() => handleDeleteStory(log.id)} style={{ background: 'transparent', border: 'none', color: '#ef4444', cursor: 'pointer' }}><Trash2 size={16} /></button>
+                {(isAdding || storyLogs.length > 0) ? (
+                  <>
+                    {isAdding && (
+                      <tr className="bg-purple-50/50">
+                        <td className="p-4 border-b border-slate-100">
+                           <SmartDatePicker selected={editForm.start_time ? new Date(editForm.start_time) : new Date()} onChange={(date: Date | null) => { if (date) { const oldDate = editForm.start_time ? new Date(editForm.start_time) : new Date(); date.setHours(oldDate.getHours(), oldDate.getMinutes()); const offset = date.getTimezoneOffset() * 60000; const localISOTime = (new Date(date.getTime() - offset)).toISOString().slice(0, 16); setEditForm({...editForm, start_time: localISOTime}); } }} dateFormat="dd/MM/yyyy" className="w-full px-3 py-2 bg-white border border-slate-200 rounded-lg outline-none focus:border-purple-500 text-sm" placeholderText="วันที่" />
+                           <input type="time" value={editForm.start_time ? new Date(editForm.start_time).toTimeString().slice(0, 5) : ''} onChange={(e) => { const timeStr = e.target.value; if (timeStr) { const [hh, mm] = timeStr.split(':'); const date = editForm.start_time ? new Date(editForm.start_time) : new Date(); date.setHours(parseInt(hh, 10), parseInt(mm, 10)); const offset = date.getTimezoneOffset() * 60000; const localISOTime = (new Date(date.getTime() - offset)).toISOString().slice(0, 16); setEditForm({...editForm, start_time: localISOTime}); } }} className="w-full mt-2 px-3 py-2 bg-white border border-slate-200 rounded-lg outline-none focus:border-purple-500 text-sm" />
+                        </td>
+                        <td className="p-4 border-b border-slate-100 relative">
+                          <input type="text" value={editForm.doctorSearchText ?? ''} onChange={(e) => { setEditForm({...editForm, doctorSearchText: e.target.value, discord_id: ''}); setShowDoctorDropdown(true); }} onFocus={() => setShowDoctorDropdown(true)} onBlur={() => setTimeout(() => setShowDoctorDropdown(false), 200)} placeholder="ค้นหาชื่อแพทย์..." className="w-full px-3 py-2 bg-white border border-slate-200 rounded-lg outline-none focus:border-purple-500 text-sm" />
+                          {showDoctorDropdown && allDoctors.length > 0 && (
+                            <div className="absolute top-[100%] left-4 right-4 mt-1 bg-white border border-slate-200 rounded-lg shadow-lg max-h-48 overflow-y-auto z-50">
+                              {allDoctors.filter(d => d.ic_name.toLowerCase().includes((editForm.doctorSearchText || '').toLowerCase())).map(d => (
+                                <div key={d.discord_id} onMouseDown={(e) => { e.preventDefault(); setEditForm({ ...editForm, discord_id: d.discord_id, doctorSearchText: d.ic_name }); setShowDoctorDropdown(false); }} className="px-4 py-2 cursor-pointer hover:bg-slate-50 text-sm border-b border-slate-50">{d.ic_name}</div>
+                              ))}
                             </div>
                           )}
                         </td>
-                      )}
-                    </tr>
-                  )
-                }) : !isAdding ? (
-                  <tr>
-                    <td colSpan={isAdmin ? 5 : 4} className="empty-state">ไม่มีประวัติสตอรี่</td>
-                  </tr>
-                ) : null}
+                        <td className="p-4 border-b border-slate-100">
+                          <div className="flex items-center gap-2">
+                            <div className="w-[140px]"><SmartSelect options={factionOptions.filter(opt => opt.value !== editForm.gang_2)} value={editForm.gang_1 || ''} onChange={(val) => setEditForm({...editForm, gang_1: val})} searchable placeholder="- แก๊ง 1 -" /></div>
+                            <span className="text-slate-400 text-xs font-bold uppercase">vs</span>
+                            <div className="w-[140px]"><SmartSelect options={factionOptions.filter(opt => opt.value !== editForm.gang_1)} value={editForm.gang_2 || ''} onChange={(val) => setEditForm({...editForm, gang_2: val})} searchable placeholder="- แก๊ง 2 -" /></div>
+                          </div>
+                        </td>
+                        <td className="p-4 border-b border-slate-100">
+                          <div className="w-[160px]"><SmartSelect options={storyTypeOptions} value={editForm.story_type} onChange={(val) => setEditForm({...editForm, story_type: val})} /></div>
+                        </td>
+                        <td className="p-4 border-b border-slate-100 text-center">
+                          <div className="flex items-center justify-center gap-2">
+                            <button onClick={handleSaveStory} className="p-2 bg-emerald-100 text-emerald-600 hover:bg-emerald-500 hover:text-white rounded-lg transition-colors border-none"><Save size={16} /></button>
+                            <button onClick={cancelEdit} className="p-2 bg-rose-100 text-rose-600 hover:bg-rose-500 hover:text-white rounded-lg transition-colors border-none"><X size={16} /></button>
+                          </div>
+                        </td>
+                      </tr>
+                    )}
+                    {storyLogs.map(log => {
+                      const isEd = editingId === log.id;
+                      return (
+                        <tr key={log.id} className={`hover:bg-slate-50 transition-colors ${isEd ? 'bg-purple-50/50' : ''}`}>
+                          <td className="p-4 border-b border-slate-100 text-[0.95rem] text-slate-600">
+                            {isEd ? (
+                               <>
+                                 <SmartDatePicker selected={editForm.start_time ? new Date(editForm.start_time) : new Date()} onChange={(date: Date | null) => { if (date) { const oldDate = editForm.start_time ? new Date(editForm.start_time) : new Date(); date.setHours(oldDate.getHours(), oldDate.getMinutes()); const offset = date.getTimezoneOffset() * 60000; const localISOTime = (new Date(date.getTime() - offset)).toISOString().slice(0, 16); setEditForm({...editForm, start_time: localISOTime}); } }} dateFormat="dd/MM/yyyy" className="w-full px-3 py-2 bg-white border border-slate-200 rounded-lg outline-none focus:border-purple-500 text-sm" placeholderText="วันที่" />
+                                 <input type="time" value={editForm.start_time ? new Date(editForm.start_time).toTimeString().slice(0, 5) : ''} onChange={(e) => { const timeStr = e.target.value; if (timeStr) { const [hh, mm] = timeStr.split(':'); const date = editForm.start_time ? new Date(editForm.start_time) : new Date(); date.setHours(parseInt(hh, 10), parseInt(mm, 10)); const offset = date.getTimezoneOffset() * 60000; const localISOTime = (new Date(date.getTime() - offset)).toISOString().slice(0, 16); setEditForm({...editForm, start_time: localISOTime}); } }} className="w-full mt-2 px-3 py-2 bg-white border border-slate-200 rounded-lg outline-none focus:border-purple-500 text-sm" />
+                               </>
+                            ) : new Date(log.start_time).toLocaleString('th-TH', { dateStyle: 'short', timeStyle: 'short' })}
+                          </td>
+                          <td className="p-4 border-b border-slate-100 text-[0.95rem] text-slate-800 font-medium relative">
+                            {isEd ? (
+                               <>
+                                 <input type="text" value={editForm.doctorSearchText ?? ''} onChange={(e) => { setEditForm({...editForm, doctorSearchText: e.target.value, discord_id: ''}); setShowDoctorDropdown(true); }} onFocus={() => setShowDoctorDropdown(true)} onBlur={() => setTimeout(() => setShowDoctorDropdown(false), 200)} placeholder="ค้นหาชื่อแพทย์..." className="w-full px-3 py-2 bg-white border border-slate-200 rounded-lg outline-none focus:border-purple-500 text-sm" />
+                                 {showDoctorDropdown && allDoctors.length > 0 && (
+                                   <div className="absolute top-[100%] left-4 right-4 mt-1 bg-white border border-slate-200 rounded-lg shadow-lg max-h-48 overflow-y-auto z-50">
+                                     {allDoctors.filter(d => d.ic_name.toLowerCase().includes((editForm.doctorSearchText || '').toLowerCase())).map(d => (
+                                       <div key={d.discord_id} onMouseDown={(e) => { e.preventDefault(); setEditForm({ ...editForm, discord_id: d.discord_id, doctorSearchText: d.ic_name }); setShowDoctorDropdown(false); }} className="px-4 py-2 cursor-pointer hover:bg-slate-50 text-sm border-b border-slate-50">{d.ic_name}</div>
+                                     ))}
+                                   </div>
+                                 )}
+                               </>
+                            ) : log.users?.ic_name}
+                          </td>
+                          <td className="p-4 border-b border-slate-100 text-[0.95rem] text-slate-600">
+                             {isEd ? (
+                                <div className="flex items-center gap-2">
+                                  <div className="w-[140px]"><SmartSelect options={factionOptions.filter(opt => opt.value !== editForm.gang_2)} value={editForm.gang_1 || ''} onChange={(val) => setEditForm({...editForm, gang_1: val})} searchable placeholder="- แก๊ง 1 -" /></div>
+                                  <span className="text-slate-400 text-xs font-bold uppercase">vs</span>
+                                  <div className="w-[140px]"><SmartSelect options={factionOptions.filter(opt => opt.value !== editForm.gang_1)} value={editForm.gang_2 || ''} onChange={(val) => setEditForm({...editForm, gang_2: val})} searchable placeholder="- แก๊ง 2 -" /></div>
+                                </div>
+                             ) : (
+                                <div className="flex items-center gap-2">
+                                  {log.gang_1 ? <span className="bg-slate-100 text-slate-700 font-bold px-3 py-1 rounded-lg text-xs">{log.gang_1}</span> : '-'}
+                                  <span className="text-slate-400 text-xs font-bold uppercase">vs</span>
+                                  {log.gang_2 ? <span className="bg-slate-100 text-slate-700 font-bold px-3 py-1 rounded-lg text-xs">{log.gang_2}</span> : '-'}
+                                </div>
+                             )}
+                          </td>
+                          <td className="p-4 border-b border-slate-100 text-[0.95rem] text-slate-600">
+                             {isEd ? (
+                                <div className="w-[160px]"><SmartSelect options={storyTypeOptions} value={editForm.story_type} onChange={(val) => setEditForm({...editForm, story_type: val})} /></div>
+                             ) : log.story_type}
+                          </td>
+                          {isAdmin && (
+                            <td className="p-4 border-b border-slate-100 text-center">
+                              {isEd ? (
+                                <div className="flex items-center justify-center gap-2">
+                                  <button onClick={handleSaveStory} className="p-2 bg-emerald-100 text-emerald-600 hover:bg-emerald-500 hover:text-white rounded-lg transition-colors border-none"><Save size={16} /></button>
+                                  <button onClick={cancelEdit} className="p-2 bg-rose-100 text-rose-600 hover:bg-rose-500 hover:text-white rounded-lg transition-colors border-none"><X size={16} /></button>
+                                </div>
+                              ) : (
+                                <div className="flex items-center justify-center gap-2">
+                                  <button onClick={() => handleEditStory(log)} className="p-2 bg-slate-100 text-slate-500 hover:bg-blue-500 hover:text-white rounded-lg transition-colors border-none"><Edit2 size={16} /></button>
+                                  <button onClick={() => handleDeleteStory(log.id)} className="p-2 bg-rose-50 text-rose-500 hover:bg-rose-500 hover:text-white rounded-lg transition-colors border-none"><Trash2 size={16} /></button>
+                                </div>
+                              )}
+                            </td>
+                          )}
+                        </tr>
+                      );
+                    })}
+                  </>
+                ) : (
+                  <tr><td colSpan={isAdmin ? 5 : 4} className="p-16 text-center text-slate-400 font-medium text-lg">ไม่มีข้อมูลประวัติสตอรี่ในช่วงเวลานี้</td></tr>
+                )}
               </tbody>
             </table>
           )}
         </div>
+
       </div>
     </div>
   );
 }
-

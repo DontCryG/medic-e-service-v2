@@ -95,7 +95,7 @@ export function useUserDutyLogs(discordId: string | null, startDate: Date, endDa
       const query = supabase
         .from('duty_logs')
         .select('*')
-        .eq('discord_id', discordId)
+        .eq('discord_id', discordId as string)
         .gte('clock_in', startDate.toISOString())
         .lte('clock_in', endDate.toISOString())
         .order('clock_in', { ascending: false });

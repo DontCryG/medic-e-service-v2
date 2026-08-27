@@ -1,4 +1,4 @@
-import React, { lazy, Suspense } from 'react';
+﻿import React, { lazy, Suspense } from 'react';
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 import { QueryClient, QueryClientProvider, MutationCache } from '@tanstack/react-query';
 import { useAuthStore } from './store/authStore';
@@ -14,7 +14,6 @@ const DutySystem = lazy(() => import('./pages/DutySystem'));
 const SalarySystem = lazy(() => import('./pages/SalarySystem'));
 const LeaveSystem = lazy(() => import('./pages/LeaveSystem'));
 const QueueSystem = lazy(() => import('./pages/QueueSystem/QueueSystem').then(m => ({ default: m.QueueSystem })));
-const RequestManagement = lazy(() => import('./pages/RequestManagement/RequestManagement').then(m => ({ default: m.RequestManagement })));
 const AccountingSystem = lazy(() => import('./pages/AccountingSystem/AccountingSystem').then(m => ({ default: m.AccountingSystem })));
 const SystemSettings = lazy(() => import('./pages/SystemSettings'));
 
@@ -62,9 +61,8 @@ function AppEffects() {
 }
 
 const FallbackLoader = () => (
-  <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '100vh', background: 'var(--bg-main)' }}>
-    <div style={{ padding: '20px', borderRadius: '12px', background: 'var(--bg-secondary)', color: 'var(--text-primary)', boxShadow: '0 4px 12px rgba(0,0,0,0.1)' }}>
-      กำลังโหลดระบบ... (Loading System)
+  <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '100vh', background: '#f8fafc' }}>
+    <div style={{ padding: '20px', borderRadius: '12px', background: '#ffffff', color: 'var(--text-primary)', boxShadow: '0 4px 12px rgba(0,0,0,0.1)' }}>กำลังโหลดระบบ... (Loading System)
     </div>
   </div>
 );
@@ -142,7 +140,7 @@ export default function App() {
               
               {/* Admin Routes */}
               <Route path="/personnel" element={<AdminRoute><PersonnelSystem profile={user} /></AdminRoute>} />
-              <Route path="/requests" element={<ProtectedRoute><RequestManagement /></ProtectedRoute>} />
+              
               <Route path="/salary" element={<AdminRoute><SalarySystem profile={user} /></AdminRoute>} />
               <Route path="/accounting" element={<AdminRoute><AccountingSystem /></AdminRoute>} />
               <Route path="/settings" element={<AdminRoute><SystemSettings /></AdminRoute>} />

@@ -29,24 +29,24 @@ const DutyHistoryTable = React.memo(function DutyHistoryTable({
   onPageChange
 }: DutyHistoryTableProps) {
   return (
-    <div className="duty-card">
-      <div className="duty-card-header">
-        <h3 className="duty-card-title"><Clock size={22} color="#7c3aed" /> ประวัติการเข้าเวรของคุณ</h3>
-        <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', flexWrap: 'wrap', justifyContent: 'flex-end' }}>
+    <div className="bg-white rounded-2xl p-6 border border-slate-200 shadow-sm flex flex-col">
+      <div className="flex flex-col xl:flex-row justify-between items-start xl:items-center gap-4 mb-6">
+        <h3 className="text-xl font-bold text-slate-800 m-0 flex items-center gap-2"><Clock size={22} color="#7c3aed" /> ประวัติการเข้าเวรของคุณ</h3>
+        <div className="flex flex-wrap items-center gap-3 w-full xl:w-auto xl:justify-end">
           <Filter size={18} color="var(--text-secondary)" />
-          <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-            <span style={{ fontSize: '0.9rem', color: 'var(--text-secondary)' }}>ตั้งแต่:</span>
+          <div className="flex items-center gap-2">
+            <span className="text-sm text-slate-500">ตั้งแต่:</span>
             <SmartDatePicker 
               selected={startDate} 
               onChange={onStartDateChange} 
               selectsStart
               startDate={startDate}
               endDate={endDate}
-              className="filter-input"
+              className="w-[130px] px-3 py-1.5 border border-slate-200 rounded-lg text-sm text-center outline-none focus:border-[var(--primary)]"
             />
           </div>
-          <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-            <span style={{ fontSize: '0.9rem', color: 'var(--text-secondary)' }}>ถึง:</span>
+          <div className="flex items-center gap-2">
+            <span className="text-sm text-slate-500">ถึง:</span>
             <SmartDatePicker 
               selected={endDate} 
               onChange={onEndDateChange} 
@@ -54,7 +54,7 @@ const DutyHistoryTable = React.memo(function DutyHistoryTable({
               startDate={startDate}
               endDate={endDate}
               minDate={startDate || undefined}
-              className="filter-input"
+              className="w-[130px] px-3 py-1.5 border border-slate-200 rounded-lg text-sm text-center outline-none focus:border-[var(--primary)]"
             />
           </div>
           <button 
@@ -76,14 +76,14 @@ const DutyHistoryTable = React.memo(function DutyHistoryTable({
           </button>
         </div>
       </div>
-      <div style={{ overflowX: 'auto' }}>
-        <table className="duty-table">
+      <div className="overflow-x-auto border border-slate-200 rounded-md">
+        <table className="w-full min-w-[700px] border-collapse text-left">
           <thead>
             <tr>
-              <th>วันที่เข้าเวร</th>
-              <th>เวลาออกเวร</th>
-              <th>พักเบรก (นาที)</th>
-              <th>รวมเวลา</th>
+              <th className="p-4 bg-slate-50 text-slate-500 font-semibold text-sm border-b border-slate-200">วันที่เข้าเวร</th>
+              <th className="p-4 bg-slate-50 text-slate-500 font-semibold text-sm border-b border-slate-200">เวลาออกเวร</th>
+              <th className="p-4 bg-slate-50 text-slate-500 font-semibold text-sm border-b border-slate-200">พักเบรก (นาที)</th>
+              <th className="p-4 bg-slate-50 text-slate-500 font-semibold text-sm border-b border-slate-200">รวมเวลา</th>
             </tr>
           </thead>
           <tbody>
@@ -107,26 +107,26 @@ const DutyHistoryTable = React.memo(function DutyHistoryTable({
               }
               
               return (
-                <tr key={log.id}>
-                  <td>
+                <tr key={log.id} className="border-b border-slate-100 hover:bg-slate-50/50">
+                  <td className="p-4 text-slate-700 text-[0.95rem]">
                     {formatDateString(log.clock_in)}
                     {badge}
                   </td>
-                  <td>{formatDateString(log.clock_out)}</td>
-                  <td>{breakMinutes}</td>
-                  <td style={{ fontWeight: 600 }}>{formattedTime}</td>
+                  <td className="p-4 text-slate-700 text-[0.95rem]">{formatDateString(log.clock_out)}</td>
+                  <td className="p-4 text-slate-700 text-[0.95rem]">{breakMinutes}</td>
+                  <td className="p-4 text-slate-800 font-bold">{formattedTime}</td>
                 </tr>
               )
             }) : (
               <tr>
-                <td colSpan={4} style={{ textAlign: 'center', padding: '4rem 2rem' }}>
-                  <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '1rem' }}>
-                    <div style={{ width: '64px', height: '64px', borderRadius: '50%', background: 'rgba(241, 245, 249, 0.8)', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#94a3b8' }}>
+                <td colSpan={4} className="text-center py-16 px-8">
+                  <div className="flex flex-col items-center gap-4">
+                    <div className="w-16 h-16 rounded-full bg-slate-100 flex items-center justify-center text-slate-400">
                       <Inbox size={32} />
                     </div>
                     <div>
-                      <p style={{ margin: '0 0 0.5rem 0', fontWeight: 600, color: '#475569', fontSize: '1.1rem' }}>ยังไม่มีประวัติการเข้าเวร</p>
-                      <p style={{ margin: 0, fontSize: '0.95rem', color: '#94a3b8' }}>ประวัติการเข้าเวรของคุณจะแสดงที่นี่เมื่อคุณเริ่มงาน</p>
+                      <p className="m-0 mb-2 font-semibold text-slate-700 text-lg">ยังไม่มีประวัติการเข้าเวร</p>
+                      <p className="m-0 text-sm text-slate-400">ประวัติการเข้าเวรของคุณจะแสดงที่นี่เมื่อคุณเริ่มงาน</p>
                     </div>
                   </div>
                 </td>
@@ -137,7 +137,7 @@ const DutyHistoryTable = React.memo(function DutyHistoryTable({
       </div>
       
       {historyTotal > itemsPerPage && (
-        <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', gap: '1rem', padding: '1rem', borderTop: '1px solid var(--border-color)' }}>
+        <div className="flex justify-center items-center gap-4 p-4 border-t border-slate-100 mt-4">
           <button 
             onClick={() => onPageChange(Math.max(1, historyPage - 1))}
             disabled={historyPage === 1}
@@ -152,7 +152,7 @@ const DutyHistoryTable = React.memo(function DutyHistoryTable({
           >
             ก่อนหน้า
           </button>
-          <span style={{ fontSize: '0.9rem', color: 'var(--text-secondary)' }}>
+          <span className="text-sm text-slate-500">
             หน้า {historyPage} จาก {Math.ceil(historyTotal / itemsPerPage)}
           </span>
           <button 

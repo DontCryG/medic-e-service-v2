@@ -3,7 +3,6 @@ import { useQueryClient } from '@tanstack/react-query';
 import { supabase } from '@/lib/supabase';
 import Swal from 'sweetalert2';
 import toast from 'react-hot-toast';
-import './PersonnelSystem.css';
 
 import PersonnelTable from './PersonnelSystem/components/PersonnelTable';
 
@@ -31,23 +30,18 @@ export default function PersonnelSystem({ profile }: PersonnelSystemProps) {
   const [searchQuery, setSearchQuery] = useState('');
   const debouncedSearchQuery = useDebounce(searchQuery, 300);
   const [filterRole, setFilterRole] = useState('all');
+  
+  // Modal states
   const [editingUser, setEditingUser] = useState<any>(null);
-  const [editRole, setEditRole] = useState('');
-  const [editPosition, setEditPosition] = useState('');
-  const [isSaving, setIsSaving] = useState(false);
-
-  // Add Duty Modal State
   const [addingDutyUser, setAddingDutyUser] = useState<any>(null);
-  const [dutyClockIn, setDutyClockIn] = useState<Date | null>(null);
-  const [dutyClockOut, setDutyClockOut] = useState<Date | null>(null);
 
   const { users } = useMemo(() => {
     if (!usersData?.raw) {
       return { users: [] };
     }
     const sortedData = [...usersData.raw].sort((a, b) => {
-      const rankA = a.positions?.rank ?? 99;
-      const rankB = b.positions?.rank ?? 99;
+      const rankA = a.positions?.rank??99;
+      const rankB = b.positions?.rank??99;
       if (rankA !== rankB) return rankA - rankB;
       return new Date(a.created_at).getTime() - new Date(b.created_at).getTime();
     });
@@ -77,151 +71,53 @@ export default function PersonnelSystem({ profile }: PersonnelSystemProps) {
     return matchesSearch && matchesRole;
   });
 
-  // Edit actions
-  const handleEditClick = (user: any) => {
-    setEditingUser(user);
-    setEditRole(user.role);
-    setEditPosition(user.position_id || '');
-  };
-
-  const closeEditModal = () => {
-    setEditingUser(null);
-    setEditRole('');
-    setEditPosition('');
-  };
-
-  const handleSaveEdit = async () => {
-    setIsSaving(true);
-    try {
-      const { error } = await supabase
-        .from('users')
-        .update({ role: editRole, position_id: editPosition || null })
-        .eq('discord_id', editingUser.discord_id);
-
-      if (error) throw error;
-      
-      toast.success('บันทึกข้อมูลสำเร็จ');
-      queryClient.invalidateQueries({ queryKey: ['users'] });
-      closeEditModal();
-    } catch (error: any) {
-      toast.error('เกิดข้อผิดพลาด: ' + error.message);
-    } finally {
-      setIsSaving(false);
-    }
-  };
-
   const handleDeleteUser = async (user: any) => {
     const result = await Swal.fire({
-      title: 'ลบข้อมูลผู้ใช้อย่างถาวร?',
-      text: `คุณต้องการลบข้อมูลของ ${user.ic_name} ออกจากระบบอย่างถาวรใช่หรือไม่?\n\nคำเตือน: ประวัติการเข้าเวร ใบลา ประวัติการเบิกจ่าย และข้อมูลทุกอย่างที่เกี่ยวข้องกับผู้ใช้คนนี้ จะถูกลบหายไปทั้งหมดและไม่สามารถกู้คืนได้!`,
+      title: 'ยืนยันการลบข้อมูล?',
+      html: `คุณต้องการลบข้อมูลของ <b>${user.ic_name}</b> ใช่หรือไม่?<br/><span style="color: #ef4444; font-size: 0.9em;">(การกระทำนี้ไม่สามารถกู้คืนได้)</span>`,
       icon: 'warning',
       showCancelButton: true,
       confirmButtonColor: '#ef4444',
       cancelButtonColor: '#94a3b8',
-      confirmButtonText: 'ยืนยันการลบทิ้งถาวร',
+      confirmButtonText: 'ลบข้อมูล',
       cancelButtonText: 'ยกเลิก',
-      background: 'var(--surface-color)',
-      color: 'var(--text-color)',
+      customClass: {
+        popup: 'rounded-2xl',
+        confirmButton: 'rounded-xl',
+        cancelButton: 'rounded-xl'
+      }
     });
 
     if (result.isConfirmed) {
+      const toastId = toast.loading('กำลังลบข้อมูล...');
       try {
-        // ลบข้อมูลที่ผูกติดอยู่ทั้งหมด (Manual Cascade Delete)
-        const tablesToDelete = ['duty_logs', 'leave_requests', 'general_requests', 'accounting_logs', 'inventory_logs', 'queue_status', 'queue_manager_logs', 'story_logs'];
-        
-        for (const table of tablesToDelete) {
-          const { error: cascadeError } = await supabase.from(table).delete().eq('discord_id', user.discord_id);
-          if (cascadeError) {
-            console.error(`Failed to delete from ${table}:`, cascadeError);
-            throw new Error(`ไม่สามารถลบประวัติใน ${table} ได้: ${cascadeError.message}`);
-          }
-        }
-        
-        // ลบผู้ใช้
         const { error } = await supabase
           .from('users')
           .delete()
           .eq('discord_id', user.discord_id);
 
         if (error) throw error;
-        toast.success('ลบข้อมูลผู้ใช้งานและประวัติทั้งหมดเรียบร้อยแล้ว');
+        
+        toast.success('ลบข้อมูลสำเร็จ', { id: toastId });
         queryClient.invalidateQueries({ queryKey: ['users'] });
       } catch (error: any) {
-        toast.error('เกิดข้อผิดพลาดในการลบข้อมูล: ' + error.message);
+        toast.error('เกิดข้อผิดพลาด: ' + error.message, { id: toastId });
       }
-    }
-  };
-
-  // Add Duty Actions
-  const handleAddDutyClick = (user: any) => {
-    setAddingDutyUser(user);
-    setDutyClockIn(null);
-    setDutyClockOut(null);
-  };
-
-  const closeDutyModal = () => {
-    setAddingDutyUser(null);
-    setDutyClockIn(null);
-    setDutyClockOut(null);
-  };
-
-  const handleSaveDuty = async () => {
-    if (!dutyClockIn || !dutyClockOut) {
-      toast.error('กรุณาระบุเวลาเข้าเวรและออกเวรให้ครบถ้วน');
-      return;
-    }
-    
-    if (dutyClockOut <= dutyClockIn) {
-      toast.error('เวลาออกเวรต้องอยู่หลังเวลาเข้าเวร');
-      return;
-    }
-
-    setIsSaving(true);
-    try {
-      const diffMs = dutyClockOut.getTime() - dutyClockIn.getTime();
-      const totalDutyMinutes = Math.floor(Math.max(0, diffMs / 60000));
-
-      if (totalDutyMinutes === 0) {
-        toast.error('ไม่สามารถบันทึกเวลาเข้าเวร 0 นาทีได้');
-        return;
-      }
-
-      const { error } = await supabase
-        .from('duty_logs')
-        .insert([{
-          discord_id: addingDutyUser.discord_id,
-          status: 'completed',
-          clock_in: dutyClockIn.toISOString(),
-          clock_out: dutyClockOut.toISOString(),
-          total_break_minutes: 0,
-          total_duty_minutes: totalDutyMinutes
-        }]);
-
-      if (error) throw error;
-
-      toast.success('บันทึกการเข้าเวรย้อนหลังสำเร็จ');
-      queryClient.invalidateQueries({ queryKey: ['salary'] });
-      queryClient.invalidateQueries({ queryKey: ['duty'] });
-      closeDutyModal();
-    } catch (error: any) {
-      toast.error('เกิดข้อผิดพลาด: ' + error.message);
-    } finally {
-      setIsSaving(false);
     }
   };
 
   return (
-    <div className="personnel-container">
+    <div className="w-full max-w-[1400px] mx-auto p-4 md:p-6">
       <PersonnelTable 
         profile={profile}
-        filteredUsers={filteredUsers}
+        filteredUsers={filteredUsers as any}
         loading={loading}
         searchQuery={searchQuery}
         setSearchQuery={setSearchQuery}
         filterRole={filterRole}
         setFilterRole={setFilterRole}
-        onEditClick={handleEditClick}
-        onAddDutyClick={handleAddDutyClick}
+        onEditClick={setEditingUser}
+        onAddDutyClick={setAddingDutyUser}
         onDeleteUser={handleDeleteUser}
       />
 
@@ -229,14 +125,11 @@ export default function PersonnelSystem({ profile }: PersonnelSystemProps) {
         <Suspense fallback={null}>
           <EditPersonnelModal 
             user={editingUser}
-            editRole={editRole}
-            setEditRole={setEditRole}
-            editPosition={editPosition}
-            setEditPosition={setEditPosition}
             availablePositions={availablePositions}
-            isSaving={isSaving}
-            onClose={closeEditModal}
-            onSave={handleSaveEdit}
+            onClose={() => setEditingUser(null)}
+            onSuccess={() => {
+              setEditingUser(null);
+            }}
           />
         </Suspense>
       )}
@@ -245,13 +138,10 @@ export default function PersonnelSystem({ profile }: PersonnelSystemProps) {
         <Suspense fallback={null}>
           <AddDutyModal 
             user={addingDutyUser}
-            dutyClockIn={dutyClockIn}
-            setDutyClockIn={setDutyClockIn}
-            dutyClockOut={dutyClockOut}
-            setDutyClockOut={setDutyClockOut}
-            isSaving={isSaving}
-            onClose={closeDutyModal}
-            onSave={handleSaveDuty}
+            onClose={() => setAddingDutyUser(null)}
+            onSuccess={() => {
+              setAddingDutyUser(null);
+            }}
           />
         </Suspense>
       )}

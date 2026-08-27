@@ -1,7 +1,8 @@
 import { useRef } from 'react';
-import { Check, X, Clock, User, Calendar, FileText, Trash2 } from 'lucide-react';
+import { Check, X, Clock, Calendar, FileText, Trash2 } from 'lucide-react';
 import { useUpdateLeaveStatus, useDeleteLeave } from '../hooks/useLeaveMutations';
 import Swal from 'sweetalert2';
+import { getInitial } from '../../PersonnelSystem/utils/personnelUtils';
 
 interface LeaveListProps {
   leaves: any[];
@@ -25,8 +26,8 @@ export default function LeaveList({ leaves, isAdmin }: LeaveListProps) {
     if (processingRef.current) return;
     processingRef.current = true;
     const result = await Swal.fire({
-      title: 'ยืนยันการยกเลิก?',
-      text: 'คุณต้องการยกเลิกการลานี้ใช่หรือไม่?',
+      title: 'ยืนยันการลบคำขอ?',
+      text: 'คุณต้องการลบคำขอลานี้ใช่หรือไม่?',
       icon: 'warning',
       showCancelButton: true,
       confirmButtonText: 'ยืนยัน',
@@ -46,20 +47,20 @@ export default function LeaveList({ leaves, isAdmin }: LeaveListProps) {
   const getStatusBadge = (status: string) => {
     switch (status) {
       case 'approved':
-        return <span style={{ padding: '4px 10px', borderRadius: '20px', fontSize: '0.8rem', fontWeight: 600, background: '#dcfce7', color: '#166534' }}>อนุมัติแล้ว</span>;
+        return <span className="px-3 py-1 rounded-full text-xs font-semibold bg-green-100 text-green-700">อนุมัติแล้ว</span>;
       case 'rejected':
-        return <span style={{ padding: '4px 10px', borderRadius: '20px', fontSize: '0.8rem', fontWeight: 600, background: '#fee2e2', color: '#991b1b' }}>ปฏิเสธ</span>;
+        return <span className="px-3 py-1 rounded-full text-xs font-semibold bg-red-100 text-red-700">ปฏิเสธ</span>;
       default:
-        return <span style={{ padding: '4px 10px', borderRadius: '20px', fontSize: '0.8rem', fontWeight: 600, background: '#fef3c7', color: '#92400e' }}>รอตรวจสอบ</span>;
+        return <span className="px-3 py-1 rounded-full text-xs font-semibold bg-amber-100 text-amber-700">รออนุมัติ</span>;
     }
   };
 
   const getLeaveTypeLabel = (type: string) => {
     switch (type) {
-      case 'leave': return 'ลางาน';
+      case 'leave': return 'ลากิจ';
       case 'vacation': return 'ลาพักร้อน';
       case 'resign': return 'ลาออก';
-      default: return 'อื่นๆ';
+      default: return 'ไม่ระบุ';
     }
   };
 
@@ -73,62 +74,57 @@ export default function LeaveList({ leaves, isAdmin }: LeaveListProps) {
 
   if (leaves.length === 0) {
     return (
-      <div style={{ textAlign: 'center', padding: '3rem', color: 'var(--text-tertiary)', background: 'var(--surface-color)', borderRadius: '12px', border: '1px solid var(--border-color)' }}>
-        ไม่มีประวัติการลางาน
+      <div className="text-center py-12 text-slate-400 bg-slate-50 rounded-2xl border border-slate-200 border-dashed">
+        ไม่พบข้อมูลการลา
       </div>
     );
   }
 
   return (
-    <div style={{ display: 'grid', gap: '1rem' }}>
+    <div className="grid grid-cols-1 gap-4">
       {leaves.map((leave) => (
-        <div key={leave.id} style={{ 
-          background: 'var(--surface-color)', 
-          border: '1px solid var(--border-color)', 
-          borderRadius: '12px', 
-          padding: '1.5rem',
-          display: 'flex',
-          flexDirection: 'column',
-          gap: '1rem',
-          boxShadow: '0 2px 8px rgba(0,0,0,0.02)'
-        }}>
-          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', flexWrap: 'wrap', gap: '1rem' }}>
+        <div key={leave.id} className="bg-white border border-slate-200 rounded-2xl p-5 sm:p-6 flex flex-col gap-4 shadow-sm hover:shadow-md transition-shadow">
+          <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
             
             {isAdmin ? (
-              <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
-                <div style={{ width: '40px', height: '40px', borderRadius: '50%', background: 'var(--bg-color)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                  <User size={20} color="var(--text-secondary)" />
+              <div className="flex items-center gap-3">
+                <div className="w-11 h-11 rounded-full bg-[var(--primary-light)] text-[var(--primary)] flex items-center justify-center font-bold text-[0.95rem] overflow-hidden flex-shrink-0" style={{ padding: leave.users?.avatar_url ? 0 : undefined }}>
+                  {leave.users?.avatar_url ? (
+                    <img src={leave.users.avatar_url} alt="Avatar" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+                  ) : (
+                    getInitial(leave.users?.ic_name || '')
+                  )}
                 </div>
                 <div>
-                  <div style={{ fontWeight: 600, color: 'var(--text-primary)' }}>{leave.users?.ic_name || 'ไม่ทราบชื่อ'}</div>
-                  <div style={{ fontSize: '0.85rem', color: 'var(--text-secondary)' }}>{leave.users?.positions?.name || 'ไม่ทราบตำแหน่ง'}</div>
+                  <div className="font-semibold text-slate-800">{leave.users?.ic_name || 'ไม่ทราบชื่อ'}</div>
+                  <div className="text-sm text-slate-500">{leave.users?.positions?.name || 'ไม่ระบุตำแหน่ง'}</div>
                 </div>
               </div>
             ) : (
-              <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
-                <div style={{ padding: '0.5rem', borderRadius: '8px', background: '#e0f2fe', color: '#0284c7' }}>
-                  <Calendar size={20} />
+              <div className="flex items-center gap-3">
+                <div className="p-2.5 rounded-xl bg-sky-100 text-sky-600 flex-shrink-0">
+                  <Calendar size={22} />
                 </div>
                 <div>
-                  <div style={{ fontWeight: 600, color: 'var(--text-primary)' }}>{getLeaveTypeLabel(leave.leave_type)}</div>
-                  <div style={{ fontSize: '0.85rem', color: 'var(--text-secondary)' }}>
+                  <div className="font-semibold text-slate-800">{getLeaveTypeLabel(leave.leave_type)}</div>
+                  <div className="text-sm text-slate-500">
                     {formatDate(leave.start_date)} - {formatDate(leave.end_date)}
                   </div>
                 </div>
               </div>
             )}
             
-            <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
+            <div className="flex items-center gap-3 w-full sm:w-auto justify-between sm:justify-end">
               {getStatusBadge(leave.status)}
               
               {isAdmin && (
-                <div style={{ display: 'flex', gap: '0.5rem' }}>
+                <div className="flex gap-2">
                   {leave.status === 'pending' && (
                     <>
                       <button 
                         onClick={() => handleUpdateStatus(leave.id, 'approved')}
                         disabled={updateStatusMutation.isPending || deleteLeaveMutation.isPending}
-                        style={{ padding: '6px', borderRadius: '6px', background: '#dcfce7', color: '#166534', border: 'none', cursor: updateStatusMutation.isPending ? 'not-allowed' : 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', opacity: updateStatusMutation.isPending ? 0.5 : 1 }}
+                        className={`p-2.5 !min-h-0 aspect-square rounded-xl border border-slate-200 text-green-600 bg-white hover:bg-green-50 hover:border-green-300 transition-colors flex items-center justify-center cursor-pointer ${updateStatusMutation.isPending ? 'opacity-50 cursor-not-allowed' : 'cursor-pointer hover:scale-105'}`}
                         title="อนุมัติ"
                       >
                         <Check size={18} />
@@ -136,8 +132,8 @@ export default function LeaveList({ leaves, isAdmin }: LeaveListProps) {
                       <button 
                         onClick={() => handleUpdateStatus(leave.id, 'rejected')}
                         disabled={updateStatusMutation.isPending || deleteLeaveMutation.isPending}
-                        style={{ padding: '6px', borderRadius: '6px', background: '#fee2e2', color: '#991b1b', border: 'none', cursor: updateStatusMutation.isPending ? 'not-allowed' : 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', opacity: updateStatusMutation.isPending ? 0.5 : 1 }}
-                        title="ไม่อนุมัติ"
+                        className={`p-2.5 !min-h-0 aspect-square rounded-xl border border-slate-200 text-red-600 bg-white hover:bg-red-50 hover:border-red-300 transition-colors flex items-center justify-center cursor-pointer ${updateStatusMutation.isPending ? 'opacity-50 cursor-not-allowed' : 'cursor-pointer hover:scale-105'}`}
+                        title="ปฏิเสธ"
                       >
                         <X size={18} />
                       </button>
@@ -146,8 +142,8 @@ export default function LeaveList({ leaves, isAdmin }: LeaveListProps) {
                   <button 
                     onClick={() => handleDeleteLeave(leave.id)}
                     disabled={updateStatusMutation.isPending || deleteLeaveMutation.isPending}
-                    style={{ padding: '6px', borderRadius: '6px', background: '#f1f5f9', color: '#64748b', border: 'none', cursor: deleteLeaveMutation.isPending ? 'not-allowed' : 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', opacity: deleteLeaveMutation.isPending ? 0.5 : 1 }}
-                    title="ลบข้อมูลการลา"
+                    className={`p-2.5 !min-h-0 aspect-square rounded-xl border border-slate-200 text-slate-500 bg-white hover:bg-red-50 hover:text-red-600 hover:border-red-300 transition-colors flex items-center justify-center cursor-pointer ${deleteLeaveMutation.isPending ? 'opacity-50 cursor-not-allowed' : 'cursor-pointer hover:scale-105'}`}
+                    title="ลบข้อมูล"
                   >
                     <Trash2 size={18} />
                   </button>
@@ -158,8 +154,7 @@ export default function LeaveList({ leaves, isAdmin }: LeaveListProps) {
                 <button 
                   onClick={() => handleDeleteLeave(leave.id)}
                   disabled={updateStatusMutation.isPending || deleteLeaveMutation.isPending}
-                  style={{ padding: '6px 12px', borderRadius: '6px', background: '#fee2e2', color: '#991b1b', border: 'none', cursor: deleteLeaveMutation.isPending ? 'not-allowed' : 'pointer', fontSize: '0.85rem', fontWeight: 600, transition: 'all 0.2s', opacity: deleteLeaveMutation.isPending ? 0.5 : 1 }}
-                  title="ยกเลิกการลานี้"
+                  className={`px-3 py-1.5 rounded-lg bg-red-50 text-red-600 hover:bg-red-100 text-xs font-semibold transition-colors border border-red-200 ${deleteLeaveMutation.isPending ? 'opacity-50 cursor-not-allowed' : 'cursor-pointer'}`}
                 >
                   ยกเลิก
                 </button>
@@ -168,28 +163,31 @@ export default function LeaveList({ leaves, isAdmin }: LeaveListProps) {
           </div>
 
           {isAdmin && (
-            <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', padding: '0.75rem', background: 'var(--bg-color)', borderRadius: '8px', marginTop: '0.5rem' }}>
-              <Calendar size={16} color="var(--text-tertiary)" />
-              <span style={{ fontSize: '0.9rem', color: 'var(--text-secondary)' }}>
-                <strong>ประเภท:</strong> {getLeaveTypeLabel(leave.leave_type)} &nbsp; | &nbsp;
-                <strong>ระยะเวลา:</strong> {formatDate(leave.start_date)} ถึง {formatDate(leave.end_date)}
-              </span>
+            <div className="flex flex-wrap items-center gap-2 sm:gap-3 p-3 bg-slate-50 rounded-xl mt-1 text-sm text-slate-600 border border-slate-100">
+              <div className="flex items-center gap-1.5">
+                <Calendar size={16} className="text-slate-400" />
+                <strong>ประเภท:</strong> {getLeaveTypeLabel(leave.leave_type)}
+              </div>
+              <span className="hidden sm:inline text-slate-300">|</span>
+              <div>
+                <strong>วันที่:</strong> {formatDate(leave.start_date)} ถืง {formatDate(leave.end_date)}
+              </div>
             </div>
           )}
           
-          <div style={{ padding: '1rem', background: '#f8fafc', borderRadius: '8px', display: 'flex', gap: '0.75rem', alignItems: 'flex-start', border: '1px solid #e2e8f0' }}>
-            <FileText size={18} color="#64748b" style={{ marginTop: '2px' }} />
+          <div className="p-4 bg-slate-50 rounded-xl flex gap-3 items-start border border-slate-200">
+            <FileText size={18} className="text-slate-400 mt-0.5 flex-shrink-0" />
             <div>
-              <div style={{ fontSize: '0.85rem', fontWeight: 600, color: '#475569', marginBottom: '0.25rem' }}>เหตุผลการลา:</div>
-              <div style={{ fontSize: '0.95rem', color: '#334155', whiteSpace: 'pre-wrap' }}>
+              <div className="text-xs font-semibold text-slate-500 mb-1">เหตุผลการลา:</div>
+              <div className="text-sm text-slate-700 whitespace-pre-wrap">
                 {leave.reason || '-'}
               </div>
             </div>
           </div>
           
-          <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', fontSize: '0.8rem', color: 'var(--text-tertiary)' }}>
+          <div className="flex items-center gap-2 text-xs text-slate-400">
             <Clock size={14} />
-            ยื่นเรื่องเมื่อ: {new Date(leave.created_at).toLocaleString('th-TH')}
+            ยื่นเมื่อ: {new Date(leave.created_at).toLocaleString('th-TH')}
           </div>
         </div>
       ))}

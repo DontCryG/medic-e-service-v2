@@ -1,21 +1,14 @@
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import Swal from 'sweetalert2';
 import { supabase } from '@/lib/supabase';
-import { broadcastForceSync } from '@/hooks/useAppRealtime';
 import type { QueueStatusType, QueueStatus } from '../types';
 
-const forceSync = () => {
-  broadcastForceSync();
-};
-
 async function saveManagerHistory(discord_id: string, manager_start_time: string) {
-  console.log("SAVING MANAGER LOG...");
   const start = new Date(manager_start_time);
   const end = new Date();
   const durationMins = Math.floor((end.getTime() - start.getTime()) / 60000); 
 
   if (durationMins === 0) {
-    console.log("MANAGER LOG ABORTED: duration is 0 mins");
     return;
   }
   
@@ -79,7 +72,7 @@ const clearOtherQueued = async (excludeDiscordId: string) => {
   const { data: setting } = await supabase.from('system_settings').select('value').eq('key', 'queue_volunteers').maybeSingle();
   if (setting?.value) {
     let volunteers: any[] = [];
-    try { volunteers = JSON.parse(setting.value); } catch(e){}
+    try { volunteers = JSON.parse(setting.value); } catch{ /* eslint-disable-next-line no-empty */ }
     let changed = false;
     volunteers.forEach((v: any) => {
       if (v.status === 'queued' && v.id !== excludeDiscordId) {
@@ -117,7 +110,6 @@ export function useQueueMutations() {
       }
 
       if (!newStatus) {
-        console.log("ATTEMPTING TO UPDATE ROW FOR", discord_id, "TO NULL STATUS");
         // Instead of deleting, we update status to null to preserve story data
         const response = await supabase
           .from('queue_status')
@@ -128,11 +120,8 @@ export function useQueueMutations() {
           })
           .eq('discord_id', discord_id)
           .select();
-        
-        console.log("UPDATE RESPONSE:", response);
         if (response.error) throw response.error;
         if (response.data?.length === 0) {
-          console.warn("UPDATE SUCCEEDED BUT 0 ROWS WERE UPDATED. THIS MEANS RLS BLOCKED IT OR ROW DOESN'T EXIST.");
         }
         return;
       }
@@ -440,7 +429,7 @@ export function useQueueMutations() {
       const { data: setting } = await supabase.from('system_settings').select('value').eq('key', 'queue_volunteers').maybeSingle();
       let volunteers: any[] = [];
       if (setting?.value) {
-        try { volunteers = JSON.parse(setting.value); } catch(e){}
+        try { volunteers = JSON.parse(setting.value); } catch{ /* eslint-disable-next-line no-empty */ }
       }
 
       const volunteerId = name.trim(); // Use name as ID (or discord ID if they pasted one)
@@ -484,7 +473,7 @@ export function useQueueMutations() {
       const { data: setting } = await supabase.from('system_settings').select('value').eq('key', 'queue_volunteers').maybeSingle();
       if (!setting?.value) return;
       let volunteers: any[] = [];
-      try { volunteers = JSON.parse(setting.value); } catch(e){}
+      try { volunteers = JSON.parse(setting.value); } catch{ /* eslint-disable-next-line no-empty */ }
       const v = volunteers.find((x: any) => x.id === id);
       if (v) {
         v.status = newStatus;
@@ -502,19 +491,29 @@ export function useQueueMutations() {
     }
   });
 
-  const removeVolunteerMutation = useMutation({
+    const removeVolunteerMutation = useMutation({
     mutationFn: async (id: string) => {
       const { data: setting } = await supabase.from('system_settings').select('value').eq('key', 'queue_volunteers').maybeSingle();
-      if (!setting?.value) return;
-      let volunteers: any[] = [];
-      try { volunteers = JSON.parse(setting.value); } catch(e){}
-      volunteers = volunteers.filter((x: any) => x.id !== id);
-      await supabase.from('system_settings').upsert({
-        key: 'queue_volunteers',
-        value: JSON.stringify(volunteers),
-        description: 'รายชื่อหมออาสา',
-        type: 'json'
-      });
+      if (setting?.value) {
+        let volunteers: any[] = [];
+        try { volunteers = JSON.parse(setting.value); } catch{ /* eslint-disable-next-line no-empty */ }
+        volunteers = volunteers.filter((x: any) => x.id !== id);
+        await supabase.from('system_settings').upsert({
+          key: 'queue_volunteers',
+          value: JSON.stringify(volunteers),
+          description: 'รายชื่อหมออาสา',
+          type: 'json'
+        });
+      }
+
+      // Cleanup: Delete from queue_status
+      await supabase.from('queue_status').delete().eq('discord_id', id);
+
+      // Cleanup: Delete fake user from users table if it's not a real Discord ID
+      const isDiscordId = /^\d{17,20}$/.test(id);
+      if (!isDiscordId) {
+        await supabase.from('users').delete().eq('discord_id', id);
+      }
     },
     onSuccess: () => { queryClient.invalidateQueries({ queryKey: ['queue_users'] });  }
   });

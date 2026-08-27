@@ -1,4 +1,4 @@
-﻿import { useEffect, useState, useMemo, useRef } from 'react';
+import { useEffect, useState, useMemo, useRef } from 'react';
 import { Check, X } from 'lucide-react';
 import type { QueueUser, QueueStatusType } from '../types';
 import { useQueueMutations } from '../hooks/useQueueMutations';
@@ -171,11 +171,11 @@ export function QueueRow({ user, isStoryQueue = false }: QueueRowProps) {
 
   // Row Classes
   const getRowClass = () => {
-    if (currentStatus === 'unavailable') return 'row-active-unavailable';
-    if (currentStatus === 'queued') return 'row-active-queued';
-    if (currentStatus === 'manager') return 'row-active-manager';
-    if (currentStatus === 'story') return isLocked ? 'row-active-story' : '';
-    return '';
+    if (currentStatus === 'unavailable') return 'bg-red-50/50 hover:bg-red-50 transition-colors border-b border-slate-100';
+    if (currentStatus === 'queued') return 'bg-emerald-50/50 hover:bg-emerald-50 transition-colors border-b border-slate-100';
+    if (currentStatus === 'manager') return 'bg-sky-50/50 hover:bg-sky-50 transition-colors border-b border-slate-100';
+    if (currentStatus === 'story') return isLocked ? 'bg-purple-50/50 hover:bg-purple-50 transition-colors border-b border-slate-100' : '';
+    return 'hover:bg-slate-50 transition-colors border-b border-slate-100';
   };
 
   const showStoryInputs = !!targetTime || !!statusRecord?.story_target_time;
@@ -183,17 +183,19 @@ export function QueueRow({ user, isStoryQueue = false }: QueueRowProps) {
 
   return (
     <tr className={getRowClass()}>
-      <td className="col-name">
-        <div className="user-name-wrapper">
+      <td className="p-4 align-middle w-[25%]">
+        <div className="flex items-center gap-3">
           {user.avatar_url ? (
-            <img src={user.avatar_url} alt="" className="user-avatar" />
+            <img src={user.avatar_url} alt="" className="w-10 h-10 rounded-full bg-slate-100 flex items-center justify-center font-bold text-slate-500 border border-slate-200" />
           ) : (
-            <div className="user-avatar">
+            <div className="w-10 h-10 rounded-full bg-slate-100 flex items-center justify-center font-bold text-slate-500 border border-slate-200">
               {user.ic_name.charAt(0)}
             </div>
           )}
-          <span className="user-name">{user.ic_name}</span>
-          {user.is_current_user && <span className="badge-me">(คุณ)</span>}
+          <span className={`font-bold text-[0.95rem] ${currentStatus === 'unavailable' ? 'line-through decoration-red-500 decoration-2 text-red-400 italic' : 'text-slate-800'}`}>
+            {user.ic_name}
+          </span>
+          {user.is_current_user && <span className="bg-emerald-100 text-emerald-700 px-2 py-0.5 rounded-full text-xs font-bold">(คุณ)</span>}
           {user.is_volunteer && (
             <button 
               onClick={async () => {
@@ -229,10 +231,9 @@ export function QueueRow({ user, isStoryQueue = false }: QueueRowProps) {
 
       {!isStoryQueue && (
         <>
-          <td className="col-unavailable">
-            <label className={`custom-checkbox ${currentStatus === 'unavailable' ? 'checked-unavailable' : ''} ${isLocked ? 'disabled' : ''}`}>
-              <input 
-                type="checkbox" 
+          <td className="p-4 align-middle text-center w-[10%]">
+            <label className={`relative inline-flex items-center justify-center w-8 h-8 rounded-xl border-2 transition-all duration-200 cursor-pointer ${currentStatus === "unavailable" ? "bg-red-100 border-red-500 text-red-600 scale-110" : "bg-slate-50 border-slate-200 text-transparent hover:border-slate-400"} ${isLocked ? "opacity-50 cursor-not-allowed" : ""}`}>
+              <input type="checkbox" className="absolute opacity-0 w-0 h-0" 
                 checked={currentStatus === 'unavailable'} 
                 onChange={() => handleStatusChange('unavailable')} 
                 disabled={isLocked}
@@ -241,10 +242,9 @@ export function QueueRow({ user, isStoryQueue = false }: QueueRowProps) {
             </label>
           </td>
 
-          <td className="col-queued">
-            <label className={`custom-checkbox ${currentStatus === 'queued' ? 'checked-queued' : ''} ${isLocked ? 'disabled' : ''}`}>
-              <input 
-                type="checkbox" 
+          <td className="p-4 align-middle text-center w-[10%]">
+            <label className={`relative inline-flex items-center justify-center w-8 h-8 rounded-xl border-2 transition-all duration-200 cursor-pointer ${currentStatus === "queued" ? "bg-emerald-100 border-emerald-500 text-emerald-600 scale-110" : "bg-slate-50 border-slate-200 text-transparent hover:border-slate-400"} ${isLocked ? "opacity-50 cursor-not-allowed" : ""}`}>
+              <input type="checkbox" className="absolute opacity-0 w-0 h-0" 
                 checked={currentStatus === 'queued'} 
                 onChange={() => handleStatusChange('queued')} 
                 disabled={isLocked}
@@ -253,14 +253,13 @@ export function QueueRow({ user, isStoryQueue = false }: QueueRowProps) {
             </label>
           </td>
 
-          <td className="col-manager">
+          <td className="p-4 align-middle text-center w-[10%]">
             {user.is_volunteer ? (
               <span style={{ color: '#cbd5e1' }}>-</span>
             ) : (
               <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '4px' }}>
-                <label className={`custom-checkbox ${currentStatus === 'manager' ? 'checked-manager' : ''} ${isLocked ? 'disabled' : ''}`}>
-                  <input 
-                    type="checkbox" 
+                <label className={`relative inline-flex items-center justify-center w-8 h-8 rounded-xl border-2 transition-all duration-200 cursor-pointer ${currentStatus === "manager" ? "bg-sky-100 border-sky-500 text-sky-600 scale-110" : "bg-slate-50 border-slate-200 text-transparent hover:border-slate-400"} ${isLocked ? "opacity-50 cursor-not-allowed" : ""}`}>
+                  <input type="checkbox" className="absolute opacity-0 w-0 h-0" 
                     checked={currentStatus === 'manager'} 
                     onChange={() => handleStatusChange('manager')} 
                     disabled={isLocked}
@@ -278,13 +277,12 @@ export function QueueRow({ user, isStoryQueue = false }: QueueRowProps) {
         </>
       )}
 
-      <td className="col-story">
+      <td className="p-4 align-middle text-center w-[10%]">
         {user.is_volunteer ? (
           <span style={{ color: '#cbd5e1' }}>-</span>
         ) : (
-          <label className={`custom-checkbox ${currentStatus === 'story' && isLocked ? 'checked-story' : ''} ${(!isLocked) ? 'disabled' : ''}`}>
-            <input 
-              type="checkbox" 
+          <label className={`relative inline-flex items-center justify-center w-8 h-8 rounded-xl border-2 transition-all duration-200 cursor-pointer ${currentStatus === "story" && isLocked ? "bg-purple-100 border-purple-500 text-purple-600 scale-110" : "bg-slate-50 border-slate-200 text-transparent hover:border-slate-400"} ${!isLocked ? "opacity-50 cursor-not-allowed" : ""}`}>
+            <input type="checkbox" className="absolute opacity-0 w-0 h-0" 
               checked={currentStatus === 'story' && isLocked} 
               onChange={async () => {
                 if (isLocked) {
@@ -324,11 +322,11 @@ export function QueueRow({ user, isStoryQueue = false }: QueueRowProps) {
         )}
       </td>
 
-      <td className="col-story-time">
+      <td className="p-4 align-middle w-[35%]">
         {user.is_volunteer ? (
           <span style={{ color: '#cbd5e1' }}>ไม่มีข้อมูลสตอรี่สำหรับหมออาสา</span>
         ) : (
-          <div className="story-inputs">
+          <div className="flex items-center gap-2">
             <SmartTimePicker 
               value={targetTime}
               onChange={setTargetTime}
@@ -338,7 +336,7 @@ export function QueueRow({ user, isStoryQueue = false }: QueueRowProps) {
             
             {showStoryInputs && (
               <>
-                <div className="premium-dropdown" style={{ width: '160px' }}>
+                <div className="relative" style={{ width: '160px' }}>
                   <SmartSelect
                     options={factionOptions.filter(opt => opt.value !== gang2)}
                     value={gang1}
@@ -358,8 +356,8 @@ export function QueueRow({ user, isStoryQueue = false }: QueueRowProps) {
                     placeholder="แก๊ง/แฟม"
                   />
                 </div>
-                <span className="story-vs">VS</span>
-                <div className="premium-dropdown" style={{ width: '160px' }}>
+                <span className="text-xs font-black text-slate-400 mx-1">VS</span>
+                <div className="relative" style={{ width: '160px' }}>
                   <SmartSelect
                     options={factionOptions.filter(opt => opt.value !== gang1)}
                     value={gang2}
@@ -379,7 +377,7 @@ export function QueueRow({ user, isStoryQueue = false }: QueueRowProps) {
                     placeholder="แก๊ง/แฟม"
                   />
                 </div>
-                <div className="premium-dropdown" style={{ width: '160px' }}>
+                <div className="relative" style={{ width: '160px' }}>
                   <SmartSelect
                     value={storyType}
                     onChange={(val) => {
@@ -405,7 +403,7 @@ export function QueueRow({ user, isStoryQueue = false }: QueueRowProps) {
 
                 {/* Cancel Button - clears everything without history */}
                 <button 
-                  className="cancel-story-btn" 
+                  className="flex items-center gap-1.5 px-3 h-[38px] bg-white hover:bg-rose-50 text-rose-500 rounded-xl font-bold text-sm transition-all border border-rose-200 hover:border-rose-300 shadow-sm whitespace-nowrap"
                   onClick={async () => {
                     if (isProcessing || processingRef.current) return; processingRef.current = true;
                     setIsProcessing(true);
@@ -420,9 +418,10 @@ export function QueueRow({ user, isStoryQueue = false }: QueueRowProps) {
                     }
                   }}
                   disabled={isProcessing}
-                  title="ยกเลิกสตอรี่ (ไม่บันทึกประวัติ)"
+                  title="ยกเลิกสตอรี่ (ไม่บันทึกลงประวัติ)"
                 >
-                  <X size={14} />
+                  <X size={16} strokeWidth={2.5} />
+                  ยกเลิก
                 </button>
               </>
             )}

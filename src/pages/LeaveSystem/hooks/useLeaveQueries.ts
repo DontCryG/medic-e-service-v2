@@ -18,7 +18,7 @@ export function useMyLeaves(discordId: string | undefined) {
       const { data, error } = await supabase
         .from('leave_requests')
         .select('*')
-        .eq('discord_id', discordId)
+        .eq('discord_id', discordId as string)
         .order('created_at', { ascending: false });
 
       if (error) throw error;
@@ -40,6 +40,7 @@ export function useAllLeaves() {
           *,
           users!inner (
             ic_name,
+            avatar_url,
             role,
             positions (
               name,

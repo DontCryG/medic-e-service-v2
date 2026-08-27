@@ -3,9 +3,11 @@ import SmartDatePicker from './SmartDatePicker';
 import { Clock } from 'lucide-react';
 
 interface SmartDateTimePickerProps {
+  minDate?: Date;
+  maxDate?: Date;
+  placeholder?: string;
   value: Date | null;
   onChange: (date: Date | null) => void;
-  placeholder?: string;
 }
 
 export default function SmartDateTimePicker({ value, onChange, placeholder }: SmartDateTimePickerProps) {
