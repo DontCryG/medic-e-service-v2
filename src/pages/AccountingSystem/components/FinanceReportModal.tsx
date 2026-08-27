@@ -53,7 +53,7 @@ export default function FinanceReportModal({ isOpen, onClose, startDate, endDate
   if (!isOpen) return null;
 
   return (
-    <div className="hidden print:block print:absolute print:inset-0 print:bg-white print:z-[9999] text-slate-800 font-sans" style={{ WebkitPrintColorAdjust: 'exact', printColorAdjust: 'exact' }}>
+    <div className="hidden print:block print:fixed print:top-0 print:left-0 print:w-screen print:bg-white print:z-[9999] text-slate-800 font-sans" style={{ WebkitPrintColorAdjust: 'exact', printColorAdjust: 'exact' }}>
       <div className="max-w-[210mm] mx-auto p-10 print:p-0">
         
         {/* Header Section */}
