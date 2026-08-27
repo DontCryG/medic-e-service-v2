@@ -1,10 +1,42 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { X, ClipboardList } from 'lucide-react';
+import SmartSelect from '../../../components/common/SmartSelect';
+import SmartDatePicker from '../../../components/common/SmartDatePicker';
 import { useCreateLeave } from '../hooks/useLeaveMutations';
 import { supabase } from '@/lib/supabase';
 import Swal from 'sweetalert2';
-import SmartDatePicker from '../../../components/common/SmartDatePicker';
-import SmartSelect from '../../../components/common/SmartSelect';
+import { useForm, Controller } from 'react-hook-form';
+import { zodResolver } from '@hookform/resolvers/zod';
+import { z } from 'zod';
+
+const leaveSchema = z.object({
+  leaveType: z.enum(['leave', 'vacation', 'resign']),
+  startDate: z.date({ message: 'กรุณาเลือกวันที่เริ่มต้น' }),
+  endDate: z.date().optional().nullable(),
+  reason: z.string().min(1, 'กรุณาระบุเหตุผล')
+}).refine(data => {
+  if (data.leaveType !== 'resign') {
+    return !!data.endDate;
+  }
+  return true;
+}, {
+  message: 'กรุณาเลือกวันที่สิ้นสุด',
+  path: ['endDate']
+}).refine(data => {
+  if (data.leaveType !== 'resign' && data.startDate && data.endDate) {
+    const start = new Date(data.startDate);
+    start.setHours(0,0,0,0);
+    const end = new Date(data.endDate);
+    end.setHours(0,0,0,0);
+    return end >= start;
+  }
+  return true;
+}, {
+  message: 'วันที่สิ้นสุดต้องไม่ก่อนวันที่เริ่มต้น',
+  path: ['endDate']
+});
+
+type LeaveFormValues = z.infer<typeof leaveSchema>;
 
 interface LeaveRequestModalProps {
   onClose: () => void;
@@ -12,24 +44,41 @@ interface LeaveRequestModalProps {
 }
 
 export default function LeaveRequestModal({ onClose, profile }: LeaveRequestModalProps) {
-  const [leaveType, setLeaveType] = useState('leave');
-  const [startDate, setStartDate] = useState<Date | null>(new Date());
-  const [endDate, setEndDate] = useState<Date | null>(new Date());
-  const [reason, setReason] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
-
   const createLeaveMutation = useCreateLeave();
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!startDate) return;
-    
-    // If resign, end date is same as start date
-    const finalEndDate = leaveType === 'resign' ? startDate : endDate;
-    if (!finalEndDate) return;
+  const { control, handleSubmit, watch, setValue, formState: { errors } } = useForm<LeaveFormValues>({
+    resolver: zodResolver(leaveSchema),
+    defaultValues: {
+      leaveType: 'leave',
+      startDate: new Date(),
+      endDate: new Date(),
+      reason: ''
+    }
+  });
 
-    if (leaveType === 'vacation') {
-      // 1. Check if they have used vacation before (pending or approved)
+  const leaveType = watch('leaveType');
+  const startDate = watch('startDate');
+  const endDate = watch('endDate');
+
+  useEffect(() => {
+    if (startDate && endDate && leaveType !== 'resign') {
+      const start = new Date(startDate);
+      start.setHours(0,0,0,0);
+      const end = new Date(endDate);
+      end.setHours(0,0,0,0);
+      if (start > end) {
+        setValue('endDate', startDate, { shouldValidate: true });
+      }
+    }
+  }, [startDate, leaveType, setValue]); 
+
+  const onSubmit = async (data: LeaveFormValues) => {
+    if (!profile?.discord_id) return;
+    
+    const finalEndDate = data.leaveType === 'resign' ? data.startDate : (data.endDate as Date);
+    
+    if (data.leaveType === 'vacation') {
       const { data: pastVacations } = await supabase
         .from('leave_requests')
         .select('id')
@@ -38,11 +87,10 @@ export default function LeaveRequestModal({ onClose, profile }: LeaveRequestModa
         .in('status', ['pending', 'approved']);
       
       if (pastVacations && pastVacations.length > 0) {
-        Swal.fire('ไม่สามารถยื่นคำขอได้', 'คุณเคยใช้สิทธิ์ลาพักร้อนไปแล้ว  (สิทธิ์ลาได้ 1 ครั้ง)', 'error');
+        Swal.fire('ไม่สามารถลางานได้', 'คุณเคยใช้สิทธิ์ลาพักร้อนไปแล้ว (สิทธิ์ 1 ครั้ง/ปี)', 'error');
         return;
       }
 
-      // 2. Check if they have worked for 30 distinct days
       const { data: dutyLogs } = await supabase
         .from('duty_logs')
         .select('clock_in')
@@ -55,7 +103,7 @@ export default function LeaveRequestModal({ onClose, profile }: LeaveRequestModa
       }));
 
       if (distinctDays.size < 30) {
-        Swal.fire('ไม่สามารถยื่นคำขอได้', `คุณมีชั่วโมงการทำงานไม่ครบ 30 วันตามเงื่อนไขสิทธิ์ลาพักร้อน (ปัจจุบันทำงานไปแล้ว ${distinctDays.size} วัน)`, 'error');
+        Swal.fire('ไม่สามารถลางานได้', `คุณต้องเข้าเวรให้ครบ 30 วันก่อนจึงจะลาพักร้อนได้ (ปัจจุบันเข้าเวรไปแล้ว ${distinctDays.size} วัน)`, 'error');
         return;
       }
     }
@@ -63,10 +111,10 @@ export default function LeaveRequestModal({ onClose, profile }: LeaveRequestModa
     setIsSubmitting(true);
     createLeaveMutation.mutate({
       discord_id: profile.discord_id,
-      leave_type: leaveType,
-      start_date: startDate.toISOString().split('T')[0],
+      leave_type: data.leaveType,
+      start_date: data.startDate.toISOString().split('T')[0],
       end_date: finalEndDate.toISOString().split('T')[0],
-      reason
+      reason: data.reason
     }, {
       onSuccess: () => {
         setIsSubmitting(false);
@@ -94,39 +142,48 @@ export default function LeaveRequestModal({ onClose, profile }: LeaveRequestModa
           </button>
         </div>
 
-        <form onSubmit={handleSubmit} className="p-6 flex flex-col gap-5">
+        <form onSubmit={handleSubmit(onSubmit)} className="p-6 flex flex-col gap-5">
           <div>
             <label className="block text-sm font-semibold text-slate-700 mb-2">
               ประเภทการลา
             </label>
-            <SmartSelect
-              value={leaveType}
-              onChange={setLeaveType}
-              options={[
-                { value: 'leave', label: 'ลากิจ' },
-                { value: 'vacation', label: 'ลาพักร้อน' },
-                { value: 'resign', label: 'ลาออก' }
-              ]}
+            <Controller
+              name="leaveType"
+              control={control}
+              render={({ field }) => (
+                <SmartSelect
+                  value={field.value}
+                  onChange={field.onChange}
+                  options={[
+                    { value: 'leave', label: 'ลากิจ' },
+                    { value: 'vacation', label: 'ลาพักร้อน' },
+                    { value: 'resign', label: 'ลาออก' }
+                  ]}
+                />
+              )}
             />
+            {errors.leaveType && <span className="text-red-500 text-sm mt-1 block">{errors.leaveType.message}</span>}
           </div>
 
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
             <div>
               <label className="block text-sm font-semibold text-slate-700 mb-2">
-                วันที่เริ่มต้น
+                วันที่เริ่มลา
               </label>
               <div className="w-full h-[42px]">
-                <SmartDatePicker
-                  selected={startDate}
-                  onChange={(date: Date | null) => {
-                    setStartDate(date);
-                    if (date && endDate && date > endDate) {
-                      setEndDate(date);
-                    }
-                  }}
-                  placeholderText="เลือกวันที่เริ่ม"
+                <Controller
+                  name="startDate"
+                  control={control}
+                  render={({ field }) => (
+                    <SmartDatePicker
+                      selected={field.value}
+                      onChange={field.onChange}
+                      placeholderText="เลือกวันที่เริ่มลา"
+                    />
+                  )}
                 />
               </div>
+              {errors.startDate && <span className="text-red-500 text-sm mt-1 block">{errors.startDate.message}</span>}
             </div>
             {leaveType !== 'resign' && (
               <div>
@@ -134,12 +191,20 @@ export default function LeaveRequestModal({ onClose, profile }: LeaveRequestModa
                   วันที่สิ้นสุด
                 </label>
                 <div className="w-full h-[42px]">
-                  <SmartDatePicker
-                    selected={endDate}
-                    onChange={(date: Date | null) => setEndDate(date)}
-                    placeholderText="เลือกวันที่สิ้นสุด"
+                  <Controller
+                    name="endDate"
+                    control={control}
+                    render={({ field }) => (
+                      <SmartDatePicker
+                        selected={field.value}
+                        onChange={field.onChange}
+                        minDate={startDate || undefined}
+                        placeholderText="เลือกวันที่สิ้นสุด"
+                      />
+                    )}
                   />
                 </div>
+                {errors.endDate && <span className="text-red-500 text-sm mt-1 block">{errors.endDate.message}</span>}
               </div>
             )}
           </div>
@@ -148,14 +213,19 @@ export default function LeaveRequestModal({ onClose, profile }: LeaveRequestModa
             <label className="block text-sm font-semibold text-slate-700 mb-2">
               เหตุผล
             </label>
-            <textarea
-              required
-              value={reason}
-              onChange={(e) => setReason(e.target.value)}
-              placeholder="ระบุเหตุผลการลา..."
-              rows={4}
-              className="w-full px-4 py-3 rounded-xl border border-slate-200 bg-slate-50 text-slate-800 text-sm focus:outline-none focus:ring-2 focus:ring-[var(--primary)]/20 focus:border-[var(--primary)] transition-all resize-none"
+            <Controller
+              name="reason"
+              control={control}
+              render={({ field }) => (
+                <textarea
+                  {...field}
+                  placeholder="ระบุเหตุผลการลา..."
+                  rows={4}
+                  className="w-full px-4 py-3 rounded-xl border border-slate-200 bg-slate-50 text-slate-800 text-sm focus:outline-none focus:ring-2 focus:ring-[var(--primary)]/20 focus:border-[var(--primary)] transition-all resize-none"
+                />
+              )}
             />
+            {errors.reason && <span className="text-red-500 text-sm mt-1 block">{errors.reason.message}</span>}
           </div>
 
           <div className="flex gap-3 justify-end mt-4">
@@ -163,6 +233,7 @@ export default function LeaveRequestModal({ onClose, profile }: LeaveRequestModa
               type="button" 
               className="px-6 py-2.5 rounded-xl border border-slate-200 text-slate-600 font-semibold hover:bg-slate-50 transition-colors cursor-pointer bg-white w-full sm:w-auto" 
               onClick={onClose}
+              disabled={isSubmitting || createLeaveMutation.isPending}
             >
               ยกเลิก
             </button>

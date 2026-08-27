@@ -1,9 +1,8 @@
-import { useQuery } from '@tanstack/react-query';
+﻿import { useQuery } from '@tanstack/react-query';
 import { supabase } from '@/lib/supabase';
-import { calculateSalary } from '../utils/salaryCalculations';
 import { fetchAllRows } from '@/utils/supabasePagination';
-
 import { useAuthStore } from '@/store/authStore';
+import type { SalaryResult } from '../utils/salaryCalculations';
 
 export const salaryKeys = {
   all: ['salary'],
@@ -16,76 +15,20 @@ export function useSalaryData(startDate: Date, endDate: Date) {
     enabled: !!user && !!startDate && !!endDate,
     queryKey: salaryKeys.summary(startDate, endDate),
     queryFn: async () => {
-      // 1. Fetch all users with positions
-      const usersQuery = supabase
-        .from('users')
-        .select(`
-          discord_id,
-          ic_name,
-          positions (
-            name,
-            rank,
-            oc_rate
-          )
-        `)
-        .not('role', 'in', '("user","resigned")');
-      const users = await fetchAllRows(usersQuery);
+      // PHASE 1 UPGRADE: Call the Database RPC instead of fetching 5 tables
+      const { data, error } = await (supabase as any).rpc('calculate_salary_summary', {
+        p_start_date: startDate.toISOString(),
+        p_end_date: endDate.toISOString()
+      });
 
-      // 2. Fetch all duty logs within date range
-      const logsQuery = supabase
-        .from('duty_logs')
-        .select('*')
-        .gte('clock_in', startDate.toISOString())
-        .lte('clock_in', endDate.toISOString())
-        .eq('status', 'completed');
-      const logs = await fetchAllRows(logsQuery);
+      if (error) {
+        console.error("RPC Error calculating salary:", error);
+        throw new Error(error.message);
+      }
 
-      // 3. Fetch all leave logs within date range
-      const leaveQuery = supabase
-        .from('leave_requests')
-        .select('*')
-        .gte('start_date', startDate.toISOString())
-        .lte('start_date', endDate.toISOString());
-      const leaveLogs = await fetchAllRows(leaveQuery);
-
-      // 4. Fetch all story logs within date range
-      const storyQuery = supabase
-        .from('story_logs')
-        .select('*')
-        .gte('start_time', startDate.toISOString())
-        .lte('start_time', endDate.toISOString());
-      const storyLogs = await fetchAllRows(storyQuery);
-
-      // 5. Fetch queue manager logs within date range
-      const queueQuery = supabase
-        .from('queue_manager_logs')
-        .select('*')
-        .gte('start_time', startDate.toISOString())
-        .lte('start_time', endDate.toISOString());
-      const queueLogs = await fetchAllRows(queueQuery);
-
-      // 6. Fetch system settings
-      const settingsQuery = supabase
-        .from('system_settings')
-        .select('*');
-      const settings = await fetchAllRows(settingsQuery);
-      
-      const settingsMap = (settings || []).reduce((acc: any, s: any) => {
-        acc[s.key] = s.type === 'number' ? Number(s.value) : s.value;
-        return acc;
-      }, {});
-
-      // Ensure proper typing for calculateSalary
-      const typedUsers = users.map(u => ({
-        ...u,
-        positions: Array.isArray(u.positions) ? u.positions[0] : u.positions
-      }));
-
-      // Calculate the results
-      const results = calculateSalary(typedUsers as any, logs || [], leaveLogs || [], storyLogs || [], queueLogs || [], settingsMap);
-      return results;
+      return (data || []) as SalaryResult[];
     },
-    });
+  });
 }
 
 export function useUserDutyLogs(discordId: string | null, startDate: Date, endDate: Date) {
@@ -106,4 +49,3 @@ export function useUserDutyLogs(discordId: string | null, startDate: Date, endDa
     enabled: !!discordId && !!startDate && !!endDate,
   });
 }
-

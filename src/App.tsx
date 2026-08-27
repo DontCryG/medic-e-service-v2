@@ -1,10 +1,17 @@
-﻿import React, { lazy, Suspense } from 'react';
-import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
+import React, { lazy, Suspense } from 'react';
+import { 
+  createBrowserRouter, 
+  RouterProvider, 
+  createRoutesFromElements,
+  Route, 
+  Navigate 
+} from 'react-router-dom';
 import { QueryClient, QueryClientProvider, MutationCache } from '@tanstack/react-query';
 import { useAuthStore } from './store/authStore';
 import { useAppRealtime, broadcastForceSync } from './hooks/useAppRealtime';
 import { setSentryUser, clearSentryUser } from './lib/sentry';
 import { supabase } from './lib/supabase';
+import GlobalError from './components/common/GlobalError';
 
 const Portal = lazy(() => import('./pages/Portal'));
 const MainLayout = lazy(() => import('./layouts/MainLayout'));
@@ -37,7 +44,6 @@ const ProtectedRoute = ({ children }: { children: React.ReactNode }) => {
   
   if (!user) return <Navigate to="/" replace />;
   if (user.role === 'user' || user.role === 'resigned') {
-    // If somehow a restricted user is logged in, log them out
     logout();
     return <Navigate to="/" replace />;
   }
@@ -54,6 +60,48 @@ const AdminRoute = ({ children }: { children: React.ReactNode }) => {
   return <>{children}</>;
 };
 
+// Portal Route Wrapper (Reactive)
+const PortalRoute = () => {
+  const { user } = useAuthStore();
+  return user ? <Navigate to="/dashboard" replace /> : <Portal />;
+};
+
+// Leave System Wrapper
+const LeaveRoute = () => {
+  const { user } = useAuthStore();
+  return (
+    <ProtectedRoute>
+      <LeaveSystem profile={user} />
+    </ProtectedRoute>
+  );
+};
+
+// Duty System Wrapper
+const DutyRoute = () => {
+  const { user } = useAuthStore();
+  return <DutySystem profile={user} />;
+};
+
+// Personnel System Wrapper
+const PersonnelRoute = () => {
+  const { user } = useAuthStore();
+  return (
+    <AdminRoute>
+      <PersonnelSystem profile={user} />
+    </AdminRoute>
+  );
+};
+
+// Salary System Wrapper
+const SalaryRoute = () => {
+  const { user } = useAuthStore();
+  return (
+    <AdminRoute>
+      <SalarySystem profile={user} />
+    </AdminRoute>
+  );
+};
+
 // Component to run hooks that need QueryClient context
 function AppEffects() {
   useAppRealtime();
@@ -62,9 +110,35 @@ function AppEffects() {
 
 const FallbackLoader = () => (
   <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '100vh', background: '#f8fafc' }}>
-    <div style={{ padding: '20px', borderRadius: '12px', background: '#ffffff', color: 'var(--text-primary)', boxShadow: '0 4px 12px rgba(0,0,0,0.1)' }}>กำลังโหลดระบบ... (Loading System)
+    <div style={{ padding: '20px', borderRadius: '12px', background: '#ffffff', color: 'var(--text-primary)', boxShadow: '0 4px 12px rgba(0,0,0,0.1)' }}>กำลังดาวน์โหลดข้อมูลระบบ... (Loading System)
     </div>
   </div>
+);
+
+const router = createBrowserRouter(
+  createRoutesFromElements(
+    <Route errorElement={<GlobalError />}>
+      {/* Public Portal Route */}
+      <Route path="/" element={<PortalRoute />} />
+
+      {/* Protected Main Layout */}
+      <Route element={<ProtectedRoute><MainLayout /></ProtectedRoute>}>
+        <Route path="/dashboard" element={<Dashboard />} />
+        <Route path="/queue" element={<QueueSystem />} />
+        <Route path="/duty" element={<DutyRoute />} />
+        <Route path="/leave" element={<LeaveRoute />} />
+        
+        {/* Admin Routes */}
+        <Route path="/personnel" element={<PersonnelRoute />} />
+        <Route path="/salary" element={<SalaryRoute />} />
+        <Route path="/accounting" element={<AdminRoute><AccountingSystem /></AdminRoute>} />
+        <Route path="/settings" element={<AdminRoute><SystemSettings /></AdminRoute>} />
+      </Route>
+
+      {/* Fallback */}
+      <Route path="*" element={<Navigate to="/" replace />} />
+    </Route>
+  )
 );
 
 export default function App() {
@@ -116,43 +190,9 @@ export default function App() {
   return (
     <QueryClientProvider client={queryClient}>
       <AppEffects />
-      <BrowserRouter>
-
-          <Suspense fallback={<FallbackLoader />}><Routes>
-            {/* Public Portal Route */}
-            <Route path="/" element={user ? <Navigate to="/dashboard" replace /> : <Portal />} />
-
-            {/* Protected Main Layout */}
-            <Route element={<ProtectedRoute><MainLayout /></ProtectedRoute>}>
-              <Route path="/dashboard" element={<Dashboard />} />
-              
-              {/* Stubs for future migration */}
-              <Route path="/queue" element={<QueueSystem />} />
-              <Route path="/duty" element={<DutySystem profile={user} />} />
-              <Route 
-                path="/leave" 
-                element={
-                  <ProtectedRoute>
-                    <LeaveSystem profile={user} />
-                  </ProtectedRoute>
-                } 
-              />
-              
-              {/* Admin Routes */}
-              <Route path="/personnel" element={<AdminRoute><PersonnelSystem profile={user} /></AdminRoute>} />
-              
-              <Route path="/salary" element={<AdminRoute><SalarySystem profile={user} /></AdminRoute>} />
-              <Route path="/accounting" element={<AdminRoute><AccountingSystem /></AdminRoute>} />
-              <Route path="/settings" element={<AdminRoute><SystemSettings /></AdminRoute>} />
-            </Route>
-
-            {/* Fallback */}
-            <Route path="*" element={<Navigate to="/" replace />} />
-          </Routes></Suspense>
-
-      </BrowserRouter>
+      <Suspense fallback={<FallbackLoader />}>
+        <RouterProvider router={router} />
+      </Suspense>
     </QueryClientProvider>
   );
 }
-
-
