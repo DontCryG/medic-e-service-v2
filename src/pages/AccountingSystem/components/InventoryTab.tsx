@@ -1,4 +1,4 @@
-import { useState, useMemo } from 'react';
+import { useState, useMemo, useRef, useEffect } from 'react';
 import { useInventoryLogs, useInventoryStock } from '../hooks/useAccountingQueries';
 import { useAddInventoryLog, useDeleteInventoryLog } from '../hooks/useAccountingMutations';
 import { useAuthStore } from '@/store/authStore';
@@ -44,6 +44,33 @@ export default function InventoryTab() {
 
   const [isReportOpen, setIsReportOpen] = useState(false);
   const [editingLog, setEditingLog] = useState<any>(null);
+
+  // Item name autocomplete
+  const [itemSearch, setItemSearch] = useState('');
+  const [showDropdown, setShowDropdown] = useState(false);
+  const itemInputRef = useRef<HTMLInputElement>(null);
+  const dropdownRef = useRef<HTMLDivElement>(null);
+
+  const filteredStockItems = useMemo(() => {
+    const q = itemSearch.toLowerCase().trim();
+    if (!q) return stocks;
+    return stocks.filter((s: any) => s.item_name.toLowerCase().includes(q));
+  }, [stocks, itemSearch]);
+
+  // Close dropdown on outside click
+  useEffect(() => {
+    const handleClick = (e: MouseEvent) => {
+      if (
+        dropdownRef.current && !dropdownRef.current.contains(e.target as Node) &&
+        itemInputRef.current && !itemInputRef.current.contains(e.target as Node)
+      ) {
+        setShowDropdown(false);
+      }
+    };
+    document.addEventListener('mousedown', handleClick);
+    return () => document.removeEventListener('mousedown', handleClick);
+  }, []);
+
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -196,17 +223,62 @@ export default function InventoryTab() {
               </button>
             </div>
 
-            <div>
+            <div className="relative">
               <label className="block text-sm font-bold text-slate-700 mb-1.5">ชื่อสิ่งของ</label>
               <input 
+                ref={itemInputRef}
                 type="text" 
-                value={itemName}
-                onChange={(e) => setItemName(e.target.value)}
-                placeholder="ระบุชื่อสิ่งของ..."
+                value={itemSearch || itemName}
+                onChange={(e) => {
+                  setItemSearch(e.target.value);
+                  setItemName(e.target.value);
+                  setShowDropdown(true);
+                }}
+                onFocus={() => setShowDropdown(true)}
+                placeholder="พิมพ์เพื่อค้นหาหรือเพิ่มของใหม่..."
                 required
+                autoComplete="off"
                 className="w-full px-4 py-3 rounded-xl border border-slate-200 focus:outline-none focus:ring-2 focus:ring-sky-500 focus:border-transparent font-medium"
               />
+              {showDropdown && (
+                <div
+                  ref={dropdownRef}
+                  className="absolute z-50 top-full left-0 right-0 mt-1 bg-white rounded-xl border border-slate-200 shadow-xl overflow-hidden max-h-52 overflow-y-auto"
+                >
+                  {filteredStockItems.length === 0 && itemSearch.trim() ? (
+                    <button
+                      type="button"
+                      onMouseDown={() => {
+                        setItemName(itemSearch.trim());
+                        setShowDropdown(false);
+                      }}
+                      className="w-full text-left px-4 py-3 text-sm text-sky-600 font-bold hover:bg-sky-50 transition-colors border-none bg-transparent cursor-pointer"
+                    >
+                      + เพิ่มของใหม่: "{itemSearch.trim()}"
+                    </button>
+                  ) : (
+                    filteredStockItems.map((s: any) => (
+                      <button
+                        key={s.item_name}
+                        type="button"
+                        onMouseDown={() => {
+                          setItemName(s.item_name);
+                          setItemSearch(s.item_name);
+                          setShowDropdown(false);
+                        }}
+                        className="w-full text-left px-4 py-3 hover:bg-slate-50 transition-colors border-none bg-transparent cursor-pointer flex justify-between items-center"
+                      >
+                        <span className="text-sm font-semibold text-slate-800">{s.item_name}</span>
+                        <span className={`text-xs font-bold px-2 py-0.5 rounded-full ${s.quantity > 0 ? 'bg-emerald-100 text-emerald-700' : 'bg-red-100 text-red-600'}`}>
+                          คงเหลือ {s.quantity} ชิ้น
+                        </span>
+                      </button>
+                    ))
+                  )}
+                </div>
+              )}
             </div>
+
 
             <div>
               <label className="block text-sm font-bold text-slate-700 mb-1.5">จำนวน (ชิ้น)</label>
