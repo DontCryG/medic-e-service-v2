@@ -54,7 +54,7 @@ export default function InventoryTab() {
   const filteredStockItems = useMemo(() => {
     const q = itemSearch.toLowerCase().trim();
     if (!q) return stocks;
-    return stocks.filter((s: any) => s.item_name.toLowerCase().includes(q));
+    return stocks.filter((s: any) => s.name?.toLowerCase().includes(q));
   }, [stocks, itemSearch]);
 
   // Close dropdown on outside click
@@ -259,16 +259,16 @@ export default function InventoryTab() {
                   ) : (
                     filteredStockItems.map((s: any) => (
                       <button
-                        key={s.item_name}
+                        key={s.name}
                         type="button"
                         onMouseDown={() => {
-                          setItemName(s.item_name);
-                          setItemSearch(s.item_name);
+                          setItemName(s.name);
+                          setItemSearch(s.name);
                           setShowDropdown(false);
                         }}
                         className="w-full text-left px-4 py-3 hover:bg-slate-50 transition-colors border-none bg-transparent cursor-pointer flex justify-between items-center"
                       >
-                        <span className="text-sm font-semibold text-slate-800">{s.item_name}</span>
+                        <span className="text-sm font-semibold text-slate-800">{s.name}</span>
                         <span className={`text-xs font-bold px-2 py-0.5 rounded-full ${s.quantity > 0 ? 'bg-emerald-100 text-emerald-700' : 'bg-red-100 text-red-600'}`}>
                           คงเหลือ {s.quantity} ชิ้น
                         </span>
