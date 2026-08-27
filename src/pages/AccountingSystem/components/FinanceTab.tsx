@@ -52,7 +52,7 @@ export default function FinanceTab() {
         type,
         amount: Number(amount),
         description,
-        created_by: user?.discord_id || ''
+        discord_id: user?.discord_id || ''
       });
       setAmount('');
       setDescription('');

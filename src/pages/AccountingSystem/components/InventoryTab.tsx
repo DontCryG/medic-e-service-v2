@@ -55,7 +55,7 @@ export default function InventoryTab() {
         item_name: itemName.trim(),
         quantity: Number(quantity),
         description,
-        created_by: user?.discord_id || ''
+        discord_id: user?.discord_id || ''
       });
       setItemName('');
       setQuantity('');
