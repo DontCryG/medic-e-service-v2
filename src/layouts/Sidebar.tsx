@@ -68,7 +68,7 @@ export default function Sidebar({ isMobileMenuOpen, setIsMobileMenuOpen, isColla
       )}
       
       <aside className={`
-        fixed lg:static inset-y-0 left-0 z-50 flex flex-col bg-white border-r border-slate-200 transition-all duration-300 ease-in-out
+        fixed lg:static inset-y-0 left-0 z-50 flex flex-col bg-white border-r border-slate-200 transition-all duration-300 ease-in-out print:hidden
         ${isMobileMenuOpen ? 'translate-x-0' : '-translate-x-full lg:translate-x-0'}
         ${isCollapsed ? 'w-[84px]' : 'w-[260px]'}
       `}>
