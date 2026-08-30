@@ -13,16 +13,35 @@ import { setSentryUser, clearSentryUser } from './lib/sentry';
 import { supabase } from './lib/supabase';
 import GlobalError from './components/common/GlobalError';
 
-const Portal = lazy(() => import('./pages/Portal'));
-const MainLayout = lazy(() => import('./layouts/MainLayout'));
-const Dashboard = lazy(() => import('./pages/Dashboard'));
-const PersonnelSystem = lazy(() => import('./pages/PersonnelSystem'));
-const DutySystem = lazy(() => import('./pages/DutySystem'));
-const SalarySystem = lazy(() => import('./pages/SalarySystem'));
-const LeaveSystem = lazy(() => import('./pages/LeaveSystem'));
-const QueueSystem = lazy(() => import('./pages/QueueSystem/QueueSystem').then(m => ({ default: m.QueueSystem })));
-const AccountingSystem = lazy(() => import('./pages/AccountingSystem/AccountingSystem').then(m => ({ default: m.AccountingSystem })));
-const SystemSettings = lazy(() => import('./pages/SystemSettings'));
+// Helper to automatically reload the page if a chunk fails to load (e.g. after a new deployment)
+const lazyWithRetry = (componentImport: () => Promise<any>) =>
+  lazy(async () => {
+    const pageHasAlreadyBeenForceRefreshed = JSON.parse(
+      window.sessionStorage.getItem('page-has-been-force-refreshed') || 'false'
+    );
+    try {
+      const component = await componentImport();
+      window.sessionStorage.setItem('page-has-been-force-refreshed', 'false');
+      return component;
+    } catch (error) {
+      if (!pageHasAlreadyBeenForceRefreshed) {
+        window.sessionStorage.setItem('page-has-been-force-refreshed', 'true');
+        return window.location.reload();
+      }
+      throw error;
+    }
+  });
+
+const Portal = lazyWithRetry(() => import('./pages/Portal'));
+const MainLayout = lazyWithRetry(() => import('./layouts/MainLayout'));
+const Dashboard = lazyWithRetry(() => import('./pages/Dashboard'));
+const PersonnelSystem = lazyWithRetry(() => import('./pages/PersonnelSystem'));
+const DutySystem = lazyWithRetry(() => import('./pages/DutySystem'));
+const SalarySystem = lazyWithRetry(() => import('./pages/SalarySystem'));
+const LeaveSystem = lazyWithRetry(() => import('./pages/LeaveSystem'));
+const QueueSystem = lazyWithRetry(() => import('./pages/QueueSystem/QueueSystem').then(m => ({ default: m.QueueSystem })));
+const AccountingSystem = lazyWithRetry(() => import('./pages/AccountingSystem/AccountingSystem').then(m => ({ default: m.AccountingSystem })));
+const SystemSettings = lazyWithRetry(() => import('./pages/SystemSettings'));
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -196,3 +215,4 @@ export default function App() {
     </QueryClientProvider>
   );
 }
+
