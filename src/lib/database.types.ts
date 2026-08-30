@@ -1,4 +1,4 @@
-﻿export type Json =
+export type Json =
   | string
   | number
   | boolean
@@ -395,6 +395,7 @@ export type Database = {
         Row: {
           discord_id: string
           manager_start_time: string | null
+            remark: string | null
           status: string | null
           story_gang_1: string | null
           story_gang_2: string | null
@@ -407,6 +408,7 @@ export type Database = {
         Insert: {
           discord_id: string
           manager_start_time?: string | null
+            remark?: string | null
           status?: string | null
           story_gang_1?: string | null
           story_gang_2?: string | null
@@ -419,6 +421,7 @@ export type Database = {
         Update: {
           discord_id?: string
           manager_start_time?: string | null
+            remark?: string | null
           status?: string | null
           story_gang_1?: string | null
           story_gang_2?: string | null
@@ -688,3 +691,5 @@ export const Constants = {
     Enums: {},
   },
 } as const
+
+

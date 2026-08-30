@@ -13,7 +13,7 @@ interface QueueRowProps {
 }
 
 export function QueueRow({ user, isStoryQueue = false }: QueueRowProps) {
-  const { updateStatus, updateStoryDetails, lockStory, endStory, updateVolunteer, removeVolunteer } = useQueueMutations();
+  const { updateStatus, updateStoryDetails, updateRemark, lockStory, endStory, updateVolunteer, removeVolunteer } = useQueueMutations();
   const { data: gangs = [] } = useGangs();
   const { data: families = [] } = useFamilies();
   
@@ -28,6 +28,7 @@ export function QueueRow({ user, isStoryQueue = false }: QueueRowProps) {
   
   // Local state for story inputs
   const [targetTime, setTargetTime] = useState(statusRecord?.story_target_time || '');
+  const [remark, setRemark] = useState(statusRecord?.remark || '');
   const [gang1, setGang1] = useState(statusRecord?.story_gang_1 || '');
   const [gang2, setGang2] = useState(statusRecord?.story_gang_2 || '');
   const [storyType, setStoryType] = useState(statusRecord?.story_type || 'ทั่วไป (1 คน)');
@@ -38,11 +39,13 @@ export function QueueRow({ user, isStoryQueue = false }: QueueRowProps) {
     setLocalStatus(statusRecord?.status || null);
     if (statusRecord) {
       setTargetTime(statusRecord.story_target_time || '');
+      setRemark(statusRecord.remark || '');
       setGang1(statusRecord.story_gang_1 || '');
       setGang2(statusRecord.story_gang_2 || '');
       setStoryType(statusRecord.story_type || 'ทั่วไป (1 คน)');
     } else {
       setTargetTime('');
+      setRemark('');
       setGang1('');
       setGang2('');
       setStoryType('ทั่วไป (1 คน)');
@@ -322,7 +325,25 @@ export function QueueRow({ user, isStoryQueue = false }: QueueRowProps) {
         )}
       </td>
 
-      <td className="p-4 align-middle w-[35%]">
+      
+        <td className="p-4 align-middle w-[15%]">
+          <input
+            type="text"
+            className="w-[140px] px-3 py-2 text-sm border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-sky-500 focus:border-transparent transition-all placeholder:text-slate-300"
+            placeholder="เพิ่มหมายเหตุ..."
+            value={remark}
+            onChange={(e) => setRemark(e.target.value)}
+            onBlur={() => {
+              if (remark !== (statusRecord?.remark || '')) {
+                updateRemark({ discord_id: user.discord_id, remark });
+              }
+            }}
+            disabled={user.is_volunteer}
+            style={user.is_volunteer ? { opacity: 0.5, cursor: 'not-allowed' } : {}}
+          />
+        </td>
+
+        <td className="p-4 align-middle w-[25%]">
         {user.is_volunteer ? (
           <span style={{ color: '#cbd5e1' }}>ไม่มีข้อมูลสตอรี่สำหรับหมออาสา</span>
         ) : (

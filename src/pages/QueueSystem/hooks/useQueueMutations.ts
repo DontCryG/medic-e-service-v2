@@ -244,6 +244,16 @@ export function useQueueMutations() {
     }
   });
 
+
+  const updateRemarkMutation = useMutation({
+    mutationFn: async ({ discord_id, remark }: { discord_id: string; remark: string }) => {
+      const { error } = await supabase
+        .from('queue_status')
+        .upsert({ discord_id, remark, updated_at: new Date().toISOString() });
+      if (error) throw error;
+    }
+  });
+
   // When auto-tick triggers, lock the story status
   const lockStoryMutation = useMutation({
     mutationFn: async (discord_id: string) => {
@@ -521,6 +531,7 @@ export function useQueueMutations() {
   return {
     updateStatus: updateStatusMutation.mutateAsync,
     updateStoryDetails: updateStoryDetailsMutation.mutateAsync,
+      updateRemark: updateRemarkMutation.mutateAsync,
     lockStory: lockStoryMutation.mutateAsync,
     endStory: endStoryMutation.mutateAsync,
     addStoryLog: addStoryLogMutation.mutateAsync,

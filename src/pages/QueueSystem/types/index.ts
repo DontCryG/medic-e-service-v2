@@ -4,6 +4,7 @@ export interface QueueStatus {
   discord_id: string;
   status: NonNullable<QueueStatusType>;
   manager_start_time: string | null;
+  remark: string | null;
   story_target_time: string | null;
   story_gang_1: string | null;
   story_gang_2: string | null;
@@ -45,3 +46,4 @@ export interface QueueUser {
   volunteer_added_at?: string;
   status_record: QueueStatus | null;
 }
+
