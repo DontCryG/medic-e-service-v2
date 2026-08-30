@@ -1,4 +1,4 @@
-import { useState, useRef } from 'react';
+﻿import { useState, useRef } from 'react';
 import { History, RefreshCw, UserPlus } from 'lucide-react';
 import { useAuthStore } from '@/store/authStore';
 import { useQueue } from './hooks/useQueue';
@@ -33,11 +33,11 @@ export function QueueSystem() {
     <div className="p-4 md:p-6 lg:p-8 bg-slate-50 min-h-full text-slate-800">
       <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 mb-6">
         <div>
-          <h1 className="text-2xl font-bold text-slate-800 m-0 flex items-center gap-2">????????????? (Queue System)</h1>
+          <h1 className="text-2xl font-bold text-slate-800 m-0 flex items-center gap-2">ระบบจัดการคิว (Queue System)</h1>
           <p className="text-sm text-slate-500 m-0 mt-1">
-            ??????????????????????????????????? 
+            แสดงสถานะหมอที่กำลังเข้าเวรปัจจุบัน 
             <span style={{ marginLeft: '8px', color: realtimeConnected ? '#10b981' : '#ef4444' }}>
-              ? {realtimeConnected ? '????????????? (Realtime)' : '??????????????? (Offline)'}
+              ● {realtimeConnected ? 'เชื่อมต่อแล้ว (Realtime)' : 'ขาดการเชื่อมต่อ (Offline)'}
             </span>
           </p>
         </div>
@@ -45,7 +45,7 @@ export function QueueSystem() {
           <div style={{ display: 'flex', gap: '0.5rem' }}>
             <input 
               type="text" 
-              placeholder="???????????" 
+              placeholder="ชื่อหมออาสา" 
               value={volunteerName}
               onChange={(e) => setVolunteerName(e.target.value)}
               onKeyDown={(e) => e.key === 'Enter' && handleAddVolunteer()}
@@ -75,12 +75,12 @@ export function QueueSystem() {
               }}
             >
               <UserPlus size={18} />
-              ?????????
+              เพิ่มอาสา
             </button>
           </div>
           <button className="flex flex-1 md:flex-none justify-center items-center gap-2 px-4 py-2.5 bg-white border border-slate-200 rounded-xl text-sm font-semibold text-slate-700 cursor-pointer transition-all hover:bg-slate-50 hover:-translate-y-[1px] shadow-sm hover:shadow-md" onClick={() => setIsHistoryOpen(true)}>
             <History size={18} />
-            ????????????????
+            ประวัติการจัดการ
           </button>
         </div>
       </div>
@@ -90,13 +90,13 @@ export function QueueSystem() {
           <table className="w-full min-w-[900px] text-left border-collapse">
             <thead>
               <tr>
-                <th className="p-4 text-xs font-bold text-slate-500 uppercase tracking-wider border-b border-slate-200 bg-slate-50" style={{ width: '25%' }}>???????</th>
-                <th className="p-4 text-xs font-bold text-slate-500 uppercase tracking-wider border-b border-slate-200 bg-slate-50 text-center" style={{ width: '10%' }}>????????</th>
-                <th className="p-4 text-xs font-bold text-slate-500 uppercase tracking-wider border-b border-slate-200 bg-slate-50 text-center" style={{ width: '10%' }}>???</th>
-                <th className="p-4 text-xs font-bold text-slate-500 uppercase tracking-wider border-b border-slate-200 bg-slate-50 text-center" style={{ width: '10%' }}>?????????</th>
-                <th className="p-4 text-xs font-bold text-slate-500 uppercase tracking-wider border-b border-slate-200 bg-slate-50 text-center" style={{ width: '10%' }}>??????</th>
-                <th className="p-4 text-xs font-bold text-slate-500 uppercase tracking-wider border-b border-slate-200 bg-slate-50" style={{ width: '25%' }}>????????????????</th>
-                <th className="p-4 text-xs font-bold text-slate-500 uppercase tracking-wider border-b border-slate-200 bg-slate-50" style={{ width: '15%' }}>????????</th>
+                <th className="p-4 text-xs font-bold text-slate-500 uppercase tracking-wider border-b border-slate-200 bg-slate-50" style={{ width: '25%' }}>รายชื่อ</th>
+                <th className="p-4 text-xs font-bold text-slate-500 uppercase tracking-wider border-b border-slate-200 bg-slate-50 text-center" style={{ width: '10%' }}>ไม่สะดวก</th>
+                <th className="p-4 text-xs font-bold text-slate-500 uppercase tracking-wider border-b border-slate-200 bg-slate-50 text-center" style={{ width: '10%' }}>คิว</th>
+                <th className="p-4 text-xs font-bold text-slate-500 uppercase tracking-wider border-b border-slate-200 bg-slate-50 text-center" style={{ width: '10%' }}>หมอรันคิว</th>
+                <th className="p-4 text-xs font-bold text-slate-500 uppercase tracking-wider border-b border-slate-200 bg-slate-50 text-center" style={{ width: '10%' }}>สตอรี่</th>
+                <th className="p-4 text-xs font-bold text-slate-500 uppercase tracking-wider border-b border-slate-200 bg-slate-50" style={{ width: '25%' }}>รายละเอียดสตอรี่</th>
+                <th className="p-4 text-xs font-bold text-slate-500 uppercase tracking-wider border-b border-slate-200 bg-slate-50" style={{ width: '15%' }}>หมายเหตุ</th>
               </tr>
             </thead>
             <tbody>
@@ -105,14 +105,14 @@ export function QueueSystem() {
                   <td colSpan={6} style={{ textAlign: 'center', padding: '40px', color: '#64748b' }}>
                     <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '12px' }}>
                       <RefreshCw className="animate-spin" />
-                      <span>??????????????????????...</span>
+                      <span>กำลังโหลดข้อมูลบุคลากร...</span>
                     </div>
                   </td>
                 </tr>
               ) : error ? (
                 <tr>
                   <td colSpan={6} style={{ textAlign: 'center', padding: '40px', color: '#ef4444' }}>
-                    ?????????????????????????????: {(error as Error).message}
+                    เกิดข้อผิดพลาดในการโหลดข้อมูล: {(error as Error).message}
                   </td>
                 </tr>
               ) : mainQueueUsers.length > 0 ? (
@@ -122,7 +122,7 @@ export function QueueSystem() {
               ) : (
                 <tr>
                   <td colSpan={6} style={{ textAlign: 'center', padding: '40px', color: '#64748b' }}>
-                    ???????????????????????
+                    ไม่มีข้อมูลผู้เล่นในคิว
                   </td>
                 </tr>
               )}
@@ -135,20 +135,20 @@ export function QueueSystem() {
         <div className="bg-white rounded-2xl shadow-md border-t-4 border-t-rose-500 border border-slate-200 overflow-visible mb-8 mt-6">
           <div style={{ padding: '16px 24px', borderBottom: '1px solid #e2e8f0', backgroundColor: '#fff1f2', display: 'flex', alignItems: 'center' }}>
             <h2 style={{ fontSize: '1.25rem', fontWeight: 600, color: '#e11d48', margin: 0 }}>
-              ????????? (Story Queue)
+              คิวสตอรี่ (Story Queue)
             </h2>
             <span style={{ marginLeft: '12px', padding: '4px 10px', backgroundColor: '#e11d48', color: 'white', borderRadius: '9999px', fontSize: '0.875rem', fontWeight: 600 }}>
-              {storyLockedUsers.length} ??
+              {storyLockedUsers.length} คน
             </span>
           </div>
           <div className="w-full overflow-x-auto pb-[120px] -mb-[120px]">
             <table className="w-full min-w-[900px] text-left border-collapse">
               <thead>
                 <tr>
-                  <th className="p-4 text-xs font-bold text-slate-500 uppercase tracking-wider border-b border-slate-200 bg-slate-50" style={{ width: '25%' }}>???????????</th>
-                  <th className="p-4 text-xs font-bold text-slate-500 uppercase tracking-wider border-b border-slate-200 bg-slate-50 text-center" style={{ width: '10%' }}>??????</th>
-                  <th className="p-4 text-xs font-bold text-slate-500 uppercase tracking-wider border-b border-slate-200 bg-slate-50" style={{ width: '25%' }}>????????????????</th>
-                <th className="p-4 text-xs font-bold text-slate-500 uppercase tracking-wider border-b border-slate-200 bg-slate-50" style={{ width: '15%' }}>????????</th>
+                  <th className="p-4 text-xs font-bold text-slate-500 uppercase tracking-wider border-b border-slate-200 bg-slate-50" style={{ width: '25%' }}>ชื่อผู้เล่น</th>
+                  <th className="p-4 text-xs font-bold text-slate-500 uppercase tracking-wider border-b border-slate-200 bg-slate-50 text-center" style={{ width: '10%' }}>สตอรี่</th>
+                  <th className="p-4 text-xs font-bold text-slate-500 uppercase tracking-wider border-b border-slate-200 bg-slate-50" style={{ width: '25%' }}>รายละเอียดสตอรี่</th>
+                  <th className="p-4 text-xs font-bold text-slate-500 uppercase tracking-wider border-b border-slate-200 bg-slate-50" style={{ width: '15%' }}>หมายเหตุ</th>
                 </tr>
               </thead>
               <tbody>
@@ -169,7 +169,6 @@ export function QueueSystem() {
     </div>
   );
 }
-
 
 
 
