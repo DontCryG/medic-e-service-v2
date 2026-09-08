@@ -147,7 +147,7 @@ export default function PositionSettings() {
                     <td className="p-3">
                       <input 
                         type="number"
-                        {...register('rank')}
+                        {...register('rank', { valueAsNumber: true })}
                         className={`w-full !p-2.5 rounded-md border ${errors.rank ? 'border-red-400 bg-red-50' : 'border-slate-300'} outline-none focus:border-[var(--primary)]`}
                       />
                     </td>
@@ -164,7 +164,7 @@ export default function PositionSettings() {
                         <span className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400">฿</span>
                         <input 
                           type="number" 
-                          {...register('ic_rate')}
+                          {...register('ic_rate', { valueAsNumber: true })}
                           className={`w-full !p-2.5 !pl-8 rounded-md border ${errors.ic_rate ? 'border-red-400 bg-red-50' : 'border-slate-300'} outline-none focus:border-[var(--primary)]`}
                         />
                       </div>
@@ -174,7 +174,7 @@ export default function PositionSettings() {
                         <span className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400">฿</span>
                         <input 
                           type="number" 
-                          {...register('oc_rate')}
+                          {...register('oc_rate', { valueAsNumber: true })}
                           className={`w-full !p-2.5 !pl-8 rounded-md border ${errors.oc_rate ? 'border-red-400 bg-red-50' : 'border-slate-300'} outline-none focus:border-[var(--primary)]`}
                         />
                       </div>
@@ -199,7 +199,7 @@ export default function PositionSettings() {
                         <td className="p-3">
                           <input 
                             type="number"
-                            {...register('rank')}
+                            {...register('rank', { valueAsNumber: true })}
                             className={`w-full !p-2.5 rounded-md border ${errors.rank ? 'border-red-400 bg-red-50' : 'border-slate-300'} outline-none focus:border-[var(--primary)]`}
                           />
                         </td>
@@ -215,7 +215,7 @@ export default function PositionSettings() {
                             <span className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400">฿</span>
                             <input 
                               type="number" 
-                              {...register('ic_rate')}
+                              {...register('ic_rate', { valueAsNumber: true })}
                               className={`w-full !p-2.5 !pl-8 rounded-md border ${errors.ic_rate ? 'border-red-400 bg-red-50' : 'border-slate-300'} outline-none focus:border-[var(--primary)]`}
                             />
                           </div>
@@ -225,7 +225,7 @@ export default function PositionSettings() {
                             <span className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400">฿</span>
                             <input 
                               type="number" 
-                              {...register('oc_rate')}
+                              {...register('oc_rate', { valueAsNumber: true })}
                               className={`w-full !p-2.5 !pl-8 rounded-md border ${errors.oc_rate ? 'border-red-400 bg-red-50' : 'border-slate-300'} outline-none focus:border-[var(--primary)]`}
                             />
                           </div>
