@@ -40,23 +40,14 @@ export function useAppRealtime() {
   const queryClient = useQueryClient();
 
   useEffect(() => {
-    // Use unique channel names to prevent remount conflicts in React Strict Mode
-    const suffix = Date.now().toString() + Math.random().toString().slice(2, 6);
-
-    // Listen to changes on duty_logs
-    const dutyLogsSubscription = supabase
-      .channel(`public:duty_logs_${suffix}`)
+    const channel = supabase
+      .channel('app_realtime_global')
       .on('postgres_changes', { event: '*', schema: 'public', table: 'duty_logs' }, () => {
         queryClient.invalidateQueries({ queryKey: dutyKeys.all });
         queryClient.invalidateQueries({ queryKey: ['queue_users'] });
       })
-      .subscribe((status) => { if (status === 'SUBSCRIBED') { queryClient.invalidateQueries(); } });
-
-    // Listen to changes on users (Personnel System)
-    const usersSubscription = supabase
-      .channel(`public:users_${suffix}`)
       .on('postgres_changes', { event: '*', schema: 'public', table: 'users' }, async (payload) => {
-        queryClient.invalidateQueries(); // Invalidate all queries globally for users
+        queryClient.invalidateQueries({ queryKey: ['users'] });
 
         // Check if the current user was updated
         const { user: currentUser } = useAuthStore.getState();
@@ -79,43 +70,20 @@ export function useAppRealtime() {
           }
         }
       })
-      .subscribe((status) => { if (status === 'SUBSCRIBED') { queryClient.invalidateQueries(); } });
-
-    // Listen to changes on positions
-    const positionsSubscription = supabase
-      .channel(`public:positions_${suffix}`)
       .on('postgres_changes', { event: '*', schema: 'public', table: 'positions' }, () => {
-        queryClient.invalidateQueries();
+        queryClient.invalidateQueries({ queryKey: ['positions'] });
       })
-      .subscribe((status) => { if (status === 'SUBSCRIBED') { queryClient.invalidateQueries(); } });
-
-    // Listen to changes on system_settings
-    const settingsSubscription = supabase
-      .channel(`public:system_settings_${suffix}`)
       .on('postgres_changes', { event: '*', schema: 'public', table: 'system_settings' }, () => {
         queryClient.invalidateQueries({ queryKey: ['system_settings'] });
         queryClient.invalidateQueries({ queryKey: ['queue_users'] });
       })
-      .subscribe((status) => { if (status === 'SUBSCRIBED') { queryClient.invalidateQueries(); } });
-
-    // Listen to manual broadcasts (force_sync and force_reload)
-    const globalBroadcastChannel = supabase.channel(`global_broadcast_channel`);
-    globalBroadcastChannel
-      .on('broadcast', { event: 'force_sync' }, () => {
-        queryClient.invalidateQueries();
-      })
       .on('broadcast', { event: 'force_reload' }, () => {
-        // Hard reload triggered by admin
         window.location.reload();
       })
       .subscribe();
 
     return () => {
-      supabase.removeChannel(dutyLogsSubscription);
-      supabase.removeChannel(usersSubscription);
-      supabase.removeChannel(positionsSubscription);
-      supabase.removeChannel(settingsSubscription);
-      supabase.removeChannel(globalBroadcastChannel);
+      supabase.removeChannel(channel);
     };
   }, [queryClient]);
 }

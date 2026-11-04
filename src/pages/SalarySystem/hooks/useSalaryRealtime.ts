@@ -38,7 +38,7 @@ export function useSalaryRealtime() {
       }, () => {
         queryClient.invalidateQueries({ queryKey: salaryKeys.all });
       })
-      .subscribe((status) => { if (status === 'SUBSCRIBED') { queryClient.invalidateQueries(); } });
+      .subscribe();
 
     return () => {
       supabase.removeChannel(channel);

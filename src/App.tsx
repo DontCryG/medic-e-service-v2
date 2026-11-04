@@ -6,9 +6,9 @@ import {
   Route, 
   Navigate 
 } from 'react-router-dom';
-import { QueryClient, QueryClientProvider, MutationCache } from '@tanstack/react-query';
+import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { useAuthStore } from './store/authStore';
-import { useAppRealtime, broadcastForceSync } from './hooks/useAppRealtime';
+import { useAppRealtime } from './hooks/useAppRealtime';
 import { setSentryUser, clearSentryUser } from './lib/sentry';
 import { supabase } from './lib/supabase';
 import GlobalError from './components/common/GlobalError';
@@ -46,15 +46,12 @@ const SystemSettings = lazyWithRetry(() => import('./pages/SystemSettings'));
 const queryClient = new QueryClient({
   defaultOptions: {
     queries: {
-      refetchOnWindowFocus: true,
-      staleTime: 0,
+      refetchOnWindowFocus: false,
+      staleTime: 30 * 1000,
+      gcTime: 5 * 60 * 1000,
+      retry: 1,
     },
   },
-  mutationCache: new MutationCache({
-    onSuccess: () => {
-      broadcastForceSync();
-    }
-  })
 });
 
 // Protected Route Wrapper

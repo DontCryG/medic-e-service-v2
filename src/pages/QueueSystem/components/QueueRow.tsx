@@ -124,8 +124,13 @@ export function QueueRow({ user, isStoryQueue = false }: QueueRowProps) {
   };
 
   // Auto-Tick Logic
+  const hasTriggeredLockRef = useRef(false);
   useEffect(() => {
-    if (!statusRecord?.story_target_time || statusRecord?.story_locked) return;
+    hasTriggeredLockRef.current = false;
+  }, [statusRecord?.story_target_time, statusRecord?.story_locked]);
+
+  useEffect(() => {
+    if (!statusRecord?.story_target_time || statusRecord?.story_locked || hasTriggeredLockRef.current) return;
 
     const checkTime = () => {
       const now = new Date();
@@ -142,6 +147,7 @@ export function QueueRow({ user, isStoryQueue = false }: QueueRowProps) {
       }
 
       if (now >= target) {
+        hasTriggeredLockRef.current = true;
         lockStory(user.discord_id);
       }
     };

@@ -1,6 +1,5 @@
-import { useQuery, useQueryClient } from '@tanstack/react-query';
+import { useQuery } from '@tanstack/react-query';
 import { supabase } from '@/lib/supabase';
-import { useEffect } from 'react';
 import { fetchAllRows } from '@/utils/supabasePagination';
 
 export const accountingKeys = {
@@ -9,25 +8,6 @@ export const accountingKeys = {
 };
 
 export function useFinanceLogs() {
-  const queryClient = useQueryClient();
-
-  useEffect(() => {
-    const channelName = `accounting_logs_changes_${Date.now()}_${Math.floor(Math.random() * 1000)}`;
-    const channel = supabase.channel(channelName)
-      .on(
-        'postgres_changes',
-        { event: '*', schema: 'public', table: 'accounting_logs' },
-        () => {
-          queryClient.invalidateQueries({ queryKey: accountingKeys.finance });
-        }
-      )
-      .subscribe();
-
-    return () => {
-      supabase.removeChannel(channel);
-    };
-  }, [queryClient]);
-
   return useQuery({
     queryKey: accountingKeys.finance,
     queryFn: async () => {
@@ -60,25 +40,6 @@ export function useFinanceLogs() {
 }
 
 export function useInventoryLogs() {
-  const queryClient = useQueryClient();
-
-  useEffect(() => {
-    const channelName = `inventory_logs_changes_${Date.now()}_${Math.floor(Math.random() * 1000)}`;
-    const channel = supabase.channel(channelName)
-      .on(
-        'postgres_changes',
-        { event: '*', schema: 'public', table: 'inventory_logs' },
-        () => {
-          queryClient.invalidateQueries({ queryKey: accountingKeys.inventory });
-        }
-      )
-      .subscribe();
-
-    return () => {
-      supabase.removeChannel(channel);
-    };
-  }, [queryClient]);
-
   return useQuery({
     queryKey: accountingKeys.inventory,
     queryFn: async () => {

@@ -18,7 +18,7 @@ export function useDutyRealtime() {
         // Invalidate all duty queries to trigger a refetch automatically
         queryClient.invalidateQueries({ queryKey: dutyKeys.all });
       })
-      .subscribe((status) => { if (status === 'SUBSCRIBED') { queryClient.invalidateQueries(); } });
+      .subscribe();
 
     return () => {
       supabase.removeChannel(subscription);
