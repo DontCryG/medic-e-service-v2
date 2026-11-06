@@ -73,10 +73,13 @@ export default function SpecialDutyModal({ onClose }: SpecialDutyModalProps) {
         typeName = `${dutyTypeValue} (+${Math.floor(totalMinutes / 60)} ชม. ${totalMinutes % 60} นาที)`;
       }
       
+      const clockInDate = new Date();
+      const clockOutDate = new Date(clockInDate.getTime() + totalMinutes * 60000);
+      
       const { error } = await supabase.from('duty_logs').insert([{
         discord_id: data.selectedUserId,
-        clock_in: now,
-        clock_out: now,
+        clock_in: clockInDate.toISOString(),
+        clock_out: clockOutDate.toISOString(),
         status: 'completed',
         total_break_minutes: 0,
         total_duty_minutes: totalMinutes,

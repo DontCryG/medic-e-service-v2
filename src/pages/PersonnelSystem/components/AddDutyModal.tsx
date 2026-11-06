@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { X } from 'lucide-react';
 import SmartDateTimePicker from '../../../components/common/SmartDateTimePicker';
 import { supabase } from '@/lib/supabase';
+import { useAuthStore } from '@/store/authStore';
 import toast from 'react-hot-toast';
 import { useQueryClient } from '@tanstack/react-query';
 import { useForm, Controller } from 'react-hook-form';
@@ -10,7 +11,8 @@ import { zodResolver } from '@hookform/resolvers/zod';
 
 const dutySchema = z.object({
   clock_in: z.date({ message: "กรุณาเลือกเวลาเข้างาน" }),
-  clock_out: z.date({ message: "กรุณาเลือกเวลาออกงาน" })
+  clock_out: z.date({ message: "กรุณาเลือกเวลาออกงาน" }),
+  duty_type: z.string().optional()
 }).refine(data => {
   if (!data.clock_in || !data.clock_out) return true;
   return data.clock_out > data.clock_in;
@@ -31,13 +33,15 @@ export default function AddDutyModal({
   onSuccess: () => void;
 }) {
   const queryClient = useQueryClient();
+  const { user: currentUser } = useAuthStore();
   const [isSaving, setIsSaving] = useState(false);
 
   const { control, handleSubmit, watch, formState: { errors } } = useForm<DutyFormValues>({
     resolver: zodResolver(dutySchema),
     defaultValues: {
       clock_in: undefined,
-      clock_out: undefined
+      clock_out: undefined,
+      duty_type: 'manual_add'
     }
   });
 
@@ -75,12 +79,15 @@ export default function AddDutyModal({
           total_duty_minutes: duration.hours * 60 + duration.minutes,
           clock_in: data.clock_in.toISOString(),
           clock_out: data.clock_out.toISOString(),
+          duty_type: data.duty_type || 'manual_add',
+          granted_by: currentUser?.discord_id || null
         });
 
       if (error) throw error;
       
       toast.success('เพิ่มเวรย้อนหลังสำเร็จ');
-      queryClient.invalidateQueries({ queryKey: ['duty_logs'] });
+      queryClient.invalidateQueries({ queryKey: ['duty'] });
+      queryClient.invalidateQueries({ queryKey: ['salary'] });
       onSuccess();
     } catch (error: any) {
       toast.error('เกิดข้อผิดพลาด: ' + error.message);
@@ -107,6 +114,27 @@ export default function AddDutyModal({
         </div>
 
         <form onSubmit={handleSubmit(onSubmit)}>
+          <div className="mb-5">
+            <label className="block font-semibold text-slate-700 mb-2">ประเภทเวร / หมายเหตุ</label>
+            <Controller
+              name="duty_type"
+              control={control}
+              render={({ field }) => (
+                <select
+                  value={field.value || 'manual_add'}
+                  onChange={field.onChange}
+                  className="w-full px-4 py-3 border border-slate-200 rounded-xl text-sm outline-none focus:border-[var(--primary)] bg-white font-medium"
+                >
+                  <option value="manual_add">เพิ่มเวรย้อนหลัง</option>
+                  <option value="mentor">พี่เลี้ยงหมอใหม่ (+1 ชม. + เงิน 500,000)</option>
+                  <option value="exam_doctor">สอบหมอใหม่ (+3 ชม.)</option>
+                  <option value="queue_manager_bonus">โบนัสรันคิว (+2 ชม.)</option>
+                  <option value="normal">เวรปกติ</option>
+                </select>
+              )}
+            />
+          </div>
+
           <div className="mb-5">
             <label className="block font-semibold text-slate-700 mb-2">เวลาเข้างาน</label>
             <Controller

@@ -37,9 +37,14 @@ export default function DutyLogEditModal({ user, startDate, endDate, onClose }: 
 
   const handleEditClick = (log: any) => {
     setEditingId(log.id);
+    const inTime = log.clock_in ? new Date(log.clock_in) : null;
+    let outTime = log.clock_out ? new Date(log.clock_out) : null;
+    if (inTime && outTime && outTime <= inTime && (log.total_duty_minutes || 0) > 0) {
+      outTime = new Date(inTime.getTime() + log.total_duty_minutes * 60000);
+    }
     setEditForm({
-      clock_in: log.clock_in ? new Date(log.clock_in) : null,
-      clock_out: log.clock_out ? new Date(log.clock_out) : null,
+      clock_in: inTime,
+      clock_out: outTime,
       total_break_minutes: Math.floor(log.total_break_minutes || 0),
       duty_type: log.duty_type || 'normal'
     });

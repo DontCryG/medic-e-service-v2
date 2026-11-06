@@ -15,7 +15,14 @@ interface EditDutyModalProps {
 export default function EditDutyModal({ log, onClose, onSuccess }: EditDutyModalProps) {
   const queryClient = useQueryClient();
   const [clockIn, setClockIn] = useState<Date | null>(log.clock_in ? new Date(log.clock_in) : null);
-  const [clockOut, setClockOut] = useState<Date | null>(log.clock_out ? new Date(log.clock_out) : null);
+  const [clockOut, setClockOut] = useState<Date | null>(() => {
+    const inTime = log.clock_in ? new Date(log.clock_in) : null;
+    let outTime = log.clock_out ? new Date(log.clock_out) : null;
+    if (inTime && outTime && outTime <= inTime && (log.total_duty_minutes || 0) > 0) {
+      return new Date(inTime.getTime() + log.total_duty_minutes * 60000);
+    }
+    return outTime;
+  });
   const [breakMinutes, setBreakMinutes] = useState<number>(Math.floor(log.total_break_minutes || 0));
   const [dutyType, setDutyType] = useState<string>(log.duty_type || '');
   const [isSaving, setIsSaving] = useState(false);
