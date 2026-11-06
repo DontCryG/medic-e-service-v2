@@ -118,16 +118,34 @@ export default function EditDutyModal({ log, onClose, onSuccess }: EditDutyModal
 
           <div>
             <label className="block text-sm font-semibold text-slate-700 mb-1.5">ประเภทเวร / ที่มาเวลาพิเศษ</label>
-            <input
-              type="text"
-              value={dutyType}
-              onChange={(e) => setDutyType(e.target.value)}
-              placeholder="เช่น exam_doctor, mentor, queue_manager_bonus หรือเวรพิเศษ"
-              className="w-full px-3 py-2 border border-slate-200 rounded-lg text-sm outline-none focus:border-purple-500"
-            />
-            <span className="text-xs text-slate-400 mt-1 block">
-              เวรพิเศษทั่วไป เช่น exam_doctor (สอบหมอใหม่), mentor (พี่เลี้ยง), queue_manager_bonus (โบนัสรันคิว)
-            </span>
+            <select
+              value={['normal', 'queue_manager_bonus', 'exam_doctor', 'mentor', 'manual_add', ''].includes(dutyType) ? (dutyType || 'normal') : 'custom'}
+              onChange={(e) => {
+                if (e.target.value === 'custom') {
+                  setDutyType('เวรพิเศษ');
+                } else {
+                  setDutyType(e.target.value);
+                }
+              }}
+              className="w-full px-3 py-2 border border-slate-200 rounded-lg text-sm outline-none focus:border-purple-500 bg-white mb-2"
+            >
+              <option value="normal">เวรปกติ</option>
+              <option value="queue_manager_bonus">โบนัสรันคิว (+2 ชม.)</option>
+              <option value="exam_doctor">สอบหมอใหม่ (+3 ชม.)</option>
+              <option value="mentor">พี่เลี้ยงหมอใหม่ (+1 ชม.)</option>
+              <option value="manual_add">เพิ่มเวรย้อนหลัง</option>
+              <option value="custom">อื่นๆ (ระบุเอง)</option>
+            </select>
+
+            {!['normal', 'queue_manager_bonus', 'exam_doctor', 'mentor', 'manual_add'].includes(dutyType) && (
+              <input
+                type="text"
+                value={dutyType}
+                onChange={(e) => setDutyType(e.target.value)}
+                placeholder="ระบุประเภทเวรหรือเหตุผล"
+                className="w-full px-3 py-2 border border-slate-200 rounded-lg text-sm outline-none focus:border-purple-500"
+              />
+            )}
           </div>
 
           <div className="flex gap-3 justify-end pt-4 border-t border-slate-100">

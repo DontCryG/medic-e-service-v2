@@ -58,14 +58,6 @@ export const getDutyBadgeInfo = (
       borderClass: 'border-cyan-200'
     };
   }
-  if (dutyType) {
-    return {
-      label: dutyType,
-      bgClass: 'bg-indigo-100',
-      textClass: 'text-indigo-700',
-      borderClass: 'border-indigo-200'
-    };
-  }
   if (grantedBy && grantedBy !== 'system') {
     return {
       label: 'เวรพิเศษ (โดย Admin)',
@@ -74,5 +66,14 @@ export const getDutyBadgeInfo = (
       borderClass: 'border-amber-200'
     };
   }
+  if (!dutyType || dutyType === 'normal') {
+    return null;
+  }
+  return {
+    label: dutyType,
+    bgClass: 'bg-indigo-100',
+    textClass: 'text-indigo-700',
+    borderClass: 'border-indigo-200'
+  };
   return null;
 };

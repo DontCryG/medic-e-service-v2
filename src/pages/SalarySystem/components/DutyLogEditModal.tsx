@@ -27,10 +27,12 @@ export default function DutyLogEditModal({ user, startDate, endDate, onClose }: 
     clock_in: Date | null;
     clock_out: Date | null;
     total_break_minutes: number;
+    duty_type: string;
   }>({
     clock_in: null,
     clock_out: null,
-    total_break_minutes: 0
+    total_break_minutes: 0,
+    duty_type: 'normal'
   });
 
   const handleEditClick = (log: any) => {
@@ -38,13 +40,14 @@ export default function DutyLogEditModal({ user, startDate, endDate, onClose }: 
     setEditForm({
       clock_in: log.clock_in ? new Date(log.clock_in) : null,
       clock_out: log.clock_out ? new Date(log.clock_out) : null,
-      total_break_minutes: Math.floor(log.total_break_minutes || 0)
+      total_break_minutes: Math.floor(log.total_break_minutes || 0),
+      duty_type: log.duty_type || 'normal'
     });
   };
 
   const handleCancelEdit = () => {
     setEditingId(null);
-    setEditForm({ clock_in: null, clock_out: null, total_break_minutes: 0 });
+    setEditForm({ clock_in: null, clock_out: null, total_break_minutes: 0, duty_type: 'normal' });
   };
 
   const handleSaveEdit = (logId: string) => {
@@ -71,7 +74,8 @@ export default function DutyLogEditModal({ user, startDate, endDate, onClose }: 
         clock_in: editForm.clock_in ? editForm.clock_in.toISOString() : null,
         clock_out: editForm.clock_out ? editForm.clock_out.toISOString() : null,
         total_break_minutes: parseInt(editForm.total_break_minutes as any) || 0,
-        total_duty_minutes: totalDutyMinutes
+        total_duty_minutes: totalDutyMinutes,
+        duty_type: editForm.duty_type || 'normal'
       }
     }, {
       onSuccess: () => {
@@ -162,13 +166,17 @@ export default function DutyLogEditModal({ user, startDate, endDate, onClose }: 
                             />
                           </td>
                           <td className="p-2 border-b border-slate-50 text-center">
-                            {badge ? (
-                              <span className={`inline-flex items-center px-2.5 py-1 rounded-full text-xs font-semibold border ${badge.bgClass} ${badge.textClass} ${badge.borderClass}`}>
-                                {badge.label}
-                              </span>
-                            ) : (
-                              <span className="text-xs text-slate-400">เวรปกติ</span>
-                            )}
+                            <select
+                              value={editForm.duty_type}
+                              onChange={(e) => setEditForm({...editForm, duty_type: e.target.value})}
+                              className="px-2 py-1.5 border border-slate-200 rounded-lg text-xs bg-white outline-none focus:border-purple-500 font-medium"
+                            >
+                              <option value="normal">เวรปกติ</option>
+                              <option value="queue_manager_bonus">โบนัสรันคิว (+2 ชม.)</option>
+                              <option value="exam_doctor">สอบหมอใหม่ (+3 ชม.)</option>
+                              <option value="mentor">พี่เลี้ยงหมอใหม่ (+1 ชม.)</option>
+                              <option value="manual_add">เพิ่มเวรย้อนหลัง</option>
+                            </select>
                           </td>
                           <td className="p-2 border-b border-slate-50 text-center">
                             <div className="flex gap-2 justify-center">
