@@ -1,27 +1,7 @@
-import { useEffect } from 'react';
-import { useQueryClient } from '@tanstack/react-query';
-import { supabase } from '@/lib/supabase';
-import { dutyKeys } from './useDutyQueries';
-
+/**
+ * Consolidated Hook: Duty Realtime
+ * Changes are now multiplexed via global `useAppRealtime` to conserve WebSocket connections.
+ */
 export function useDutyRealtime() {
-  const queryClient = useQueryClient();
-
-  useEffect(() => {
-    const suffix = Date.now().toString() + Math.random().toString().slice(2, 6);
-    const subscription = supabase
-      .channel(`live-duty-${suffix}`)
-      .on('postgres_changes', { 
-        event: '*', 
-        schema: 'public', 
-        table: 'duty_logs'
-      }, () => {
-        // Invalidate all duty queries to trigger a refetch automatically
-        queryClient.invalidateQueries({ queryKey: dutyKeys.all });
-      })
-      .subscribe();
-
-    return () => {
-      supabase.removeChannel(subscription);
-    };
-  }, [queryClient]);
+  // Handled globally by useAppRealtime
 }

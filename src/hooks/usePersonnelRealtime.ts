@@ -1,34 +1,7 @@
-import { useEffect } from 'react';
-import { useQueryClient } from '@tanstack/react-query';
-import { supabase } from '@/lib/supabase';
-
+/**
+ * Consolidated Hook: Personnel Realtime
+ * Changes are now multiplexed via global `useAppRealtime` to conserve WebSocket connections.
+ */
 export function usePersonnelRealtime() {
-  const queryClient = useQueryClient();
-
-  useEffect(() => {
-    const suffix = Date.now().toString() + Math.random().toString().slice(2, 6);
-    const channel = supabase
-      .channel(`personnel-system-changes-${suffix}`)
-      .on('postgres_changes', { 
-        event: '*', 
-        schema: 'public', 
-        table: 'users'
-      }, () => {
-        // Invalidate users query to trigger a refetch automatically
-        queryClient.invalidateQueries({ queryKey: ['users'] });
-      })
-      .on('postgres_changes', { 
-        event: '*', 
-        schema: 'public', 
-        table: 'positions'
-      }, () => {
-        // Invalidate positions query
-        queryClient.invalidateQueries({ queryKey: ['positions'] });
-      })
-      .subscribe();
-
-    return () => {
-      supabase.removeChannel(channel);
-    };
-  }, [queryClient]);
+  // Handled globally by useAppRealtime
 }

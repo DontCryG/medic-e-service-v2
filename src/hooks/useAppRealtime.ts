@@ -36,23 +36,32 @@ export const broadcastForceReload = () => {
   }
 };
 
+/**
+ * Enterprise Consolidated Realtime Manager
+ * Multiplexes all table changes onto a single global WebSocket channel,
+ * preventing connection exhaustion on Supabase Nano tier.
+ */
 export function useAppRealtime() {
   const queryClient = useQueryClient();
 
   useEffect(() => {
     const channel = supabase
       .channel('app_realtime_global')
+      // 1. Duty logs
       .on('postgres_changes', { event: '*', schema: 'public', table: 'duty_logs' }, () => {
         queryClient.invalidateQueries({ queryKey: dutyKeys.all });
         queryClient.invalidateQueries({ queryKey: ['queue_users'] });
+        queryClient.invalidateQueries({ queryKey: ['salary'] });
       })
+      // 2. Users profile & position updates
       .on('postgres_changes', { event: '*', schema: 'public', table: 'users' }, async (payload) => {
         queryClient.invalidateQueries({ queryKey: ['users'] });
+        queryClient.invalidateQueries({ queryKey: ['queue_users'] });
+        queryClient.invalidateQueries({ queryKey: ['salary'] });
 
-        // Check if the current user was updated
+        // Update authStore if the active user profile changed
         const { user: currentUser } = useAuthStore.getState();
         if (currentUser && payload.new && (payload.new as any).discord_id === currentUser.discord_id) {
-          // Fetch updated full profile
           const { data } = await supabase
             .from('users')
             .select('*, positions(*)')
@@ -70,13 +79,43 @@ export function useAppRealtime() {
           }
         }
       })
+      // 3. Positions (Ranks)
       .on('postgres_changes', { event: '*', schema: 'public', table: 'positions' }, () => {
         queryClient.invalidateQueries({ queryKey: ['positions'] });
+        queryClient.invalidateQueries({ queryKey: ['salary'] });
       })
+      // 4. System Settings (e.g. Volunteers)
       .on('postgres_changes', { event: '*', schema: 'public', table: 'system_settings' }, () => {
         queryClient.invalidateQueries({ queryKey: ['system_settings'] });
         queryClient.invalidateQueries({ queryKey: ['queue_users'] });
       })
+      // 5. Queue Status (Doctor queue positions)
+      .on('postgres_changes', { event: '*', schema: 'public', table: 'queue_status' }, () => {
+        queryClient.invalidateQueries({ queryKey: ['queue_users'] });
+      })
+      // 6. Story Logs
+      .on('postgres_changes', { event: '*', schema: 'public', table: 'story_logs' }, () => {
+        queryClient.invalidateQueries({ queryKey: ['queue_users'] });
+        queryClient.invalidateQueries({ queryKey: ['salary'] });
+      })
+      // 7. Queue Manager Logs
+      .on('postgres_changes', { event: '*', schema: 'public', table: 'queue_manager_logs' }, () => {
+        queryClient.invalidateQueries({ queryKey: ['queue_users'] });
+        queryClient.invalidateQueries({ queryKey: ['salary'] });
+      })
+      // 8. Leave Requests
+      .on('postgres_changes', { event: '*', schema: 'public', table: 'leave_requests' }, () => {
+        queryClient.invalidateQueries({ queryKey: ['leaves'] });
+        queryClient.invalidateQueries({ queryKey: ['salary'] });
+      })
+      // 9. Accounting & Inventory logs
+      .on('postgres_changes', { event: '*', schema: 'public', table: 'accounting_logs' }, () => {
+        queryClient.invalidateQueries({ queryKey: ['accounting', 'finance'] });
+      })
+      .on('postgres_changes', { event: '*', schema: 'public', table: 'inventory_logs' }, () => {
+        queryClient.invalidateQueries({ queryKey: ['accounting', 'inventory'] });
+      })
+      // 10. Admin broadcast reload
       .on('broadcast', { event: 'force_reload' }, () => {
         window.location.reload();
       })
