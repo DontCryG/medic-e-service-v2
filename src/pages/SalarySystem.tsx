@@ -1,6 +1,7 @@
 ﻿import { useState } from 'react';
 import { CalendarDays, Printer } from 'lucide-react';
 import SmartDatePicker from '../components/common/SmartDatePicker';
+import TableSkeleton from '../components/common/TableSkeleton';
 
 import SalarySummary from './SalarySystem/components/SalarySummary';
 import SalaryTable from './SalarySystem/components/SalaryTable';
@@ -102,8 +103,9 @@ export default function SalarySystem({ profile: _profile }: SalarySystemProps) {
           เกิดข้อผิดพลาดในการโหลดข้อมูล: {(error as Error).message}
         </div>
       ) : isLoading ? (
-        <div className="flex justify-center p-16">
-          <div className="spinner"></div>
+        <div className="bg-white p-8 rounded-3xl border border-slate-100 shadow-sm">
+          <div className="h-6 w-48 bg-slate-200/80 rounded-md mb-6 animate-pulse" />
+          <TableSkeleton rows={6} columns={6} />
         </div>
       ) : salaryData ? (
         <div id="salary-table-container">

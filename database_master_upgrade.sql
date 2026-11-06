@@ -149,8 +149,10 @@ ALTER TABLE inventory_logs DROP CONSTRAINT IF EXISTS chk_inventory_quantity;
 ALTER TABLE inventory_logs ADD CONSTRAINT chk_inventory_quantity CHECK (quantity >= 0);
 
 -- ----------------------------------------------------------
--- ส่วนที่ 4: อัปเดตข้อมูลโบนัสรันคิวในอดีต (ให้แสดงผลถูกต้องทันที)
+-- ส่วนที่ 4: ปรับปรุงข้อมูลประวัติเวรย้อนหลัง (Data Repair & Reconciliation)
 -- ----------------------------------------------------------
+
+-- 4.1 อัปเดตโบนัสรันคิว (+2 ชม. = 120 นาที) ในอดีตที่ระบบเคยบันทึกเป็น normal หรือ NULL
 UPDATE duty_logs
 SET duty_type = 'queue_manager_bonus', granted_by = 'system'
 WHERE (duty_type IS NULL OR duty_type = 'normal')
@@ -158,4 +160,33 @@ WHERE (duty_type IS NULL OR duty_type = 'normal')
   AND (total_break_minutes = 0 OR total_break_minutes IS NULL)
   AND status = 'completed';
 
--- เสร็จสิ้นการอัปเกรดฐานข้อมูล
+-- 4.2 อัปเดตประวัติพี่เลี้ยงหมอใหม่ (+1 ชม. = 60 นาที) ที่ Admin เคยบันทึกไว้
+UPDATE duty_logs
+SET duty_type = 'mentor'
+WHERE (duty_type IS NULL OR duty_type = 'normal')
+  AND total_duty_minutes = 60
+  AND (total_break_minutes = 0 OR total_break_minutes IS NULL)
+  AND granted_by IS NOT NULL 
+  AND granted_by != 'system'
+  AND status = 'completed';
+
+-- 4.3 อัปเดตประวัติสอบหมอใหม่ (+3 ชม. = 180 นาที) ที่ Admin เคยบันทึกไว้
+UPDATE duty_logs
+SET duty_type = 'exam_doctor'
+WHERE (duty_type IS NULL OR duty_type = 'normal')
+  AND total_duty_minutes = 180
+  AND (total_break_minutes = 0 OR total_break_minutes IS NULL)
+  AND granted_by IS NOT NULL 
+  AND granted_by != 'system'
+  AND status = 'completed';
+
+-- 4.4 คำสั่งตรวจสอบประวัติเวรพิเศษ (รันแยกเพื่อดูรายการได้):
+-- SELECT id, discord_id, clock_in, clock_out, total_duty_minutes, duty_type, granted_by 
+-- FROM duty_logs 
+-- WHERE duty_type IN ('queue_manager_bonus', 'mentor', 'exam_doctor', 'manual_add')
+--    OR (granted_by IS NOT NULL AND granted_by != 'system')
+-- ORDER BY clock_in DESC LIMIT 50;
+
+-- ==========================================================
+-- เสร็จสิ้นการอัปเกรดฐานข้อมูลระดับ Enterprise
+-- ==========================================================

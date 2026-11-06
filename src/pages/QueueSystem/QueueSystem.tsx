@@ -1,5 +1,7 @@
 import { useState, useRef } from 'react';
-import { History, RefreshCw, UserPlus } from 'lucide-react';
+import { History, UserPlus, Activity } from 'lucide-react';
+import TableSkeleton from '@/components/common/TableSkeleton';
+import EmptyState from '@/components/common/EmptyState';
 import { useAuthStore } from '@/store/authStore';
 import { useQueue } from './hooks/useQueue';
 import { useQueueMutations } from './hooks/useQueueMutations';
@@ -37,46 +39,28 @@ export function QueueSystem() {
           <h1 className="text-2xl font-bold text-slate-800 m-0 flex items-center gap-2">ระบบจัดการคิว (Queue System)</h1>
           <p className="text-sm text-slate-500 m-0 mt-1">
             แสดงสถานะหมอที่กำลังเข้าเวรปัจจุบัน 
-            <span style={{ marginLeft: '8px', color: realtimeConnected ? '#10b981' : '#ef4444' }}>
-              ● {realtimeConnected ? 'เชื่อมต่อแล้ว (Realtime)' : 'ขาดการเชื่อมต่อ (Offline)'}
+            <span className={`ml-2 font-medium ${realtimeConnected ? 'text-emerald-600' : 'text-rose-500'}`}>
+              ● {realtimeConnected ? 'ระบบเชื่อมต่อสด (Realtime)' : 'ขาดการเชื่อมต่อ (Offline)'}
             </span>
           </p>
         </div>
         <div className="flex flex-wrap gap-4 w-full md:w-auto">
-          <div style={{ display: 'flex', gap: '0.5rem' }}>
+          <div className="flex items-center gap-2">
             <input 
               type="text" 
-              placeholder="ชื่อหมออาสา" 
+              placeholder="ระบุชื่อแพทย์อาสา..." 
               value={volunteerName}
               onChange={(e) => setVolunteerName(e.target.value)}
               onKeyDown={(e) => e.key === 'Enter' && handleAddVolunteer()}
-              style={{
-                padding: '0.5rem 1rem',
-                borderRadius: '8px',
-                border: '1px solid #cbd5e1',
-                outline: 'none',
-                width: '180px'
-              }}
+              className="px-4 py-2 text-sm bg-white border border-slate-200 rounded-xl outline-none focus:border-purple-500 focus:ring-2 focus:ring-purple-500/10 w-44 transition-all placeholder:text-slate-400"
             />
             <button 
               onClick={(e) => { e.currentTarget.disabled = true; handleAddVolunteer(); }}
               disabled={!volunteerName.trim() || isProcessing}
-              style={{
-                display: 'flex',
-                alignItems: 'center',
-                gap: '0.5rem',
-                padding: '0.5rem 1rem',
-                backgroundColor: '#10b981',
-                color: 'white',
-                border: 'none',
-                borderRadius: '8px',
-                cursor: volunteerName.trim() ? 'pointer' : 'not-allowed',
-                opacity: volunteerName.trim() ? 1 : 0.6,
-                fontWeight: 500
-              }}
+              className="flex items-center gap-1.5 px-4 py-2 bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl text-sm font-semibold transition-all shadow-sm hover:shadow active:scale-95 disabled:opacity-50 disabled:cursor-not-allowed border-none cursor-pointer"
             >
-              <UserPlus size={18} />
-              เพิ่มอาสา
+              <UserPlus size={16} />
+              เพิ่มแพทย์อาสา
             </button>
           </div>
           <button className="flex flex-1 md:flex-none justify-center items-center gap-2 px-4 py-2.5 bg-white border border-slate-200 rounded-xl text-sm font-semibold text-slate-700 cursor-pointer transition-all hover:bg-slate-50 hover:-translate-y-[1px] shadow-sm hover:shadow-md" onClick={() => setIsHistoryOpen(true)}>
@@ -91,28 +75,25 @@ export function QueueSystem() {
           <table className="w-full min-w-[900px] text-left border-collapse">
             <thead>
               <tr>
-                <th className="p-4 text-xs font-bold text-slate-500 uppercase tracking-wider border-b border-slate-200 bg-slate-50" style={{ width: '25%' }}>รายชื่อ</th>
-                <th className="p-4 text-xs font-bold text-slate-500 uppercase tracking-wider border-b border-slate-200 bg-slate-50 text-center" style={{ width: '10%' }}>ไม่สะดวก</th>
-                <th className="p-4 text-xs font-bold text-slate-500 uppercase tracking-wider border-b border-slate-200 bg-slate-50 text-center" style={{ width: '10%' }}>คิว</th>
-                <th className="p-4 text-xs font-bold text-slate-500 uppercase tracking-wider border-b border-slate-200 bg-slate-50 text-center" style={{ width: '10%' }}>หมอรันคิว</th>
-                <th className="p-4 text-xs font-bold text-slate-500 uppercase tracking-wider border-b border-slate-200 bg-slate-50 text-center" style={{ width: '10%' }}>สตอรี่</th>
-                <th className="p-4 text-xs font-bold text-slate-500 uppercase tracking-wider border-b border-slate-200 bg-slate-50" style={{ width: '25%' }}>รายละเอียดสตอรี่</th>
-                <th className="p-4 text-xs font-bold text-slate-500 uppercase tracking-wider border-b border-slate-200 bg-slate-50" style={{ width: '15%' }}>หมายเหตุ</th>
+                <th className="p-4 text-xs font-bold text-slate-500 uppercase tracking-wider border-b border-slate-200 bg-slate-50 w-1/4">รายชื่อแพทย์</th>
+                <th className="p-4 text-xs font-bold text-slate-500 uppercase tracking-wider border-b border-slate-200 bg-slate-50 text-center w-[10%]">ไม่สะดวก</th>
+                <th className="p-4 text-xs font-bold text-slate-500 uppercase tracking-wider border-b border-slate-200 bg-slate-50 text-center w-[10%]">พร้อมรับคิว</th>
+                <th className="p-4 text-xs font-bold text-slate-500 uppercase tracking-wider border-b border-slate-200 bg-slate-50 text-center w-[10%]">ผู้จัดการคิว</th>
+                <th className="p-4 text-xs font-bold text-slate-500 uppercase tracking-wider border-b border-slate-200 bg-slate-50 text-center w-[10%]">เคสสตอรี่</th>
+                <th className="p-4 text-xs font-bold text-slate-500 uppercase tracking-wider border-b border-slate-200 bg-slate-50 w-1/4">รายละเอียดสตอรี่</th>
+                <th className="p-4 text-xs font-bold text-slate-500 uppercase tracking-wider border-b border-slate-200 bg-slate-50 w-[15%]">หมายเหตุ</th>
               </tr>
             </thead>
             <tbody>
               {isLoading ? (
                 <tr>
-                  <td colSpan={6} style={{ textAlign: 'center', padding: '40px', color: '#64748b' }}>
-                    <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '12px' }}>
-                      <RefreshCw className="animate-spin" />
-                      <span>กำลังโหลดข้อมูลบุคลากร...</span>
-                    </div>
+                  <td colSpan={7} className="p-6">
+                    <TableSkeleton rows={4} columns={6} />
                   </td>
                 </tr>
               ) : error ? (
                 <tr>
-                  <td colSpan={6} style={{ textAlign: 'center', padding: '40px', color: '#ef4444' }}>
+                  <td colSpan={7} className="p-8 text-center text-rose-500 font-medium">
                     เกิดข้อผิดพลาดในการโหลดข้อมูล: {(error as Error).message}
                   </td>
                 </tr>
@@ -122,8 +103,11 @@ export function QueueSystem() {
                 ))
               ) : (
                 <tr>
-                  <td colSpan={6} style={{ textAlign: 'center', padding: '40px', color: '#64748b' }}>
-                    ไม่มีข้อมูลผู้เล่นในคิว
+                  <td colSpan={7} className="p-4">
+                    <EmptyState
+                      title="ไม่มีบุคลากรในคิวปฏิบัติการ"
+                      description="รายชื่อแพทย์ที่เข้าเวรจะปรากฏที่นี่โดยอัตโนมัติ"
+                    />
                   </td>
                 </tr>
               )}
@@ -134,22 +118,25 @@ export function QueueSystem() {
 
       {storyLockedUsers.length > 0 && (
         <div className="bg-white rounded-2xl shadow-md border-t-4 border-t-rose-500 border border-slate-200 overflow-visible mb-8 mt-6">
-          <div style={{ padding: '16px 24px', borderBottom: '1px solid #e2e8f0', backgroundColor: '#fff1f2', display: 'flex', alignItems: 'center' }}>
-            <h2 style={{ fontSize: '1.25rem', fontWeight: 600, color: '#e11d48', margin: 0 }}>
-              คิวสตอรี่ (Story Queue)
-            </h2>
-            <span style={{ marginLeft: '12px', padding: '4px 10px', backgroundColor: '#e11d48', color: 'white', borderRadius: '9999px', fontSize: '0.875rem', fontWeight: 600 }}>
-              {storyLockedUsers.length} คน
-            </span>
+          <div className="px-6 py-4 border-b border-rose-100 bg-rose-50/70 flex items-center justify-between">
+            <div className="flex items-center gap-3">
+              <h2 className="text-lg font-bold text-rose-600 m-0 flex items-center gap-2">
+                <Activity size={20} />
+                คิวสตอรี่ (Story Queue)
+              </h2>
+              <span className="px-2.5 py-0.5 bg-rose-600 text-white rounded-full text-xs font-bold shadow-sm">
+                {storyLockedUsers.length} คน
+              </span>
+            </div>
           </div>
           <div className="w-full overflow-x-auto pb-[120px] -mb-[120px]">
             <table className="w-full min-w-[900px] text-left border-collapse">
               <thead>
                 <tr>
-                  <th className="p-4 text-xs font-bold text-slate-500 uppercase tracking-wider border-b border-slate-200 bg-slate-50" style={{ width: '25%' }}>ชื่อผู้เล่น</th>
-                  <th className="p-4 text-xs font-bold text-slate-500 uppercase tracking-wider border-b border-slate-200 bg-slate-50 text-center" style={{ width: '10%' }}>สตอรี่</th>
-                  <th className="p-4 text-xs font-bold text-slate-500 uppercase tracking-wider border-b border-slate-200 bg-slate-50" style={{ width: '25%' }}>รายละเอียดสตอรี่</th>
-                  <th className="p-4 text-xs font-bold text-slate-500 uppercase tracking-wider border-b border-slate-200 bg-slate-50" style={{ width: '15%' }}>หมายเหตุ</th>
+                  <th className="p-4 text-xs font-bold text-slate-500 uppercase tracking-wider border-b border-slate-200 bg-slate-50 w-1/4">ชื่อแพทย์</th>
+                  <th className="p-4 text-xs font-bold text-slate-500 uppercase tracking-wider border-b border-slate-200 bg-slate-50 text-center w-[10%]">สถานะสตอรี่</th>
+                  <th className="p-4 text-xs font-bold text-slate-500 uppercase tracking-wider border-b border-slate-200 bg-slate-50 w-1/4">รายละเอียดสตอรี่</th>
+                  <th className="p-4 text-xs font-bold text-slate-500 uppercase tracking-wider border-b border-slate-200 bg-slate-50 w-[15%]">หมายเหตุ</th>
                 </tr>
               </thead>
               <tbody>

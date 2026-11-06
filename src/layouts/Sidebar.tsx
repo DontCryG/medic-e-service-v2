@@ -12,7 +12,7 @@ import {
 } from 'lucide-react';
 import { useAuthStore } from '../store/authStore';
 import { isAdmin } from '../utils/permissions';
-import Swal from 'sweetalert2';
+import { showConfirmDialog } from '@/utils/alert';
 import { supabase } from '../lib/supabase';
 
 interface SidebarProps {
@@ -25,26 +25,18 @@ interface SidebarProps {
 export default function Sidebar({ isMobileMenuOpen, setIsMobileMenuOpen, isCollapsed }: SidebarProps) {
   const { user, logout } = useAuthStore();
 
-  const handleLogout = () => {
-    Swal.fire({
+  const handleLogout = async () => {
+    const result = await showConfirmDialog({
       title: 'ออกจากระบบ?',
       text: 'คุณต้องการออกจากระบบใช่หรือไม่?',
       icon: 'question',
-      showCancelButton: true,
       confirmButtonText: 'ออกจากระบบ',
-      cancelButtonText: 'ยกเลิก',
-      confirmButtonColor: '#ef4444',
-      customClass: {
-        popup: 'rounded-3xl',
-        confirmButton: 'rounded-xl',
-        cancelButton: 'rounded-xl'
-      }
-    }).then(async (result) => {
-      if (result.isConfirmed) {
-        await supabase.auth.signOut();
-        logout();
-      }
+      confirmButtonColor: '#ef4444'
     });
+    if (result.isConfirmed) {
+      await supabase.auth.signOut();
+      logout();
+    }
   };
 
   const navLinkClass = ({ isActive }: { isActive: boolean }) => 

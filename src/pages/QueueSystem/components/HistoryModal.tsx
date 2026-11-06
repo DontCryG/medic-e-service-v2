@@ -5,7 +5,7 @@ import DatePicker from 'react-datepicker';
 import "react-datepicker/dist/react-datepicker.css";
 import SmartDatePicker from '../../../components/common/SmartDatePicker';
 import SmartSelect from '../../../components/common/SmartSelect';
-import Swal from 'sweetalert2';
+import { showConfirmDialog, showErrorAlert } from '@/utils/alert';
 
 interface HistoryModalProps {
   isOpen: boolean;
@@ -196,7 +196,13 @@ export function HistoryModal({ isOpen, onClose, isAdmin = false }: HistoryModalP
   const cancelEdit = () => { setEditingId(null); setIsAdding(false); setEditForm({}); };
 
   const handleDeleteStory = async (id: string) => {
-    const res = await Swal.fire({ title: 'ยืนยันการลบ?', text: 'คุณต้องการลบประวัติสตอรี่นี้ใช่หรือไม่?', icon: 'warning', showCancelButton: true, confirmButtonColor: '#ef4444', confirmButtonText: 'ลบ', cancelButtonText: 'ยกเลิก' });
+    const res = await showConfirmDialog({ 
+      title: 'ยืนยันการลบ?', 
+      text: 'คุณต้องการลบประวัติสตอรี่นี้ใช่หรือไม่? การกระทำนี้ไม่สามารถกู้คืนได้', 
+      icon: 'warning', 
+      confirmButtonColor: '#ef4444', 
+      confirmButtonText: 'ลบทิ้ง' 
+    });
     if (res.isConfirmed) {
       await supabase.from('story_logs').delete().eq('id', id);
       fetchLogs();
@@ -205,7 +211,7 @@ export function HistoryModal({ isOpen, onClose, isAdmin = false }: HistoryModalP
 
   const handleSaveStory = async () => {
     if (!editForm.discord_id || !editForm.start_time) {
-      Swal.fire('ข้อมูลไม่ครบ', 'กรุณาเลือกชื่อหมอและเวลา', 'error'); return;
+      showErrorAlert('ข้อมูลไม่ครบ', 'กรุณาเลือกชื่อหมอและเวลา'); return;
     }
     const payload = { discord_id: editForm.discord_id, gang_1: editForm.gang_1 || null, gang_2: editForm.gang_2 || null, story_type: editForm.story_type, start_time: new Date(editForm.start_time).toISOString() };
     if (isAdding) { await supabase.from('story_logs').insert([payload]); } 

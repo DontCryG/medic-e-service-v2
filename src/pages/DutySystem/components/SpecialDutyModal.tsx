@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { supabase } from '@/lib/supabase';
 import { useAuthStore } from '@/store/authStore';
-import Swal from 'sweetalert2';
+import { showSuccessAlert, showErrorAlert } from '@/utils/alert';
 import { X, Award } from 'lucide-react';
 import SmartSelect from '../../../components/common/SmartSelect';
 import { useForm, Controller } from 'react-hook-form';
@@ -98,13 +98,13 @@ export default function SpecialDutyModal({ onClose }: SpecialDutyModalProps) {
         link: '/duty'
       });
       
-      Swal.fire('สำเร็จ', `มอบหมายเวร ${typeName} เรียบร้อยแล้ว`, 'success');
+      await showSuccessAlert('สำเร็จ', `มอบหมายเวร ${typeName} เรียบร้อยแล้ว`);
       queryClient.invalidateQueries({ queryKey: ['duty'] });
       queryClient.invalidateQueries({ queryKey: ['salary'] });
       onClose();
     } catch (error: any) {
       console.error(error);
-      Swal.fire('เกิดข้อผิดพลาด', error.message, 'error');
+      showErrorAlert('เกิดข้อผิดพลาด', error.message);
     } finally {
       setIsSubmitting(false);
     }

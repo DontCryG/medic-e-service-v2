@@ -10,7 +10,7 @@ import { useQuery } from '@tanstack/react-query';
 import { useCurrentSession, useLiveUsers, useDutyHistory } from './DutySystem/hooks/useDutyQueries';
 import { useClockIn, useToggleBreak, useClockOut, useAdminToggleBreak, useAdminClockOut } from './DutySystem/hooks/useDutyMutations';
 import { useDutyRealtime } from './DutySystem/hooks/useDutyRealtime';
-import Swal from 'sweetalert2';
+import { enterpriseSwal, showConfirmDialog } from '@/utils/alert';
 
 
 import SpecialDutyModal from './DutySystem/components/SpecialDutyModal';
@@ -116,21 +116,19 @@ export default function DutySystem({ profile }: DutySystemProps) {
         
       if (queueData) {
         if (queueData.status === 'story') {
-          Swal.fire({
+          enterpriseSwal.fire({
             title: 'ไม่สามารถออกเวรได้',
             text: 'คุณกำลังติดเคสสตอรี่อยู่ กรุณาจบเคสสตอรี่หรือยกเลิกก่อนกดออกเวรครับ',
-            icon: 'warning',
-            confirmButtonColor: '#ef4444'
+            icon: 'warning'
           });
           processingRef.current = false;
           return;
         }
         if (queueData.status === 'manager') {
-          Swal.fire({
+          enterpriseSwal.fire({
             title: 'ไม่สามารถออกเวรได้',
             text: 'คุณกำลังเข้าเวรในคิว หรือกำลังจัดการคิวอยู่ กรุณาออกจากการจัดการคิว หรือปิดสตอรี่ก่อนออกเวรครับ',
-            icon: 'warning',
-            confirmButtonColor: '#ef4444'
+            icon: 'warning'
           });
           processingRef.current = false;
           return;
@@ -146,13 +144,11 @@ export default function DutySystem({ profile }: DutySystemProps) {
   };
 
   const handleAdminToggleBreak = async (session: any) => {
-    const result = await Swal.fire({
+    const result = await showConfirmDialog({
       title: 'ยืนยันการเปลี่ยนสถานะพักเบรก',
       text: `ต้องการเปลี่ยนสถานะการพักเบรกของ ${session.users?.ic_name} ใช่หรือไม่?`,
       icon: 'question',
-      showCancelButton: true,
-      confirmButtonText: 'เปลี่ยนสถานะพักเบรก',
-      cancelButtonText: 'ยกเลิก'
+      confirmButtonText: 'เปลี่ยนสถานะพักเบรก'
     });
     if (result.isConfirmed) adminToggleBreakMutation.mutate(session);
   };
@@ -167,11 +163,11 @@ export default function DutySystem({ profile }: DutySystemProps) {
         
       if (queueData) {
         if (queueData.status === 'story') {
-          Swal.fire({ title: 'ไม่สามารถออกเวรได้', text: 'แพทย์ท่านนี้กำลังอยู่ในเคสสตอรี่ โปรดแจ้งให้จบเคส หรือบังคับปลดจากหน้าจัดการคิวก่อน', icon: 'warning' });
+          enterpriseSwal.fire({ title: 'ไม่สามารถออกเวรได้', text: 'แพทย์ท่านนี้กำลังอยู่ในเคสสตอรี่ โปรดแจ้งให้จบเคส หรือบังคับปลดจากหน้าจัดการคิวก่อน', icon: 'warning' });
           return;
         }
         if (queueData.status === 'manager') {
-          Swal.fire({ title: 'ไม่สามารถออกเวรได้', text: 'แพทย์ท่านนี้กำลังทำหน้าที่ "หมอรันคิว" อยู่ โปรดบังคับปลดจากหน้าจัดการคิวก่อน', icon: 'warning' });
+          enterpriseSwal.fire({ title: 'ไม่สามารถออกเวรได้', text: 'แพทย์ท่านนี้กำลังทำหน้าที่ "หมอรันคิว" อยู่ โปรดบังคับปลดจากหน้าจัดการคิวก่อน', icon: 'warning' });
           return;
         }
       }
@@ -179,13 +175,11 @@ export default function DutySystem({ profile }: DutySystemProps) {
       console.error('Error checking queue status for admin:', err);
     }
 
-    const result = await Swal.fire({
+    const result = await showConfirmDialog({
       title: 'ยืนยันการบังคับออกเวร',
       text: `ต้องการให้ ${session.users?.ic_name} ออกเวรใช่หรือไม่?`,
       icon: 'question',
-      showCancelButton: true,
       confirmButtonText: 'บังคับออกเวร',
-      cancelButtonText: 'ยกเลิก',
       confirmButtonColor: '#ef4444'
     });
     if (result.isConfirmed) adminClockOutMutation.mutate(session);

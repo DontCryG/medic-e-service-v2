@@ -1,5 +1,5 @@
 import { useState, useRef } from 'react';
-import Swal from 'sweetalert2';
+import { showConfirmDialog, showErrorAlert } from '@/utils/alert';
 import { Plus, Edit2, Trash2, AlertTriangle, Save, X } from 'lucide-react';
 import { usePositions, useAddPosition, useUpdatePosition, useDeletePosition } from '../../../hooks/usePositions';
 import type { Position } from '../../../hooks/usePositions';
@@ -71,7 +71,7 @@ export default function PositionSettings() {
       setEditingId(null);
     } catch (err: any) {
       console.error('Failed to save position:', err);
-      Swal.fire({ icon: 'error', title: 'ผิดพลาด', text: err.message });
+      showErrorAlert('ผิดพลาด', err.message);
     } finally {
       processingRef.current = false;
     }
@@ -80,14 +80,12 @@ export default function PositionSettings() {
   const handleDelete = async (id: string) => { 
     if (deleteMutation.isPending || processingRef.current) return;
     processingRef.current = true;
-    const result = await Swal.fire({
+    const result = await showConfirmDialog({
       title: 'ยืนยันการลบตำแหน่งนี้?',
+      text: 'คุณต้องการลบตำแหน่งนี้ใช่หรือไม่? ข้อมูลนี้ไม่สามารถกู้คืนได้',
       icon: 'warning',
-      showCancelButton: true,
       confirmButtonColor: '#ef4444',
-      cancelButtonColor: '#94a3b8',
-      confirmButtonText: 'ยืนยัน',
-      cancelButtonText: 'ยกเลิก'
+      confirmButtonText: 'ยืนยันการลบ'
     });
 
     if (result.isConfirmed) {
@@ -95,7 +93,7 @@ export default function PositionSettings() {
         await deleteMutation.mutateAsync(id);
       } catch (err: any) {
         console.error('Failed to delete position:', err);
-        Swal.fire({ icon: 'error', title: 'ผิดพลาด', text: err.message });
+        showErrorAlert('ผิดพลาด', err.message);
       } finally {
         processingRef.current = false;
       }

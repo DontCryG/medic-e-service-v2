@@ -1,7 +1,8 @@
 import { useRef } from 'react';
 import { Check, X, Clock, Calendar, FileText, Trash2 } from 'lucide-react';
 import { useUpdateLeaveStatus, useDeleteLeave } from '../hooks/useLeaveMutations';
-import Swal from 'sweetalert2';
+import { showConfirmDialog } from '@/utils/alert';
+import EmptyState from '@/components/common/EmptyState';
 import { getInitial } from '../../PersonnelSystem/utils/personnelUtils';
 
 interface LeaveListProps {
@@ -25,13 +26,11 @@ export default function LeaveList({ leaves, isAdmin }: LeaveListProps) {
   const handleDeleteLeave = async (id: string) => {
     if (processingRef.current) return;
     processingRef.current = true;
-    const result = await Swal.fire({
+    const result = await showConfirmDialog({
       title: 'ยืนยันการลบคำขอ?',
-      text: 'คุณต้องการลบคำขอลานี้ใช่หรือไม่?',
+      text: 'คุณต้องการลบคำขอลานี้ใช่หรือไม่? การกระทำนี้ไม่สามารถกู้คืนได้',
       icon: 'warning',
-      showCancelButton: true,
-      confirmButtonText: 'ยืนยัน',
-      cancelButtonText: 'ยกเลิก',
+      confirmButtonText: 'ยืนยันการลบ',
       confirmButtonColor: '#ef4444'
     });
     
@@ -74,9 +73,10 @@ export default function LeaveList({ leaves, isAdmin }: LeaveListProps) {
 
   if (leaves.length === 0) {
     return (
-      <div className="text-center py-12 text-slate-400 bg-slate-50 rounded-2xl border border-slate-200 border-dashed">
-        ไม่พบข้อมูลการลา
-      </div>
+      <EmptyState
+        title="ไม่พบข้อมูลการลา"
+        description="ไม่มีรายการคำขอลาในช่วงสถานะหรือเงื่อนไขที่เลือก"
+      />
     );
   }
 
@@ -88,9 +88,9 @@ export default function LeaveList({ leaves, isAdmin }: LeaveListProps) {
             
             {isAdmin ? (
               <div className="flex items-center gap-3">
-                <div className="w-11 h-11 rounded-full bg-[var(--primary-light)] text-[var(--primary)] flex items-center justify-center font-bold text-[0.95rem] overflow-hidden flex-shrink-0" style={{ padding: leave.users?.avatar_url ? 0 : undefined }}>
+                <div className="w-11 h-11 rounded-full bg-[var(--primary-light)] text-[var(--primary)] flex items-center justify-center font-bold text-[0.95rem] overflow-hidden flex-shrink-0">
                   {leave.users?.avatar_url ? (
-                    <img src={leave.users.avatar_url} alt="Avatar" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+                    <img src={leave.users.avatar_url} alt="Avatar" className="w-full h-full object-cover" />
                   ) : (
                     getInitial(leave.users?.ic_name || '')
                   )}

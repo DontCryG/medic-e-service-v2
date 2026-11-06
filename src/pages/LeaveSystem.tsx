@@ -6,6 +6,7 @@ import { useMyLeaves, useAllLeaves } from './LeaveSystem/hooks/useLeaveQueries';
 import { useLeaveRealtime } from './LeaveSystem/hooks/useLeaveRealtime';
 import LeaveList from './LeaveSystem/components/LeaveList';
 import LeaveRequestModal from './LeaveSystem/components/LeaveRequestModal';
+import TableSkeleton from '@/components/common/TableSkeleton';
 
 export interface LeaveSystemProps {
   profile: any;
@@ -118,8 +119,10 @@ export default function LeaveSystem({ profile }: LeaveSystemProps) {
                 </div>
               </div>
               {loadingMyLeaves ? (
-              <div className="text-center py-12 text-slate-400 font-medium">กำลังโหลดข้อม้ล...</div>
-            ) : (
+                <div className="py-4">
+                  <TableSkeleton columns={4} rows={3} />
+                </div>
+              ) : (
               <LeaveList leaves={myLeaves} isAdmin={false} />
             )}
           </div>
@@ -168,7 +171,9 @@ export default function LeaveSystem({ profile }: LeaveSystemProps) {
             </div>
 
             {loadingAllLeaves ? (
-              <div className="text-center py-12 text-slate-400 font-medium">กำลังโหลดข้อม้ล...</div>
+              <div className="py-4">
+                <TableSkeleton columns={5} rows={4} />
+              </div>
             ) : (
               <LeaveList leaves={filteredAllLeaves} isAdmin={true} />
             )}

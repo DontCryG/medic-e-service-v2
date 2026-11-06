@@ -4,7 +4,7 @@ import type { QueueUser, QueueStatusType } from '../types';
 import { useQueueMutations } from '../hooks/useQueueMutations';
 import SmartTimePicker from '../../../components/common/SmartTimePicker';
 import SmartSelect from '../../../components/common/SmartSelect';
-import Swal from 'sweetalert2';
+import { enterpriseSwal } from '@/utils/alert';
 import { useGangs, useFamilies } from '../../SystemSettings/hooks/useGangsFamilies';
 
 interface QueueRowProps {
@@ -75,7 +75,7 @@ export function QueueRow({ user, isStoryQueue = false }: QueueRowProps) {
         }
       } catch (err: any) {
         setLocalStatus(statusRecord?.status || null);
-        Swal.fire({ icon: 'error', title: 'ผิดพลาด', text: "Error: " + err.message });
+        enterpriseSwal.fire({ icon: 'error', title: 'ผิดพลาด', text: "Error: " + err.message });
       } finally {
         setIsProcessing(false); processingRef.current = false;
       }
@@ -96,7 +96,7 @@ export function QueueRow({ user, isStoryQueue = false }: QueueRowProps) {
       }
     } catch (err: any) {
       setLocalStatus(currentStatus);
-      Swal.fire({ icon: 'error', title: 'ผิดพลาด', text: "Error: " + err.message });
+      enterpriseSwal.fire({ icon: 'error', title: 'ผิดพลาด', text: "Error: " + err.message });
     } finally {
       setIsProcessing(false); processingRef.current = false;
     }
@@ -217,20 +217,8 @@ export function QueueRow({ user, isStoryQueue = false }: QueueRowProps) {
                 }
               }}
               disabled={isProcessing}
-              style={{
-                background: 'none',
-                border: 'none',
-                color: '#ef4444',
-                cursor: isProcessing ? 'not-allowed' : 'pointer',
-                padding: '2px',
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-                opacity: isProcessing ? 0.5 : 1,
-                marginLeft: '8px',
-                borderRadius: '4px'
-              }}
-              title="ลบหมออาสา"
+              className="p-1 ml-2 text-rose-500 hover:text-rose-700 hover:bg-rose-50 rounded-lg transition-colors border-none bg-transparent cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
+              title="ลบแพทย์อาสา"
             >
               <X size={16} />
             </button>
@@ -264,9 +252,9 @@ export function QueueRow({ user, isStoryQueue = false }: QueueRowProps) {
 
           <td className="p-4 align-middle text-center w-[10%]">
             {user.is_volunteer ? (
-              <span style={{ color: '#cbd5e1' }}>-</span>
+              <span className="text-slate-300">-</span>
             ) : (
-              <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '4px' }}>
+              <div className="flex flex-col items-center gap-1">
                 <label className={`relative inline-flex items-center justify-center w-8 h-8 rounded-xl border-2 transition-all duration-200 cursor-pointer ${currentStatus === "manager" ? "bg-sky-100 border-sky-500 text-sky-600 scale-110" : "bg-slate-50 border-slate-200 text-transparent hover:border-slate-400"} ${isLocked ? "opacity-50 cursor-not-allowed" : ""}`}>
                   <input type="checkbox" className="absolute opacity-0 w-0 h-0" 
                     checked={currentStatus === 'manager'} 
@@ -276,7 +264,7 @@ export function QueueRow({ user, isStoryQueue = false }: QueueRowProps) {
                   <Check size={16} />
                 </label>
                 {currentStatus === 'manager' && (
-                  <span style={{ fontSize: '0.7rem', fontWeight: 600, color: '#0ea5e9' }}>
+                  <span className="text-[0.7rem] font-semibold text-sky-500">
                     ⏱ {managerTimer}
                   </span>
                 )}
@@ -288,7 +276,7 @@ export function QueueRow({ user, isStoryQueue = false }: QueueRowProps) {
 
       <td className="p-4 align-middle text-center w-[10%]">
         {user.is_volunteer ? (
-          <span style={{ color: '#cbd5e1' }}>-</span>
+          <span className="text-slate-300">-</span>
         ) : (
           <label className={`relative inline-flex items-center justify-center w-8 h-8 rounded-xl border-2 transition-all duration-200 cursor-pointer ${currentStatus === "story" && isLocked ? "bg-purple-100 border-purple-500 text-purple-600 scale-110" : "bg-slate-50 border-slate-200 text-transparent hover:border-slate-400"} ${!isLocked ? "opacity-50 cursor-not-allowed" : ""}`}>
             <input type="checkbox" className="absolute opacity-0 w-0 h-0" 
@@ -296,16 +284,15 @@ export function QueueRow({ user, isStoryQueue = false }: QueueRowProps) {
               onChange={async () => {
                 if (isLocked) {
                   if (!gang1.trim() || !gang2.trim()) {
-                    Swal.fire({
+                    enterpriseSwal.fire({
                       title: 'ข้อมูลไม่ครบถ้วน',
                       text: 'กรุณากรอกชื่อแก๊งให้ครบทั้งสองช่องก่อนที่จะจบเคสสตอรี่',
-                      icon: 'warning',
-                      confirmButtonColor: '#ef4444'
+                      icon: 'warning'
                     });
                     return;
                   }
                   
-                  const result = await Swal.fire({
+                  const result = await enterpriseSwal.fire({
                     title: 'ยืนยันจบเคสสตอรี่?',
                     text: 'คุณต้องการจบเคสสตอรี่นี้ใช่หรือไม่? ข้อมูลจะถูกบันทึกลงในประวัติสตอรี่',
                     icon: 'question',
@@ -345,13 +332,13 @@ export function QueueRow({ user, isStoryQueue = false }: QueueRowProps) {
               }
             }}
             disabled={user.is_volunteer}
-            style={user.is_volunteer ? { opacity: 0.5, cursor: 'not-allowed' } : {}}
+            
           />
         </td>
 
         <td className="p-4 align-middle w-[25%]">
         {user.is_volunteer ? (
-          <span style={{ color: '#cbd5e1' }}>ไม่มีข้อมูลสตอรี่สำหรับหมออาสา</span>
+          <span className="text-xs text-slate-300">ไม่มีเคสสตอรี่สำหรับแพทย์อาสา</span>
         ) : (
           <div className="flex items-center gap-2">
             <SmartTimePicker 
@@ -363,7 +350,7 @@ export function QueueRow({ user, isStoryQueue = false }: QueueRowProps) {
             
             {showStoryInputs && (
               <>
-                <div className="relative" style={{ width: '160px' }}>
+                <div className="relative w-40">
                   <SmartSelect
                     options={factionOptions.filter(opt => opt.value !== gang2)}
                     value={gang1}
@@ -384,7 +371,7 @@ export function QueueRow({ user, isStoryQueue = false }: QueueRowProps) {
                   />
                 </div>
                 <span className="text-xs font-black text-slate-400 mx-1">VS</span>
-                <div className="relative" style={{ width: '160px' }}>
+                <div className="relative w-40">
                   <SmartSelect
                     options={factionOptions.filter(opt => opt.value !== gang1)}
                     value={gang2}
@@ -404,7 +391,7 @@ export function QueueRow({ user, isStoryQueue = false }: QueueRowProps) {
                     placeholder="แก๊ง/แฟม"
                   />
                 </div>
-                <div className="relative" style={{ width: '160px' }}>
+                <div className="relative w-40">
                   <SmartSelect
                     value={storyType}
                     onChange={(val) => {

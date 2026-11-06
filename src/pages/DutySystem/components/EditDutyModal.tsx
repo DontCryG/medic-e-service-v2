@@ -3,7 +3,7 @@ import { X, Save, Pencil } from 'lucide-react';
 import SmartDateTimePicker from '../../../components/common/SmartDateTimePicker';
 import { supabase } from '@/lib/supabase';
 import { useQueryClient } from '@tanstack/react-query';
-import Swal from 'sweetalert2';
+import { showErrorAlert } from '@/utils/alert';
 import toast from 'react-hot-toast';
 
 interface EditDutyModalProps {
@@ -35,7 +35,7 @@ export default function EditDutyModal({ log, onClose, onSuccess }: EditDutyModal
     }
 
     if (clockOut <= clockIn) {
-      Swal.fire('ข้อผิดพลาด', 'เวลาออกเวรต้องอยู่หลังเวลาเข้าเวรเสมอ', 'warning');
+      showErrorAlert('ข้อผิดพลาด', 'เวลาออกเวรต้องอยู่หลังเวลาเข้าเวรเสมอ');
       return;
     }
 
@@ -70,7 +70,7 @@ export default function EditDutyModal({ log, onClose, onSuccess }: EditDutyModal
       onClose();
     } catch (err: any) {
       console.error(err);
-      Swal.fire({ icon: 'error', title: 'เกิดข้อผิดพลาด', text: err.message });
+      showErrorAlert('เกิดข้อผิดพลาด', err.message);
     } finally {
       setIsSaving(false);
     }
@@ -139,7 +139,7 @@ export default function EditDutyModal({ log, onClose, onSuccess }: EditDutyModal
               <option value="normal">เวรปกติ</option>
               <option value="queue_manager_bonus">โบนัสรันคิว (+2 ชม.)</option>
               <option value="exam_doctor">สอบหมอใหม่ (+3 ชม.)</option>
-              <option value="mentor">พี่เลี้ยงหมอใหม่ (+1 ชม.)</option>
+              <option value="mentor">พี่เลี้ยงหมอใหม่ (+1 ชม. + เงิน 500,000)</option>
               <option value="manual_add">เพิ่มเวรย้อนหลัง</option>
               <option value="custom">อื่นๆ (ระบุเอง)</option>
             </select>

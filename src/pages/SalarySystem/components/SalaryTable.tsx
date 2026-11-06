@@ -10,6 +10,7 @@ import {
 import type { SortingState } from '@tanstack/react-table';
 import { useVirtualizer } from '@tanstack/react-virtual';
 import { ArrowDown, ArrowUp, ArrowUpDown, FileText, Clock } from 'lucide-react';
+import EmptyState from '@/components/common/EmptyState';
 
 interface SalaryTableProps {
   data: SalaryResult[];
@@ -173,8 +174,11 @@ export default function SalaryTable({ data, onOpenDutyLogModal, onPrintPayslip }
 
   if (filteredData.length === 0) {
     return (
-      <div style={{ background: 'white', padding: '3rem', borderRadius: '16px', textAlign: 'center', color: 'var(--text-secondary)' }}>
-        ไม่มีคนเข้าเวรในรอบบิลนี้
+      <div className="bg-white p-10 rounded-3xl border border-slate-100 shadow-sm text-center">
+        <EmptyState
+          title="ไม่มีข้อมูลการเข้าเวรในรอบบิลนี้"
+          description="ไม่พบประวัติการปฏิบัติหน้าที่ของบุคลากรในช่วงวันเวลาที่เลือก"
+        />
       </div>
     );
   }

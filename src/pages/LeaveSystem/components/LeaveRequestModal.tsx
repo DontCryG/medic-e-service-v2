@@ -4,7 +4,7 @@ import SmartSelect from '../../../components/common/SmartSelect';
 import SmartDatePicker from '../../../components/common/SmartDatePicker';
 import { useCreateLeave } from '../hooks/useLeaveMutations';
 import { supabase } from '@/lib/supabase';
-import Swal from 'sweetalert2';
+import { showErrorAlert } from '@/utils/alert';
 import { useForm, Controller } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
@@ -87,7 +87,7 @@ export default function LeaveRequestModal({ onClose, profile }: LeaveRequestModa
         .in('status', ['pending', 'approved']);
       
       if (pastVacations && pastVacations.length > 0) {
-        Swal.fire('ไม่สามารถลางานได้', 'คุณเคยใช้สิทธิ์ลาพักร้อนไปแล้ว (สิทธิ์ 1 ครั้ง/ปี)', 'error');
+        showErrorAlert('ไม่สามารถลางานได้', 'คุณเคยใช้สิทธิ์ลาพักร้อนไปแล้ว (สิทธิ์ 1 ครั้ง/ปี)');
         return;
       }
 
@@ -103,7 +103,7 @@ export default function LeaveRequestModal({ onClose, profile }: LeaveRequestModa
       }));
 
       if (distinctDays.size < 30) {
-        Swal.fire('ไม่สามารถลางานได้', `คุณต้องเข้าเวรให้ครบ 30 วันก่อนจึงจะลาพักร้อนได้ (ปัจจุบันเข้าเวรไปแล้ว ${distinctDays.size} วัน)`, 'error');
+        showErrorAlert('ไม่สามารถลางานได้', `คุณต้องเข้าเวรให้ครบ 30 วันก่อนจึงจะลาพักร้อนได้ (ปัจจุบันเข้าเวรไปแล้ว ${distinctDays.size} วัน)`);
         return;
       }
     }

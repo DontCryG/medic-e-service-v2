@@ -1,6 +1,6 @@
-﻿import { useMutation, useQueryClient } from '@tanstack/react-query';
+import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { supabase } from '@/lib/supabase';
-import Swal from 'sweetalert2';
+import { showErrorAlert } from '@/utils/alert';
 import toast from 'react-hot-toast';
 import { dutyKeys } from './useDutyQueries';
 import { salaryKeys } from '../../SalarySystem/hooks/useSalaryQueries';
@@ -24,7 +24,7 @@ export function useClockIn() {
       queryClient.invalidateQueries({ queryKey: ['queue_users'] });
     },
     onError: (err: any) => {
-      Swal.fire({ icon: 'error', title: 'เกิดข้อผิดพลาด', text: 'เข้าเวรไม่สำเร็จ: ' + err.message });
+      showErrorAlert('เกิดข้อผิดพลาด', 'เข้าเวรไม่สำเร็จ: ' + err.message);
     }
   });
 }
@@ -67,7 +67,7 @@ export function useToggleBreak() {
       queryClient.invalidateQueries({ queryKey: ['queue_users'] });
     },
     onError: (err: any) => {
-      Swal.fire({ icon: 'error', title: 'เกิดข้อผิดพลาด', text: 'เปลี่ยนสถานะไม่สำเร็จ: ' + err.message });
+      showErrorAlert('เกิดข้อผิดพลาด', 'เปลี่ยนสถานะไม่สำเร็จ: ' + err.message);
     }
   });
 }
@@ -120,7 +120,7 @@ export function useClockOut() {
       queryClient.invalidateQueries({ queryKey: ['queue_users'] });
     },
     onError: (err: any) => {
-      Swal.fire({ icon: 'error', title: 'เกิดข้อผิดพลาด', text: 'ออกเวรไม่สำเร็จ: ' + err.message });
+      showErrorAlert('เกิดข้อผิดพลาด', 'ออกเวรไม่สำเร็จ: ' + err.message);
     }
   });
 }
@@ -161,7 +161,7 @@ export function useAdminToggleBreak() {
       queryClient.invalidateQueries({ queryKey: ['queue_users'] });
     },
     onError: (err: any) => {
-      Swal.fire({ icon: 'error', title: 'เกิดข้อผิดพลาด', text: err.message });
+      showErrorAlert('เกิดข้อผิดพลาด', err.message);
     }
   });
 }
@@ -212,7 +212,7 @@ export function useAdminClockOut() {
       queryClient.invalidateQueries({ queryKey: ['queue_users'] });
     },
     onError: (err: any) => {
-      Swal.fire({ icon: 'error', title: 'เกิดข้อผิดพลาด', text: err.message });
+      showErrorAlert('เกิดข้อผิดพลาด', err.message);
     }
   });
 }

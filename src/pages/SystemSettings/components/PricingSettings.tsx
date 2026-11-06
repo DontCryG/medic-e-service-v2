@@ -1,5 +1,5 @@
 import { useState, useRef } from 'react';
-import Swal from 'sweetalert2';
+import { showConfirmDialog, showErrorAlert } from '@/utils/alert';
 import { Plus, Edit2, Trash2, Save, X, Search } from 'lucide-react';
 import { useSystemSettings, useSaveSystemSetting, useDeleteSystemSetting } from '../hooks/useSystemSettings';
 import type { SystemSetting } from '../hooks/useSystemSettings';
@@ -92,7 +92,7 @@ export default function PricingSettings() {
       setEditingKey(null);
     } catch (err: any) {
       console.error(err);
-      Swal.fire({ icon: 'error', title: 'ผิดพลาด', text: err.message || 'เกิดข้อผิดพลาดในการบันทึกข้อมูล' });
+      showErrorAlert('ผิดพลาด', err.message || 'เกิดข้อผิดพลาดในการบันทึกข้อมูล');
     } finally {
       processingRef.current = false;
     }
@@ -102,14 +102,12 @@ export default function PricingSettings() {
     if (deleteMutation.isPending || processingRef.current) return;
     processingRef.current = true;
     
-    const result = await Swal.fire({
+    const result = await showConfirmDialog({
       title: `ยืนยันการลบค่าบริการ ${key}?`,
+      text: 'คุณต้องการลบค่าบริการนี้ใช่หรือไม่? ข้อมูลนี้ไม่สามารถกู้คืนได้',
       icon: 'warning',
-      showCancelButton: true,
       confirmButtonColor: '#ef4444',
-      cancelButtonColor: '#94a3b8',
-      confirmButtonText: 'ยืนยัน',
-      cancelButtonText: 'ยกเลิก'
+      confirmButtonText: 'ยืนยันการลบ'
     });
 
     if (result.isConfirmed) {
@@ -117,7 +115,7 @@ export default function PricingSettings() {
         await deleteMutation.mutateAsync(key);
       } catch (err: any) {
         console.error(err);
-        Swal.fire({ icon: 'error', title: 'ผิดพลาด', text: err.message });
+        showErrorAlert('ผิดพลาด', err.message);
       } finally {
         processingRef.current = false;
       }

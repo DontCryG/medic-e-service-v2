@@ -4,7 +4,7 @@ import {
   useGangs, useAddGang, useUpdateGang, useDeleteGang, 
   useFamilies, useAddFamily, useUpdateFamily, useDeleteFamily,
 } from '../hooks/useGangsFamilies';
-import Swal from 'sweetalert2';
+import { showConfirmDialog, showErrorAlert } from '@/utils/alert';
 import type { Gang, Family } from '../hooks/useGangsFamilies';
 import { useForm } from 'react-hook-form';
 import { z } from 'zod';
@@ -73,7 +73,7 @@ function GangSettings() {
       setEditingId(null);
     } catch (err: any) { 
       console.error(err); 
-      Swal.fire({ icon: 'error', title: 'Error', text: err.message }); 
+      showErrorAlert('เกิดข้อผิดพลาด', err.message); 
     } finally { 
       processingRef.current = false; 
     }
@@ -82,14 +82,12 @@ function GangSettings() {
   const handleDelete = async (id: string) => { 
     if (deleteMutation.isPending || processingRef.current) return; 
     processingRef.current = true; 
-    const result = await Swal.fire({
+    const result = await showConfirmDialog({
       title: 'คุณแน่ใจหรือไม่ว่าต้องการลบรายชื่อนี้?',
+      text: 'ข้อมูลนี้จะถูกลบออกจากระบบอย่างถาวร',
       icon: 'warning',
-      showCancelButton: true,
       confirmButtonColor: '#ef4444',
-      cancelButtonColor: '#94a3b8',
-      confirmButtonText: 'ยืนยัน',
-      cancelButtonText: 'ยกเลิก'
+      confirmButtonText: 'ยืนยันการลบ'
     });
 
     if (result.isConfirmed) {
@@ -97,7 +95,7 @@ function GangSettings() {
         await deleteMutation.mutateAsync(id); 
       } catch (err: any) {
         console.error(err);
-        Swal.fire({ icon: 'error', title: 'Error', text: 'Failed to delete' }); 
+        showErrorAlert('เกิดข้อผิดพลาด', 'ไม่สามารถลบรายการได้'); 
       } finally { 
         processingRef.current = false; 
       } 
@@ -254,7 +252,7 @@ function FamilySettings() {
       setEditingId(null);
     } catch (err: any) { 
       console.error(err); 
-      Swal.fire({ icon: 'error', title: 'Error', text: err.message }); 
+      showErrorAlert('เกิดข้อผิดพลาด', err.message); 
     } finally { 
       processingRef.current = false; 
     }
@@ -263,14 +261,12 @@ function FamilySettings() {
   const handleDelete = async (id: string) => { 
     if (deleteMutation.isPending || processingRef.current) return; 
     processingRef.current = true; 
-    const result = await Swal.fire({
+    const result = await showConfirmDialog({
       title: 'คุณแน่ใจหรือไม่ว่าต้องการลบรายชื่อนี้?',
+      text: 'ข้อมูลนี้จะถูกลบออกจากระบบอย่างถาวร',
       icon: 'warning',
-      showCancelButton: true,
       confirmButtonColor: '#ef4444',
-      cancelButtonColor: '#94a3b8',
-      confirmButtonText: 'ยืนยัน',
-      cancelButtonText: 'ยกเลิก'
+      confirmButtonText: 'ยืนยันการลบ'
     });
 
     if (result.isConfirmed) {
@@ -278,7 +274,7 @@ function FamilySettings() {
         await deleteMutation.mutateAsync(id); 
       } catch (err: any) {
         console.error(err);
-        Swal.fire({ icon: 'error', title: 'Error', text: 'Failed to delete' }); 
+        showErrorAlert('เกิดข้อผิดพลาด', 'ไม่สามารถลบรายการได้'); 
       } finally { 
         processingRef.current = false; 
       } 

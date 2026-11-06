@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { Settings, Users, Shield, DollarSign, RefreshCw } from 'lucide-react';
-import Swal from 'sweetalert2';
+import { showConfirmDialog, showSuccessAlert } from '@/utils/alert';
 import { broadcastForceReload } from '@/hooks/useAppRealtime';
 
 import PositionSettings from './SystemSettings/components/PositionSettings';
@@ -13,20 +13,17 @@ export default function SystemSettings() {
   const [activeTab, setActiveTab] = useState<Tab>('positions');
 
   const handleForceRefresh = async () => {
-    const result = await Swal.fire({
+    const result = await showConfirmDialog({
       title: 'บังคับ Refresh หน้าจอ?',
       text: 'การกระทำนี้จะสั่งให้หน้าเว็บของผู้ใช้งานทุกคน (ที่กำลังเปิดเว็บอยู่) ถูก Refresh ใหม่ทันที เพื่ออัปเดตโค้ดล่าสุด',
       icon: 'warning',
-      showCancelButton: true,
-      confirmButtonColor: '#ef4444',
-      cancelButtonColor: '#94a3b8',
       confirmButtonText: 'ใช่, บังคับ Refresh',
-      cancelButtonText: 'ยกเลิก'
+      confirmButtonColor: '#ef4444'
     });
 
     if (result.isConfirmed) {
       broadcastForceReload();
-      await Swal.fire('สำเร็จ!', 'ส่งคำสั่ง Refresh ไปยังทุกคนแล้ว', 'success');
+      await showSuccessAlert('สำเร็จ!', 'ส่งคำสั่ง Refresh ไปยังทุกคนแล้ว');
       window.location.reload();
     }
   };

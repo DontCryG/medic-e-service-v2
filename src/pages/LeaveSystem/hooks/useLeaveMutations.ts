@@ -1,6 +1,6 @@
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { supabase } from '@/lib/supabase';
-import Swal from 'sweetalert2';
+import { showErrorAlert } from '@/utils/alert';
 import toast from 'react-hot-toast';
 import { leaveKeys } from './useLeaveQueries';
 import { useAuthStore } from '@/store/authStore';
@@ -38,11 +38,9 @@ export function useCreateLeave() {
       toast.success('ยื่นใบลาสำเร็จ');
       queryClient.invalidateQueries({ queryKey: leaveKeys.all });
       queryClient.invalidateQueries({ queryKey: ['notifications'] });
-      queryClient.invalidateQueries({ queryKey: ['notifications'] });
-      queryClient.invalidateQueries({ queryKey: ['notifications'] });
     },
     onError: (err: any) => {
-      Swal.fire('เกิดข้อผิดพลาด', err.message || 'ไม่สามารถยื่นใบลาได้', 'error');
+      showErrorAlert('เกิดข้อผิดพลาด', err.message || 'ไม่สามารถยื่นใบลาได้');
     }
   });
 }
@@ -91,7 +89,7 @@ export function useUpdateLeaveStatus() {
       queryClient.invalidateQueries({ queryKey: ['users'] });
     },
     onError: (err: any) => {
-      Swal.fire('เกิดข้อผิดพลาด', err.message || 'ไม่สามารถทำรายการได้', 'error');
+      showErrorAlert('เกิดข้อผิดพลาด', err.message || 'ไม่สามารถทำรายการได้');
     }
   });
 }
@@ -113,7 +111,7 @@ export function useDeleteLeave() {
       queryClient.invalidateQueries({ queryKey: leaveKeys.all });
     },
     onError: (err: any) => {
-      Swal.fire('เกิดข้อผิดพลาด', err.message || 'ไม่สามารถยกเลิกคำขอได้', 'error');
+      showErrorAlert('เกิดข้อผิดพลาด', err.message || 'ไม่สามารถยกเลิกคำขอได้');
     }
   });
 }

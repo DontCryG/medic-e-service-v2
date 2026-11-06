@@ -1,7 +1,7 @@
 import { useState, useMemo, lazy, Suspense } from 'react';
 import { useQueryClient } from '@tanstack/react-query';
 import { supabase } from '@/lib/supabase';
-import Swal from 'sweetalert2';
+import { showConfirmDialog } from '@/utils/alert';
 import toast from 'react-hot-toast';
 
 import PersonnelTable from './PersonnelSystem/components/PersonnelTable';
@@ -72,20 +72,12 @@ export default function PersonnelSystem({ profile }: PersonnelSystemProps) {
   });
 
   const handleDeleteUser = async (user: any) => {
-    const result = await Swal.fire({
+    const result = await showConfirmDialog({
       title: 'ยืนยันการลบข้อมูล?',
-      html: `คุณต้องการลบข้อมูลของ <b>${user.ic_name}</b> ใช่หรือไม่?<br/><span style="color: #ef4444; font-size: 0.9em;">(การกระทำนี้ไม่สามารถกู้คืนได้)</span>`,
+      html: `คุณต้องการลบข้อมูลของ <b>${user.ic_name}</b> ใช่หรือไม่?<br/><span class="text-rose-500 text-xs mt-1 block">(การกระทำนี้ไม่สามารถกู้คืนได้)</span>`,
       icon: 'warning',
-      showCancelButton: true,
       confirmButtonColor: '#ef4444',
-      cancelButtonColor: '#94a3b8',
-      confirmButtonText: 'ลบข้อมูล',
-      cancelButtonText: 'ยกเลิก',
-      customClass: {
-        popup: 'rounded-2xl',
-        confirmButton: 'rounded-xl',
-        cancelButton: 'rounded-xl'
-      }
+      confirmButtonText: 'ลบข้อมูล'
     });
 
     if (result.isConfirmed) {

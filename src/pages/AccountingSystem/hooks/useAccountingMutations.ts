@@ -1,7 +1,8 @@
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { supabase } from '@/lib/supabase';
 import { accountingKeys } from './useAccountingQueries';
-import Swal from 'sweetalert2';
+import { showErrorAlert } from '@/utils/alert';
+import toast from 'react-hot-toast';
 
 export function useAddFinanceLog() {
   const queryClient = useQueryClient();
@@ -15,7 +16,12 @@ export function useAddFinanceLog() {
     }) => {
       const { data: result, error } = await supabase
         .from('accounting_logs')
-        .insert([data])
+        .insert([{
+          discord_id: data.discord_id,
+          type: data.type,
+          amount: data.amount,
+          description: data.description
+        }])
         .select()
         .single();
 
@@ -24,19 +30,10 @@ export function useAddFinanceLog() {
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: accountingKeys.finance });
-      Swal.fire({
-        icon: 'success',
-        title: 'บันทึกสำเร็จ',
-        timer: 1500,
-        showConfirmButton: false
-      });
+      toast.success('บันทึกรายการสำเร็จ');
     },
     onError: (error: any) => {
-      Swal.fire({
-        icon: 'error',
-        title: 'เกิดข้อผิดพลาด',
-        text: error.message
-      });
+      showErrorAlert('เกิดข้อผิดพลาด', error.message);
     }
   });
 }
@@ -61,7 +58,7 @@ export function useAddInventoryLog() {
           item_name: data.item_name,
           quantity: data.quantity,
           description: data.description,
-          metadata: data.metadata || null
+          metadata: data.metadata || {}
         }])
         .select()
         .single();
@@ -71,19 +68,10 @@ export function useAddInventoryLog() {
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: accountingKeys.inventory });
-      Swal.fire({
-        icon: 'success',
-        title: 'บันทึกสำเร็จ',
-        timer: 1500,
-        showConfirmButton: false
-      });
+      toast.success('บันทึกพัสดุสำเร็จ');
     },
     onError: (error: any) => {
-      Swal.fire({
-        icon: 'error',
-        title: 'เกิดข้อผิดพลาด',
-        text: error.message
-      });
+      showErrorAlert('เกิดข้อผิดพลาด', error.message);
     }
   });
 }
@@ -111,19 +99,10 @@ export function useUpdateFinanceLog() {
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: accountingKeys.finance });
-      Swal.fire({
-        icon: 'success',
-        title: 'อัปเดตสำเร็จ',
-        timer: 1500,
-        showConfirmButton: false
-      });
+      toast.success('อัปเดตรายการสำเร็จ');
     },
     onError: (error: any) => {
-      Swal.fire({
-        icon: 'error',
-        title: 'เกิดข้อผิดพลาด',
-        text: error.message
-      });
+      showErrorAlert('เกิดข้อผิดพลาด', error.message);
     }
   });
 }
@@ -143,19 +122,10 @@ export function useDeleteFinanceLog() {
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: accountingKeys.finance });
-      Swal.fire({
-        icon: 'success',
-        title: 'ลบรายการสำเร็จ',
-        timer: 1500,
-        showConfirmButton: false
-      });
+      toast.success('ลบรายการสำเร็จ');
     },
     onError: (error: any) => {
-      Swal.fire({
-        icon: 'error',
-        title: 'เกิดข้อผิดพลาด',
-        text: error.message
-      });
+      showErrorAlert('เกิดข้อผิดพลาด', error.message);
     }
   });
 }
@@ -185,19 +155,10 @@ export function useUpdateInventoryLog() {
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: accountingKeys.inventory });
-      Swal.fire({
-        icon: 'success',
-        title: 'อัปเดตสำเร็จ',
-        timer: 1500,
-        showConfirmButton: false
-      });
+      toast.success('อัปเดตพัสดุสำเร็จ');
     },
     onError: (error: any) => {
-      Swal.fire({
-        icon: 'error',
-        title: 'เกิดข้อผิดพลาด',
-        text: error.message
-      });
+      showErrorAlert('เกิดข้อผิดพลาด', error.message);
     }
   });
 }
@@ -217,19 +178,10 @@ export function useDeleteInventoryLog() {
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: accountingKeys.inventory });
-      Swal.fire({
-        icon: 'success',
-        title: 'ลบรายการสำเร็จ',
-        timer: 1500,
-        showConfirmButton: false
-      });
+      toast.success('ลบรายการพัสดุสำเร็จ');
     },
     onError: (error: any) => {
-      Swal.fire({
-        icon: 'error',
-        title: 'เกิดข้อผิดพลาด',
-        text: error.message
-      });
+      showErrorAlert('เกิดข้อผิดพลาด', error.message);
     }
   });
 }

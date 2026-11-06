@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { supabase } from '../lib/supabase';
 import { useNavigate } from 'react-router-dom';
-import Swal from 'sweetalert2';
+import { enterpriseSwal, showErrorAlert } from '@/utils/alert';
 import { useAuthStore } from '../store/authStore';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Shield, Activity, Users, ChevronRight, CheckCircle2 } from 'lucide-react';
@@ -46,7 +46,7 @@ export default function Portal() {
 
       if (!providerId) {
         await supabase.auth.signOut();
-        Swal.fire('ข้อผิดพลาด', 'ไม่พบรหัสยืนยันตัวตนจาก Discord ของคุณ', 'error');
+        showErrorAlert('ข้อผิดพลาด', 'ไม่พบรหัสยืนยันตัวตนจาก Discord ของคุณ');
         setIsCheckingAuth(false);
         return;
       }
@@ -69,11 +69,10 @@ export default function Portal() {
 
       if (userData.role === 'user' || userData.role === 'resigned') {
         await supabase.auth.signOut();
-        Swal.fire({
+        enterpriseSwal.fire({
           title: 'ไม่มีสิทธิ์เข้าถึงระบบ',
           text: 'คุณไม่มีสิทธิ์เข้าใช้งานระบบแพทย์ หากคุณเป็นบุคลากรแพทย์โปรดติดต่อผู้อำนวยการ',
-          icon: 'error',
-          confirmButtonColor: '#ef4444'
+          icon: 'error'
         });
         setIsCheckingAuth(false);
         return;
@@ -96,7 +95,7 @@ export default function Portal() {
     } catch (err: any) {
       console.error(err);
       await supabase.auth.signOut();
-      Swal.fire('เกิดข้อผิดพลาดบางอย่าง', err.message || 'Error during login flow', 'error');
+      showErrorAlert('เกิดข้อผิดพลาดบางอย่าง', err.message || 'Error during login flow');
       setIsCheckingAuth(false);
     }
   };
@@ -110,14 +109,18 @@ export default function Portal() {
       if (error) throw error;
     } catch (error) {
       console.error('Error logging in:', error);
-      Swal.fire('ข้อผิดพลาด', 'เกิดปัญหาในการเข้าสู่ระบบ โปรดลองใหม่อีกครั้ง', 'error');
+      showErrorAlert('ข้อผิดพลาด', 'เกิดปัญหาในการเข้าสู่ระบบ โปรดลองใหม่อีกครั้ง');
     }
   };
 
   const handleRegister = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!icName.trim() || !icPhone.trim()) {
-      Swal.fire('ข้อมูลไม่ครบ', 'โปรดกรอกชื่อและเบอร์โทรศัพท์ให้ครบถ้วนก่อนบันทึก', 'warning');
+      enterpriseSwal.fire({
+        title: 'ข้อมูลไม่ครบ',
+        text: 'โปรดกรอกชื่อและเบอร์โทรศัพท์ให้ครบถ้วนก่อนบันทึก',
+        icon: 'warning'
+      });
       return;
     }
     setIsSubmitting(true);
@@ -131,18 +134,13 @@ export default function Portal() {
       }]);
       if (error) throw error;
       await supabase.auth.signOut();
-      Swal.fire({
+      enterpriseSwal.fire({
         title: 'ลงทะเบียนสำเร็จ!',
         text: 'ระบบได้บันทึกข้อมูลของคุณแล้ว โปรดรอผู้อำนวยการปรับสิทธิ์ให้คุณสามารถเข้าใช้งานระบบได้',
-        icon: 'success',
-        confirmButtonColor: '#8b5cf6'
+        icon: 'success'
       }).then(() => setIsRegistering(false));
     } catch (error: any) {
-      Swal.fire({
-        title: 'ข้อผิดพลาด',
-        text: `ไม่สามารถลงทะเบียนได้: ${error?.message || 'โปรดติดต่อผู้ดูแลระบบ'}`,
-        icon: 'error'
-      });
+      showErrorAlert('ข้อผิดพลาด', `ไม่สามารถลงทะเบียนได้: ${error?.message || 'โปรดติดต่อผู้ดูแลระบบ'}`);
     } finally {
       setIsSubmitting(false);
     }

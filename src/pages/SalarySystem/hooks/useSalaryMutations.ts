@@ -1,6 +1,6 @@
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { supabase } from '@/lib/supabase';
-import Swal from 'sweetalert2';
+import { showErrorAlert } from '@/utils/alert';
 import toast from 'react-hot-toast';
 import { salaryKeys } from './useSalaryQueries';
 
@@ -23,7 +23,7 @@ export function useUpdateDutyLog() {
       queryClient.invalidateQueries({ queryKey: ['duty'] });
     },
     onError: (error: any) => {
-      Swal.fire({ icon: 'error', title: 'ข้อผิดพลาด', text: error.message });
+      showErrorAlert('ข้อผิดพลาด', error.message);
     }
   });
 }
@@ -47,7 +47,7 @@ export function useDeleteDutyLog() {
       queryClient.invalidateQueries({ queryKey: ['duty'] });
     },
     onError: (error: any) => {
-      Swal.fire({ icon: 'error', title: 'ข้อผิดพลาด', text: error.message });
+      showErrorAlert('ข้อผิดพลาด', error.message);
     }
   });
 }

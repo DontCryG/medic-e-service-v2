@@ -1,12 +1,13 @@
 import React, { useState } from 'react';
-import { Clock, Filter, Inbox, Pencil, Trash2 } from 'lucide-react';
+import { Clock, Filter, Pencil, Trash2 } from 'lucide-react';
+import EmptyState from '@/components/common/EmptyState';
+import { enterpriseSwal, showErrorAlert } from '@/utils/alert';
 import SmartDatePicker from '../../../components/common/SmartDatePicker';
 import SmartSelect from '../../../components/common/SmartSelect';
 import { formatDateString, getDutyBadgeInfo } from '../utils/dutyUtils';
 import EditDutyModal from './EditDutyModal';
 import { supabase } from '@/lib/supabase';
 import { useQueryClient } from '@tanstack/react-query';
-import Swal from 'sweetalert2';
 import toast from 'react-hot-toast';
 
 interface DoctorOption {
@@ -51,7 +52,7 @@ const DutyHistoryTable = React.memo(function DutyHistoryTable({
   const [editingLog, setEditingLog] = useState<any>(null);
 
   const handleDelete = async (id: string) => {
-    const result = await Swal.fire({
+    const result = await enterpriseSwal.fire({
       title: 'ลบประวัติเวร?',
       text: 'คุณต้องการลบประวัติเวรนี้ใช่หรือไม่? การกระทำนี้ไม่สามารถกู้คืนได้',
       icon: 'warning',
@@ -69,7 +70,7 @@ const DutyHistoryTable = React.memo(function DutyHistoryTable({
         queryClient.invalidateQueries({ queryKey: ['duty'] });
         queryClient.invalidateQueries({ queryKey: ['salary'] });
       } catch (err: any) {
-        Swal.fire({ icon: 'error', title: 'เกิดข้อผิดพลาด', text: err.message });
+        showErrorAlert('เกิดข้อผิดพลาด', err.message);
       }
     }
   };
@@ -234,16 +235,11 @@ const DutyHistoryTable = React.memo(function DutyHistoryTable({
               );
             }) : (
               <tr>
-                <td colSpan={colSpanCount} className="text-center py-16 px-8">
-                  <div className="flex flex-col items-center gap-4">
-                    <div className="w-16 h-16 rounded-full bg-slate-100 flex items-center justify-center text-slate-400">
-                      <Inbox size={32} />
-                    </div>
-                    <div>
-                      <p className="m-0 mb-2 font-semibold text-slate-700 text-lg">ยังไม่มีประวัติการเข้าเวร</p>
-                      <p className="m-0 text-sm text-slate-400">ประวัติการเข้าเวรจะแสดงที่นี่เมื่อเริ่มงาน</p>
-                    </div>
-                  </div>
+                <td colSpan={colSpanCount} className="p-4">
+                  <EmptyState
+                    title="ยังไม่มีประวัติการเข้าเวร"
+                    description="ประวัติการปฏิบัติหน้าที่ของแพทย์จะแสดงที่นี่เมื่อเริ่มงาน"
+                  />
                 </td>
               </tr>
             )}

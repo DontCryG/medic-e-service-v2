@@ -1,4 +1,6 @@
 import { Activity, Play, Pause, Square } from 'lucide-react';
+import TableSkeleton from '@/components/common/TableSkeleton';
+import EmptyState from '@/components/common/EmptyState';
 import { isAdmin } from '@/utils/permissions';
 
 interface LiveUsersListProps {
@@ -34,7 +36,13 @@ export default function LiveUsersList({
             </tr>
           </thead>
           <tbody>
-            {liveUsers.length > 0 ? liveUsers.map(user => (
+            {loading ? (
+              <tr>
+                <td colSpan={isAdmin(profile?.role) ? 4 : 3} className="p-6">
+                  <TableSkeleton rows={3} columns={isAdmin(profile?.role) ? 4 : 3} />
+                </td>
+              </tr>
+            ) : liveUsers.length > 0 ? liveUsers.map(user => (
               <tr key={user.id} className="border-b border-slate-100 hover:bg-slate-50/50">
                 <td className="p-4 text-slate-700">
                   <div className="font-semibold">{user.users?.ic_name}</div>
@@ -52,7 +60,7 @@ export default function LiveUsersList({
                       <button className="flex items-center gap-1.5 px-4 py-1.5 bg-amber-500 text-white rounded-md text-xs font-semibold hover:bg-amber-600 transition-colors disabled:opacity-50 disabled:cursor-not-allowed border-none cursor-pointer" onClick={() => onAdminToggleBreak(user)}
                         disabled={loading}
                       >
-                        {user.status === 'on_break' ? <><Play size={14} /> กลับ</> : <><Pause size={14} /> พัก</>}
+                        {user.status === 'on_break' ? <><Play size={14} /> กลับเข้าเวร</> : <><Pause size={14} /> พักเบรก</>}
                       </button>
                       <button className="flex items-center gap-1.5 px-4 py-1.5 bg-rose-500 text-white rounded-md text-xs font-semibold hover:bg-rose-600 transition-colors disabled:opacity-50 disabled:cursor-not-allowed border-none cursor-pointer" onClick={() => onAdminClockOut(user)}
                         disabled={loading}
@@ -65,7 +73,12 @@ export default function LiveUsersList({
               </tr>
             )) : (
               <tr>
-                <td colSpan={isAdmin(profile?.role) ? 4 : 3} className="p-8 text-center text-slate-500">ไม่มีผู้เข้าเวรในขณะนี้</td>
+                <td colSpan={isAdmin(profile?.role) ? 4 : 3} className="p-4">
+                  <EmptyState
+                    title="ไม่มีแพทย์เข้าเวรในขณะนี้"
+                    description="รายชื่อแพทย์ที่กำลังปฏิบัติหน้าที่หรือพักเบรกจะแสดงสดที่นี่ (LIVE)"
+                  />
+                </td>
               </tr>
             )}
           </tbody>

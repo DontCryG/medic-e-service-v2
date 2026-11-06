@@ -1,0 +1,1 @@
+ALTER TABLE queue_status ADD COLUMN IF NOT EXISTS remark TEXT;

@@ -4,7 +4,10 @@ import { useAddInventoryLog, useDeleteInventoryLog } from '../hooks/useAccountin
 import { useAuthStore } from '@/store/authStore';
 import { isAdmin } from '@/utils/permissions';
 import { PackagePlus, PackageMinus, Package, Printer, Clock, Trash2, Edit2 } from 'lucide-react';
-import Swal from 'sweetalert2';
+import { showConfirmDialog, showErrorAlert } from '@/utils/alert';
+import toast from 'react-hot-toast';
+import TableSkeleton from '@/components/common/TableSkeleton';
+import EmptyState from '@/components/common/EmptyState';
 import DatePicker from 'react-datepicker';
 import "react-datepicker/dist/react-datepicker.css";
 import InventoryReportModal from './InventoryReportModal';
@@ -88,16 +91,9 @@ export default function InventoryTab() {
       setItemName('');
       setQuantity('');
       setDescription('');
-      Swal.fire({
-        icon: 'success',
-        title: 'บันทึกสำเร็จ',
-        toast: true,
-        position: 'top-end',
-        showConfirmButton: false,
-        timer: 1500
-      });
+      toast.success('บันทึกสำเร็จ');
     } catch (err: any) {
-      Swal.fire({ icon: 'error', title: 'เกิดข้อผิดพลาด', text: err.message });
+      showErrorAlert('เกิดข้อผิดพลาด', err.message);
     }
   };
 
@@ -358,11 +354,18 @@ export default function InventoryTab() {
               <tbody className="text-sm">
                 {isLoading ? (
                   <tr>
-                    <td colSpan={7} className="py-8 text-center text-slate-500 font-bold">กำลังโหลดข้อมูล...</td>
+                    <td colSpan={7} className="p-4">
+                      <TableSkeleton columns={7} rows={4} />
+                    </td>
                   </tr>
                 ) : filteredLogs.length === 0 ? (
                   <tr>
-                    <td colSpan={7} className="py-8 text-center text-slate-500 font-bold">ไม่มีประวัติการทำรายการ</td>
+                    <td colSpan={7} className="p-4">
+                      <EmptyState 
+                        title="ไม่มีประวัติการทำรายการ" 
+                        description="ไม่พบรายการเบิก-รับพัสดุและเวชภัณฑ์ในช่วงเวลาที่เลือก" 
+                      />
+                    </td>
                   </tr>
                 ) : (
                   filteredLogs.map(log => (
@@ -394,21 +397,18 @@ export default function InventoryTab() {
                               <Edit2 size={16} />
                             </button>
                             <button 
-                              onClick={() => {
-                                Swal.fire({
+                              onClick={async () => {
+                                const result = await showConfirmDialog({
                                   title: 'ยืนยันการลบ?',
-                                  text: "คุณต้องการลบรายการนี้ใช่หรือไม่?",
+                                  text: "คุณต้องการลบรายการนี้ใช่หรือไม่? การกระทำนี้ไม่สามารถกู้คืนได้",
                                   icon: 'warning',
-                                  showCancelButton: true,
-                                  confirmButtonColor: '#ef4444',
-                                  cancelButtonColor: '#94a3b8',
                                   confirmButtonText: 'ใช่, ลบเลย',
-                                  cancelButtonText: 'ยกเลิก'
-                                }).then(async (result) => {
-                                  if (result.isConfirmed) {
-                                    await deleteInventoryLog(log.id);
-                                  }
+                                  confirmButtonColor: '#ef4444'
                                 });
+                                if (result.isConfirmed) {
+                                  await deleteInventoryLog(log.id);
+                                  toast.success('ลบรายการสำเร็จ');
+                                }
                               }}
                               className="p-2 bg-rose-50 text-rose-500 hover:bg-rose-500 hover:text-white rounded-lg transition-colors border-none"
                             >
