@@ -11,6 +11,7 @@ import {
   LogOut
 } from 'lucide-react';
 import { useAuthStore } from '../store/authStore';
+import { isAdmin } from '../utils/permissions';
 import Swal from 'sweetalert2';
 import { supabase } from '../lib/supabase';
 
@@ -108,7 +109,7 @@ export default function Sidebar({ isMobileMenuOpen, setIsMobileMenuOpen, isColla
             {!isCollapsed && <span className="truncate">ระบบลางาน</span>}
           </NavLink>
           
-          {(user?.role === 'admin' || user?.role === 'director' || user?.role === 'management') && (
+          {isAdmin(user?.role) && (
             <>
               <div className="h-px bg-slate-100 my-4 mx-6"></div>
               {!isCollapsed && (
@@ -131,7 +132,7 @@ export default function Sidebar({ isMobileMenuOpen, setIsMobileMenuOpen, isColla
           )}
           
           <div className="mt-auto pt-4 shrink-0">
-            {(user?.role === 'admin' || user?.role === 'director' || user?.role === 'management') && (
+            {isAdmin(user?.role) && (
               <NavLink to="/settings" className={navLinkClass} onClick={handleNavClick}>
                 <Settings size={20} className={isCollapsed ? '' : 'shrink-0'} />
                 {!isCollapsed && <span className="truncate">ตั้งค่าระบบ</span>}

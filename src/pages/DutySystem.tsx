@@ -3,6 +3,8 @@ import DutyControls from './DutySystem/components/DutyControls';
 import LiveUsersList from './DutySystem/components/LiveUsersList';
 import DutyHistoryTable from './DutySystem/components/DutyHistoryTable';
 import { supabase } from '@/lib/supabase';
+import { isAdmin as checkIsAdmin } from '@/utils/permissions';
+import { useQuery } from '@tanstack/react-query';
 
 // Import our new hooks
 import { useCurrentSession, useLiveUsers, useDutyHistory } from './DutySystem/hooks/useDutyQueries';
@@ -34,7 +36,25 @@ export default function DutySystem({ profile }: DutySystemProps) {
     return d;
   });
   const [historyPage, setHistoryPage] = useState(1);
+  const [selectedDoctorId, setSelectedDoctorId] = useState('');
   const itemsPerPage = 50;
+
+  const isAdmin = checkIsAdmin(profile?.role);
+
+  // Doctors list for admin filter
+  const { data: doctors = [] } = useQuery({
+    queryKey: ['admin_duty_doctors'],
+    queryFn: async () => {
+      const { data } = await supabase
+        .from('users')
+        .select('discord_id, ic_name')
+        .neq('role', 'user')
+        .neq('role', 'resigned')
+        .order('ic_name');
+      return data || [];
+    },
+    enabled: isAdmin
+  });
   
   // Real-time synchronization
   useDutyRealtime();
@@ -42,7 +62,15 @@ export default function DutySystem({ profile }: DutySystemProps) {
   // Queries
   const { data: currentSession, isLoading: loadingSession } = useCurrentSession(profile?.discord_id);
   const { data: liveUsers = [], isLoading: loadingLive } = useLiveUsers();
-  const { data: historyData } = useDutyHistory(profile?.discord_id, profile?.role, startDate as Date, endDate as Date, historyPage, itemsPerPage);
+  const { data: historyData } = useDutyHistory(
+    profile?.discord_id, 
+    profile?.role, 
+    startDate as Date, 
+    endDate as Date, 
+    historyPage, 
+    itemsPerPage,
+    isAdmin ? selectedDoctorId : undefined
+  );
   
   const history = historyData?.data || [];
   const historyTotal = historyData?.count || 0;
@@ -228,6 +256,13 @@ export default function DutySystem({ profile }: DutySystemProps) {
           }}
           onClearFilters={handleClearFilters}
           onPageChange={setHistoryPage}
+          isAdmin={isAdmin}
+          doctors={doctors}
+          selectedDoctorId={selectedDoctorId}
+          onDoctorChange={(id) => {
+            setSelectedDoctorId(id);
+            setHistoryPage(1);
+          }}
         />
       </div>
     </div>

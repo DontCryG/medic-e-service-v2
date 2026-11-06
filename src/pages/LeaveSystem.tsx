@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { ClipboardList, Users, PlusCircle, Search } from 'lucide-react';
+import { isAdmin } from '@/utils/permissions';
 
 import { useMyLeaves, useAllLeaves } from './LeaveSystem/hooks/useLeaveQueries';
 import { useLeaveRealtime } from './LeaveSystem/hooks/useLeaveRealtime';
@@ -34,7 +35,7 @@ export default function LeaveSystem({ profile }: LeaveSystemProps) {
   });
 
   // Roles that can manage leaves
-  const isManager = profile?.role === 'admin' || profile?.role === 'director' || profile?.role === 'management';
+  const isManager = isAdmin(profile?.role);
 
   return (
     <div className="max-w-[1400px] mx-auto p-4 sm:p-6 lg:p-8 animate-in fade-in duration-500">

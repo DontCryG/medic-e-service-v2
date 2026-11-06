@@ -7,7 +7,7 @@ export const dutyKeys = {
   all: ['duty'],
   currentSession: (discordId: string) => [...dutyKeys.all, 'currentSession', discordId],
   liveUsers: () => [...dutyKeys.all, 'liveUsers'],
-  history: (discordId: string, startDate: Date, endDate: Date, page: number) => [...dutyKeys.all, 'history', discordId, startDate?.toISOString(), endDate?.toISOString(), page],
+  history: (discordId: string, startDate: Date, endDate: Date, page: number, targetDiscordId?: string) => [...dutyKeys.all, 'history', discordId, targetDiscordId || '', startDate?.toISOString(), endDate?.toISOString(), page],
 };
 
 // Hook: Fetch Current Session
@@ -73,9 +73,17 @@ export function useLiveUsers() {
 }
 
 // Hook: Fetch Duty History
-export function useDutyHistory(discordId: string | undefined, role: string | undefined, startDate: Date, endDate: Date, page: number, itemsPerPage = 50) {
+export function useDutyHistory(
+  discordId: string | undefined, 
+  role: string | undefined, 
+  startDate: Date, 
+  endDate: Date, 
+  page: number, 
+  itemsPerPage = 50,
+  targetDiscordId?: string
+) {
   return useQuery({
-    queryKey: dutyKeys.history(discordId!, startDate, endDate, page),
+    queryKey: dutyKeys.history(discordId!, startDate, endDate, page, targetDiscordId),
     queryFn: async () => {
       if (!discordId) return { data: [], count: 0 };
       
@@ -84,14 +92,18 @@ export function useDutyHistory(discordId: string | undefined, role: string | und
       let query = supabase
         .from('duty_logs')
         .select(`
-          id, discord_id, clock_in, clock_out, total_break_minutes, total_duty_minutes, status, duty_type,
+          id, discord_id, clock_in, clock_out, total_break_minutes, total_duty_minutes, status, duty_type, granted_by,
           users!inner ( ic_name, role, positions (name) )
         `, { count: 'exact' })
         .eq('status', 'completed')
         .order('clock_in', { ascending: false });
 
       // Always only show the user's own history, regardless of their role
-      query = query.eq('discord_id', discordId);
+      if (targetDiscordId && targetDiscordId !== 'all') {
+        query = query.eq('discord_id', targetDiscordId);
+      } else if (!targetDiscordId) {
+        query = query.eq('discord_id', discordId);
+      }
 
       if (startDate) {
         const start = new Date(startDate);

@@ -1,10 +1,11 @@
-﻿import { useState, useRef } from 'react';
+import { useState, useRef } from 'react';
 import { History, RefreshCw, UserPlus } from 'lucide-react';
 import { useAuthStore } from '@/store/authStore';
 import { useQueue } from './hooks/useQueue';
 import { useQueueMutations } from './hooks/useQueueMutations';
 import { QueueRow } from './components/QueueRow';
 import { HistoryModal } from './components/HistoryModal';
+import { isAdmin as checkIsAdmin } from '@/utils/permissions';
 
 export function QueueSystem() {
   const { user } = useAuthStore();
@@ -164,7 +165,7 @@ export function QueueSystem() {
       <HistoryModal 
         isOpen={isHistoryOpen} 
         onClose={() => setIsHistoryOpen(false)} 
-        isAdmin={user?.role === 'admin'}
+        isAdmin={checkIsAdmin(user?.role)}
       />
     </div>
   );

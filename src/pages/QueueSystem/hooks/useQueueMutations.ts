@@ -55,7 +55,9 @@ async function saveManagerHistory(discord_id: string, manager_start_time: string
       clock_in: bonusStart.toISOString(),
       clock_out: bonusEnd.toISOString(),
       total_break_minutes: 0,
-      total_duty_minutes: 120
+      total_duty_minutes: 120,
+      duty_type: 'queue_manager_bonus',
+      granted_by: 'system'
     }]);
 
     if (bonusErr) {

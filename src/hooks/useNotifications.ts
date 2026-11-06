@@ -3,6 +3,7 @@ import { supabase } from '@/lib/supabase';
 import { useAuthStore } from '@/store/authStore';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { playNotificationSound } from '@/utils/sound';
+import { isAdmin as checkIsAdmin } from '@/utils/permissions';
 
 export interface AppNotification {
   id: string;
@@ -18,7 +19,7 @@ export interface AppNotification {
 export function useNotifications() {
   const { user } = useAuthStore();
   const queryClient = useQueryClient();
-  const isAdmin = user?.role === 'admin' || user?.role === 'director' || user?.role === 'co-director' || user?.role === 'management';
+  const isAdmin = checkIsAdmin(user?.role);
 
   const { data: notifications = [] } = useQuery({
     queryKey: ['notifications', user?.discord_id],
@@ -34,7 +35,7 @@ export function useNotifications() {
       if (error) throw error;
       return data as AppNotification[];
     },
-    refetchInterval: 10000 // Fallback polling every 10 seconds in case realtime is off
+    refetchInterval: false // Realtime subscription handles updates
   });
 
 

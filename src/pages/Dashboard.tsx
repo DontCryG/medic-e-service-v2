@@ -1,6 +1,7 @@
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuthStore } from '../store/authStore';
+import { isAdmin as checkIsAdmin } from '../utils/permissions';
 import { motion } from 'framer-motion';
 import { 
   LayoutGrid, 
@@ -97,7 +98,7 @@ const MenuCard = ({ icon, title, description, path, theme }: MenuCardProps) => {
 
 export default function Dashboard() {
   const { user: profile } = useAuthStore();
-  const isAdmin = profile?.role === 'director' || profile?.role === 'deputy_director' || profile?.role === 'admin' || profile?.role === 'management';
+  const isAdmin = checkIsAdmin(profile?.role);
 
   const today = new Date().toLocaleDateString('th-TH', { 
     weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' 

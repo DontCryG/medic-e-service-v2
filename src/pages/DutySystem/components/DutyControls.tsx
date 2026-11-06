@@ -1,6 +1,7 @@
 import { Play, Pause, Square, Clock, RefreshCw, Loader2, Gift } from "lucide-react";
 import { formatTime, getInitial } from "../utils/dutyUtils";
 import { useDutyTimer } from "../hooks/useDutyTimer";
+import { isAdmin } from "@/utils/permissions";
 
 interface DutyControlsProps {
   profile: any;
@@ -82,7 +83,7 @@ export default function DutyControls({
             </>
           )}
         </div>
-        {profile?.role === "admin" && onSpecialDutyClick && (
+        {isAdmin(profile?.role) && onSpecialDutyClick && (
           <button 
             onClick={onSpecialDutyClick}
             className="flex items-center justify-center gap-1.5 px-4 py-2 text-sm font-semibold text-purple-600 hover:text-purple-700 hover:bg-purple-100 bg-purple-50 rounded-md transition-colors border border-purple-200 cursor-pointer w-full sm:w-auto"

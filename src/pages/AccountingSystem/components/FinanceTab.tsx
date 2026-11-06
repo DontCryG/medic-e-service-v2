@@ -2,6 +2,7 @@ import { useState, useMemo } from 'react';
 import { useFinanceLogs } from '../hooks/useAccountingQueries';
 import { useAddFinanceLog, useDeleteFinanceLog } from '../hooks/useAccountingMutations';
 import { useAuthStore } from '@/store/authStore';
+import { isAdmin } from '@/utils/permissions';
 import { ArrowDownRight, ArrowUpRight, Wallet, Printer, Clock, Trash2, Edit2 } from 'lucide-react';
 import Swal from 'sweetalert2';
 import DatePicker from 'react-datepicker';
@@ -243,7 +244,7 @@ export default function FinanceTab() {
                   <th className="pb-4 font-bold text-slate-500 whitespace-nowrap">ประเภท</th>
                   <th className="pb-4 font-bold text-slate-500 whitespace-nowrap text-right">จำนวนเงิน (฿)</th>
                   <th className="pb-4 font-bold text-slate-500 whitespace-nowrap pl-6">รายละเอียด</th>
-                  {user?.role === 'admin' && <th className="pb-4 font-bold text-slate-500 whitespace-nowrap text-center">จัดการ</th>}
+                  {isAdmin(user?.role) && <th className="pb-4 font-bold text-slate-500 whitespace-nowrap text-center">จัดการ</th>}
                 </tr>
               </thead>
               <tbody className="text-sm">
@@ -274,7 +275,7 @@ export default function FinanceTab() {
                         {log.type === 'income' ? '+' : '-'}{log.amount.toLocaleString()}
                       </td>
                       <td className="py-4 pl-6 text-slate-600">{log.description || '-'}</td>
-                      {user?.role === 'admin' && (
+                      {isAdmin(user?.role) && (
                         <td className="py-4 whitespace-nowrap">
                           <div className="flex items-center justify-center gap-2">
                             <button 

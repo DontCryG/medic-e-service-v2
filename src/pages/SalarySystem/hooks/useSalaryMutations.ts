@@ -20,6 +20,7 @@ export function useUpdateDutyLog() {
     onSuccess: () => {
       toast.success('แก้ไขประวัติเวรสำเร็จ');
       queryClient.invalidateQueries({ queryKey: salaryKeys.all });
+      queryClient.invalidateQueries({ queryKey: ['duty'] });
     },
     onError: (error: any) => {
       Swal.fire({ icon: 'error', title: 'ข้อผิดพลาด', text: error.message });
@@ -43,6 +44,7 @@ export function useDeleteDutyLog() {
     onSuccess: () => {
       toast.success('ลบประวัติเวรสำเร็จ');
       queryClient.invalidateQueries({ queryKey: salaryKeys.all });
+      queryClient.invalidateQueries({ queryKey: ['duty'] });
     },
     onError: (error: any) => {
       Swal.fire({ icon: 'error', title: 'ข้อผิดพลาด', text: error.message });

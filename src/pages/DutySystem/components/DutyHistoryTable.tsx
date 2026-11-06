@@ -1,7 +1,18 @@
-import React from 'react';
-import { Clock, Filter, Inbox } from 'lucide-react';
+import React, { useState } from 'react';
+import { Clock, Filter, Inbox, Pencil, Trash2 } from 'lucide-react';
 import SmartDatePicker from '../../../components/common/SmartDatePicker';
-import { formatDateString } from '../utils/dutyUtils';
+import SmartSelect from '../../../components/common/SmartSelect';
+import { formatDateString, getDutyBadgeInfo } from '../utils/dutyUtils';
+import EditDutyModal from './EditDutyModal';
+import { supabase } from '@/lib/supabase';
+import { useQueryClient } from '@tanstack/react-query';
+import Swal from 'sweetalert2';
+import toast from 'react-hot-toast';
+
+interface DoctorOption {
+  discord_id: string;
+  ic_name: string;
+}
 
 interface DutyHistoryTableProps {
   history: any[];
@@ -14,6 +25,10 @@ interface DutyHistoryTableProps {
   onEndDateChange: (date: Date | null) => void;
   onClearFilters: () => void;
   onPageChange: (page: number) => void;
+  isAdmin?: boolean;
+  doctors?: DoctorOption[];
+  selectedDoctorId?: string;
+  onDoctorChange?: (id: string) => void;
 }
 
 const DutyHistoryTable = React.memo(function DutyHistoryTable({
@@ -26,13 +41,79 @@ const DutyHistoryTable = React.memo(function DutyHistoryTable({
   onStartDateChange,
   onEndDateChange,
   onClearFilters,
-  onPageChange
+  onPageChange,
+  isAdmin = false,
+  doctors = [],
+  selectedDoctorId = '',
+  onDoctorChange
 }: DutyHistoryTableProps) {
+  const queryClient = useQueryClient();
+  const [editingLog, setEditingLog] = useState<any>(null);
+
+  const handleDelete = async (id: string) => {
+    const result = await Swal.fire({
+      title: 'ลบประวัติเวร?',
+      text: 'คุณต้องการลบประวัติเวรนี้ใช่หรือไม่? การกระทำนี้ไม่สามารถกู้คืนได้',
+      icon: 'warning',
+      showCancelButton: true,
+      confirmButtonColor: '#ef4444',
+      confirmButtonText: 'ลบทิ้ง',
+      cancelButtonText: 'ยกเลิก'
+    });
+
+    if (result.isConfirmed) {
+      try {
+        const { error } = await supabase.from('duty_logs').delete().eq('id', id);
+        if (error) throw error;
+        toast.success('ลบประวัติเวรสำเร็จ');
+        queryClient.invalidateQueries({ queryKey: ['duty'] });
+        queryClient.invalidateQueries({ queryKey: ['salary'] });
+      } catch (err: any) {
+        Swal.fire({ icon: 'error', title: 'เกิดข้อผิดพลาด', text: err.message });
+      }
+    }
+  };
+
+  const doctorOptions = [
+    { value: '', label: 'ของฉัน (ค่าเริ่มต้น)' },
+    { value: 'all', label: 'แพทย์ทุกคน (ทั้งหมด)' },
+    ...doctors.map(d => ({ value: d.discord_id, label: d.ic_name }))
+  ];
+
+  const colSpanCount = isAdmin ? 6 : 4;
+
   return (
     <div className="bg-white rounded-2xl p-6 border border-slate-200 shadow-sm flex flex-col">
+      {editingLog && (
+        <EditDutyModal 
+          log={editingLog} 
+          onClose={() => setEditingLog(null)} 
+        />
+      )}
+
       <div className="flex flex-col xl:flex-row justify-between items-start xl:items-center gap-4 mb-6">
-        <h3 className="text-xl font-bold text-slate-800 m-0 flex items-center gap-2"><Clock size={22} color="#7c3aed" /> ประวัติการเข้าเวรของคุณ</h3>
+        <h3 className="text-xl font-bold text-slate-800 m-0 flex items-center gap-2">
+          <Clock size={22} color="#7c3aed" /> 
+          {isAdmin && selectedDoctorId === 'all' 
+            ? 'ประวัติการเข้าเวร (แพทย์ทุกคน)' 
+            : isAdmin && selectedDoctorId 
+            ? `ประวัติการเข้าเวร (${doctors.find(d => d.discord_id === selectedDoctorId)?.ic_name || 'แพทย์ที่เลือก'})` 
+            : 'ประวัติการเข้าเวรของคุณ'}
+        </h3>
+        
         <div className="flex flex-wrap items-center gap-3 w-full xl:w-auto xl:justify-end">
+          {isAdmin && onDoctorChange && (
+            <div className="w-[180px]">
+              <SmartSelect
+                options={doctorOptions}
+                value={selectedDoctorId}
+                onChange={onDoctorChange}
+                placeholder="เลือกแพทย์"
+                searchable={true}
+              />
+            </div>
+          )}
+
           <Filter size={18} color="var(--text-secondary)" />
           <div className="flex items-center gap-2">
             <span className="text-sm text-slate-500">ตั้งแต่:</span>
@@ -76,14 +157,21 @@ const DutyHistoryTable = React.memo(function DutyHistoryTable({
           </button>
         </div>
       </div>
+
       <div className="overflow-x-auto border border-slate-200 rounded-md">
-        <table className="w-full min-w-[700px] border-collapse text-left">
+        <table className="w-full min-w-[750px] border-collapse text-left">
           <thead>
             <tr>
-              <th className="p-4 bg-slate-50 text-slate-500 font-semibold text-sm border-b border-slate-200">วันที่เข้าเวร</th>
+              {isAdmin && (
+                <th className="p-4 bg-slate-50 text-slate-500 font-semibold text-sm border-b border-slate-200">ชื่อแพทย์</th>
+              )}
+              <th className="p-4 bg-slate-50 text-slate-500 font-semibold text-sm border-b border-slate-200">วันที่เข้าเวร / ที่มา</th>
               <th className="p-4 bg-slate-50 text-slate-500 font-semibold text-sm border-b border-slate-200">เวลาออกเวร</th>
               <th className="p-4 bg-slate-50 text-slate-500 font-semibold text-sm border-b border-slate-200">พักเบรก (นาที)</th>
               <th className="p-4 bg-slate-50 text-slate-500 font-semibold text-sm border-b border-slate-200">รวมเวลา</th>
+              {isAdmin && (
+                <th className="p-4 bg-slate-50 text-slate-500 font-semibold text-sm border-b border-slate-200 text-center">จัดการ</th>
+              )}
             </tr>
           </thead>
           <tbody>
@@ -99,34 +187,61 @@ const DutyHistoryTable = React.memo(function DutyHistoryTable({
               }
               formattedTime += `${minutes} นาที`;
 
-              let badge = null;
-              if (log.duty_type === 'exam_doctor') {
-                badge = <span style={{ marginLeft: '0.5rem', fontSize: '0.75rem', background: '#3b82f6', color: 'white', padding: '0.1rem 0.4rem', borderRadius: '4px' }}>สอบหมอใหม่</span>;
-              } else if (log.duty_type === 'mentor') {
-                badge = <span style={{ marginLeft: '0.5rem', fontSize: '0.75rem', background: '#ec4899', color: 'white', padding: '0.1rem 0.4rem', borderRadius: '4px' }}>พี่เลี้ยง</span>;
-              }
+              const badge = getDutyBadgeInfo(log.duty_type, log.granted_by);
               
               return (
                 <tr key={log.id} className="border-b border-slate-100 hover:bg-slate-50/50">
+                  {isAdmin && (
+                    <td className="p-4 text-slate-800 font-medium">
+                      <div>{log.users?.ic_name || '-'}</div>
+                      <div className="text-xs text-slate-400">{log.users?.positions?.name || ''}</div>
+                    </td>
+                  )}
                   <td className="p-4 text-slate-700 text-[0.95rem]">
-                    {formatDateString(log.clock_in)}
-                    {badge}
+                    <div className="flex flex-wrap items-center gap-1.5">
+                      <span>{formatDateString(log.clock_in)}</span>
+                      {badge && (
+                        <span className={`inline-flex items-center px-2 py-0.5 rounded-full text-xs font-semibold border ${badge.bgClass} ${badge.textClass} ${badge.borderClass}`}>
+                          {badge.label}
+                        </span>
+                      )}
+                    </div>
                   </td>
                   <td className="p-4 text-slate-700 text-[0.95rem]">{formatDateString(log.clock_out)}</td>
                   <td className="p-4 text-slate-700 text-[0.95rem]">{breakMinutes}</td>
                   <td className="p-4 text-slate-800 font-bold">{formattedTime}</td>
+                  {isAdmin && (
+                    <td className="p-4 text-center">
+                      <div className="flex items-center justify-center gap-2">
+                        <button
+                          onClick={() => setEditingLog(log)}
+                          className="p-2 bg-blue-50 text-blue-600 hover:bg-blue-100 rounded-lg transition-colors border-none cursor-pointer"
+                          title="แก้ไขประวัติเวร"
+                        >
+                          <Pencil size={15} />
+                        </button>
+                        <button
+                          onClick={() => handleDelete(log.id)}
+                          className="p-2 bg-red-50 text-red-600 hover:bg-red-100 rounded-lg transition-colors border-none cursor-pointer"
+                          title="ลบประวัติเวร"
+                        >
+                          <Trash2 size={15} />
+                        </button>
+                      </div>
+                    </td>
+                  )}
                 </tr>
-              )
+              );
             }) : (
               <tr>
-                <td colSpan={4} className="text-center py-16 px-8">
+                <td colSpan={colSpanCount} className="text-center py-16 px-8">
                   <div className="flex flex-col items-center gap-4">
                     <div className="w-16 h-16 rounded-full bg-slate-100 flex items-center justify-center text-slate-400">
                       <Inbox size={32} />
                     </div>
                     <div>
                       <p className="m-0 mb-2 font-semibold text-slate-700 text-lg">ยังไม่มีประวัติการเข้าเวร</p>
-                      <p className="m-0 text-sm text-slate-400">ประวัติการเข้าเวรของคุณจะแสดงที่นี่เมื่อคุณเริ่มงาน</p>
+                      <p className="m-0 text-sm text-slate-400">ประวัติการเข้าเวรจะแสดงที่นี่เมื่อเริ่มงาน</p>
                     </div>
                   </div>
                 </td>

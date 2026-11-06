@@ -2,6 +2,7 @@ import { useState, useMemo, useRef, useEffect } from 'react';
 import { useInventoryLogs, useInventoryStock } from '../hooks/useAccountingQueries';
 import { useAddInventoryLog, useDeleteInventoryLog } from '../hooks/useAccountingMutations';
 import { useAuthStore } from '@/store/authStore';
+import { isAdmin } from '@/utils/permissions';
 import { PackagePlus, PackageMinus, Package, Printer, Clock, Trash2, Edit2 } from 'lucide-react';
 import Swal from 'sweetalert2';
 import DatePicker from 'react-datepicker';
@@ -351,7 +352,7 @@ export default function InventoryTab() {
                   <th className="pb-4 font-bold text-slate-500 whitespace-nowrap">สิ่งของ</th>
                   <th className="pb-4 font-bold text-slate-500 whitespace-nowrap text-right">จำนวน</th>
                   <th className="pb-4 font-bold text-slate-500 whitespace-nowrap pl-6">รายละเอียด</th>
-                  {user?.role === 'admin' && <th className="pb-4 font-bold text-slate-500 whitespace-nowrap text-center">จัดการ</th>}
+                  {isAdmin(user?.role) && <th className="pb-4 font-bold text-slate-500 whitespace-nowrap text-center">จัดการ</th>}
                 </tr>
               </thead>
               <tbody className="text-sm">
@@ -383,7 +384,7 @@ export default function InventoryTab() {
                         {log.type === 'receive' ? '+' : '-'}{log.quantity.toLocaleString()}
                       </td>
                       <td className="py-4 pl-6 text-slate-600">{log.description || '-'}</td>
-                      {user?.role === 'admin' && (
+                      {isAdmin(user?.role) && (
                         <td className="py-4 whitespace-nowrap">
                           <div className="flex items-center justify-center gap-2">
                             <button 

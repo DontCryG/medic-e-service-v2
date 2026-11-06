@@ -1,6 +1,7 @@
 import { useState, useRef, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuthStore } from '../store/authStore';
+import { isAdmin as checkIsAdmin } from '@/utils/permissions';
 import { getInitial } from '../pages/PersonnelSystem/utils/personnelUtils';
 import { Search, Menu, PanelLeftClose, PanelLeftOpen, LayoutDashboard, LayoutGrid, Clock, CalendarDays, Users, Banknote, Wallet, Settings } from 'lucide-react';
 import { AnimatePresence, motion } from 'framer-motion';
@@ -15,7 +16,7 @@ interface HeaderProps {
 export default function Header({ setIsMobileMenuOpen, isSidebarCollapsed, setIsSidebarCollapsed }: HeaderProps) {
   const { user } = useAuthStore();
   const navigate = useNavigate();
-  const isAdmin = user?.role === 'admin' || user?.role === 'director' || user?.role === 'management';
+  const isAdmin = checkIsAdmin(user?.role);
 
   const searchIndex = [
     { title: 'กระดานหลัก (Dashboard)', path: '/dashboard', icon: <LayoutDashboard size={18}/>, keywords: ['หน้าแรก', 'home', 'dashboard'], requireAdmin: false },

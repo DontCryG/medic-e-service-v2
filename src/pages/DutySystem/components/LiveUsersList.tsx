@@ -1,4 +1,5 @@
 import { Activity, Play, Pause, Square } from 'lucide-react';
+import { isAdmin } from '@/utils/permissions';
 
 interface LiveUsersListProps {
   liveUsers: any[];
@@ -29,7 +30,7 @@ export default function LiveUsersList({
               <th className="p-4 bg-slate-50 text-slate-500 font-semibold text-sm border-b border-slate-200">ชื่อแพทย์</th>
               <th className="p-4 bg-slate-50 text-slate-500 font-semibold text-sm border-b border-slate-200">สถานะ</th>
               <th className="p-4 bg-slate-50 text-slate-500 font-semibold text-sm border-b border-slate-200">เวลาเริ่ม</th>
-              {profile.role === 'admin' && <th className="p-4 bg-slate-50 text-slate-500 font-semibold text-sm border-b border-slate-200 text-right">จัดการ (แอดมิน)</th>}
+              {isAdmin(profile?.role) && <th className="p-4 bg-slate-50 text-slate-500 font-semibold text-sm border-b border-slate-200 text-right">จัดการ (แอดมิน)</th>}
             </tr>
           </thead>
           <tbody>
@@ -45,7 +46,7 @@ export default function LiveUsersList({
                   </span>
                 </td>
                 <td className="p-4 text-slate-700">{new Date(user.clock_in).toLocaleTimeString('th-TH', { hour: '2-digit', minute: '2-digit' })}</td>
-                {profile.role === 'admin' && (
+                {isAdmin(profile?.role) && (
                   <td className="p-4 text-right">
                     <div className="flex gap-2 justify-end">
                       <button className="flex items-center gap-1.5 px-4 py-1.5 bg-amber-500 text-white rounded-md text-xs font-semibold hover:bg-amber-600 transition-colors disabled:opacity-50 disabled:cursor-not-allowed border-none cursor-pointer" onClick={() => onAdminToggleBreak(user)}
@@ -64,7 +65,7 @@ export default function LiveUsersList({
               </tr>
             )) : (
               <tr>
-                <td colSpan={profile.role === 'admin' ? 4 : 3} className="p-8 text-center text-slate-500">ไม่มีผู้เข้าเวรในขณะนี้</td>
+                <td colSpan={isAdmin(profile?.role) ? 4 : 3} className="p-8 text-center text-slate-500">ไม่มีผู้เข้าเวรในขณะนี้</td>
               </tr>
             )}
           </tbody>

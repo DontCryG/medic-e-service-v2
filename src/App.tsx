@@ -9,6 +9,7 @@ import {
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { useAuthStore } from './store/authStore';
 import { useAppRealtime } from './hooks/useAppRealtime';
+import { isAdmin } from './utils/permissions';
 import { setSentryUser, clearSentryUser } from './lib/sentry';
 import { supabase } from './lib/supabase';
 import GlobalError from './components/common/GlobalError';
@@ -70,9 +71,9 @@ const ProtectedRoute = ({ children }: { children: React.ReactNode }) => {
 // Admin Route Wrapper
 const AdminRoute = ({ children }: { children: React.ReactNode }) => {
   const { user } = useAuthStore();
-  const isAdmin = user?.role === 'admin' || user?.role === 'director' || user?.role === 'management';
+  const isAdminRole = isAdmin(user?.role);
   
-  if (!isAdmin) return <Navigate to="/dashboard" replace />;
+  if (!isAdminRole) return <Navigate to="/dashboard" replace />;
   return <>{children}</>;
 };
 

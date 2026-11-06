@@ -5,6 +5,7 @@ import { useUpdateDutyLog, useDeleteDutyLog } from '../hooks/useSalaryMutations'
 import Swal from 'sweetalert2';
 import toast from 'react-hot-toast';
 import SmartDateTimePicker from '../../../components/common/SmartDateTimePicker';
+import { getDutyBadgeInfo } from '@/pages/DutySystem/utils/dutyUtils';
 
 function DateTimeInput({ value, onChange, placeholder }: any) {
   return (
@@ -124,14 +125,17 @@ export default function DutyLogEditModal({ user, startDate, endDate, onClose }: 
               <table className="w-full text-left border-collapse min-w-[950px] text-sm">
                 <thead>
                   <tr>
-                    <th className="p-4 text-slate-500 font-semibold border-b-2 border-slate-100 w-[35%]">วันที่เข้าเวร (Clock In)</th>
-                    <th className="p-4 text-slate-500 font-semibold border-b-2 border-slate-100 w-[35%]">เวลาออกเวร (Clock Out)</th>
-                    <th className="p-4 text-slate-500 font-semibold border-b-2 border-slate-100 w-[100px] text-center">พักเบรก (นาที)</th>
-                    <th className="p-4 text-slate-500 font-semibold border-b-2 border-slate-100 w-[180px] text-center">จัดการ</th>
+                    <th className="p-4 text-slate-500 font-semibold border-b-2 border-slate-100 w-[25%]">วันที่เข้าเวร (Clock In)</th>
+                    <th className="p-4 text-slate-500 font-semibold border-b-2 border-slate-100 w-[25%]">เวลาออกเวร (Clock Out)</th>
+                    <th className="p-4 text-slate-500 font-semibold border-b-2 border-slate-100 w-[90px] text-center">พัก (นาที)</th>
+                    <th className="p-4 text-slate-500 font-semibold border-b-2 border-slate-100 text-center">ประเภท / ที่มา</th>
+                    <th className="p-4 text-slate-500 font-semibold border-b-2 border-slate-100 w-[160px] text-center">จัดการ</th>
                   </tr>
                 </thead>
                 <tbody>
-                  {logs.map(log => (
+                  {logs.map(log => {
+                    const badge = getDutyBadgeInfo(log.duty_type, log.granted_by);
+                    return (
                     <tr key={log.id}>
                       {editingId === log.id ? (
                         <>
@@ -154,8 +158,17 @@ export default function DutyLogEditModal({ user, startDate, endDate, onClose }: 
                               type="number" 
                               value={editForm.total_break_minutes} 
                               onChange={(e) => setEditForm({...editForm, total_break_minutes: e.target.value as any})}
-                              className="w-[100px] text-center border border-slate-200 rounded-lg p-2 outline-none focus:border-[var(--primary)] mx-auto block"
+                              className="w-[80px] text-center border border-slate-200 rounded-lg p-2 outline-none focus:border-[var(--primary)] mx-auto block"
                             />
+                          </td>
+                          <td className="p-2 border-b border-slate-50 text-center">
+                            {badge ? (
+                              <span className={`inline-flex items-center px-2.5 py-1 rounded-full text-xs font-semibold border ${badge.bgClass} ${badge.textClass} ${badge.borderClass}`}>
+                                {badge.label}
+                              </span>
+                            ) : (
+                              <span className="text-xs text-slate-400">เวรปกติ</span>
+                            )}
                           </td>
                           <td className="p-2 border-b border-slate-50 text-center">
                             <div className="flex gap-2 justify-center">
@@ -184,6 +197,15 @@ export default function DutyLogEditModal({ user, startDate, endDate, onClose }: 
                             {!log.clock_out && <span className="text-xs ml-2 text-red-500">(ยังไม่ออกเวร)</span>}
                           </td>
                           <td className="p-4 border-b border-slate-50 text-center text-slate-700">{Math.floor(log.total_break_minutes || 0)}</td>
+                          <td className="p-4 border-b border-slate-50 text-center whitespace-nowrap">
+                            {badge ? (
+                              <span className={`inline-flex items-center px-2.5 py-1 rounded-full text-xs font-semibold border ${badge.bgClass} ${badge.textClass} ${badge.borderClass}`}>
+                                {badge.label}
+                              </span>
+                            ) : (
+                              <span className="text-xs text-slate-400">เวรปกติ</span>
+                            )}
+                          </td>
                           <td className="p-4 border-b border-slate-50">
                             <div className="flex gap-2 justify-center">
                               <button 
@@ -204,7 +226,8 @@ export default function DutyLogEditModal({ user, startDate, endDate, onClose }: 
                         </>
                       )}
                     </tr>
-                  ))}
+                  );
+                  })}
                 </tbody>
               </table>
             </div>
