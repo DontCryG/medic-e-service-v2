@@ -110,8 +110,26 @@ export function useQueue(currentUserId: string | undefined) {
 
       users = [...users, ...volunteerUsers];
 
-      // Keep rows in their fixed original order by clock-in/join time; ticking status does not reorder the rows
+      // Sort logic:
+      // 1. หมอรันคิว ('manager') อยู่บนสุด (rank 1)
+      // 2. แพทย์ทั่วไป / พร้อมรับคิว ('queued') / เคสสตอรี่ อยู่ลำดับเดิมตามเวลาเข้าเวร (rank 2)
+      // 3. ไม่สะดวก ('unavailable') อยู่ล่างสุด (rank 3)
       users.sort((a, b) => {
+        const getRank = (u: QueueUser) => {
+          const s = u.status_record?.status;
+          if (s === 'manager') return 1;
+          if (s === 'unavailable') return 3;
+          return 2;
+        };
+
+        const rankA = getRank(a);
+        const rankB = getRank(b);
+
+        if (rankA !== rankB) {
+          return rankA - rankB;
+        }
+
+        // Within the same rank, preserve chronological order by clock-in/join time
         const getJoinTime = (user: QueueUser) => {
           if (user.is_volunteer) {
             return user.volunteer_added_at ? new Date(user.volunteer_added_at).getTime() : 0;
