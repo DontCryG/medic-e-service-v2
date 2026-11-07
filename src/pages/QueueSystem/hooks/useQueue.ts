@@ -110,25 +110,8 @@ export function useQueue(currentUserId: string | undefined) {
 
       users = [...users, ...volunteerUsers];
 
-      // Sort users
+      // Keep rows in their fixed original order by clock-in/join time; ticking status does not reorder the rows
       users.sort((a, b) => {
-        const statusOrder: Record<string, number> = {
-          'manager': 1,
-          'attending': 2,
-          'in_case': 3,
-          'queued': 4,
-          'story': 5,
-        };
-
-        const orderA = a.status_record?.status ? (statusOrder[a.status_record.status] || 6) : 6;
-        const orderB = b.status_record?.status ? (statusOrder[b.status_record.status] || 6) : 6;
-
-        // 1. Sort by Status Priority
-        if (orderA !== orderB) {
-          return orderA - orderB;
-        }
-
-        // 2. Sort chronologically by "join time"
         const getJoinTime = (user: QueueUser) => {
           if (user.is_volunteer) {
             return user.volunteer_added_at ? new Date(user.volunteer_added_at).getTime() : 0;
