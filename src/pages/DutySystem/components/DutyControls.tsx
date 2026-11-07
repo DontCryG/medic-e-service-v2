@@ -1,4 +1,4 @@
-import { Play, Pause, Square, Clock, RefreshCw, Loader2, Gift, ShieldAlert } from "lucide-react";
+import { Play, Pause, Square, Clock, RefreshCw, Loader2, Gift } from "lucide-react";
 import { formatTime, getInitial } from "../utils/dutyUtils";
 import { useDutyTimer } from "../hooks/useDutyTimer";
 import { isAdmin } from "@/utils/permissions";
@@ -11,6 +11,7 @@ interface DutyControlsProps {
   onClockIn: (e?: any) => void;
   onBreak: (e?: any) => void;
   onClockOut: (e?: any) => void;
+  onBreakTimeout?: () => void;
   onSpecialDutyClick?: () => void;
 }
 
@@ -22,9 +23,10 @@ export default function DutyControls({
   onClockIn,
   onBreak,
   onClockOut,
+  onBreakTimeout,
   onSpecialDutyClick
 }: DutyControlsProps) {
-  const dutyTime = useDutyTimer(currentSession);
+  const { dutyTime, breakRemainingSeconds } = useDutyTimer(currentSession, { onBreakTimeout });
   const isOnDuty = currentSession?.status === "on_duty";
   const isOnBreak = currentSession?.status === "on_break";
 
@@ -101,17 +103,46 @@ export default function DutyControls({
 
         {/* Digital Clock Display for Active Shift */}
         {currentSession && (
-          <div className="flex flex-col items-center justify-center px-6 py-3.5 bg-slate-900 text-white rounded-2xl border border-slate-800 shadow-inner w-full sm:w-auto min-w-[240px]">
-            <span className="text-[0.65rem] font-bold text-slate-400 uppercase tracking-widest mb-1">
-              {isOnDuty ? 'เวลาปฏิบัติงานสุทธิ' : 'หยุดนับเวลาชั่วคราว'}
-            </span>
-            <div className="font-mono text-3xl sm:text-4xl font-black tracking-widest text-emerald-400 drop-shadow-[0_0_12px_rgba(52,211,153,0.3)]">
-              {formatTime(dutyTime)}
+          <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3 w-full sm:w-auto">
+            {/* Duty Timer (Active or Paused) */}
+            <div className="flex flex-col items-center justify-center px-6 py-3.5 bg-slate-900 text-white rounded-2xl border border-slate-800 shadow-inner w-full sm:w-auto min-w-[210px]">
+              <span className="text-[0.65rem] font-bold text-slate-400 uppercase tracking-widest mb-1">
+                {isOnDuty ? 'เวลาปฏิบัติงานสุทธิ' : 'หยุดนับเวลาชั่วคราว'}
+              </span>
+              <div className={`font-mono text-3xl sm:text-4xl font-black tracking-widest ${
+                isOnDuty 
+                  ? 'text-emerald-400 drop-shadow-[0_0_12px_rgba(52,211,153,0.3)]' 
+                  : 'text-amber-400'
+              }`}>
+                {formatTime(dutyTime)}
+              </div>
+              <div className="flex items-center gap-2 mt-1 text-[0.7rem] text-slate-400">
+                <Clock size={12} />
+                <span>เริ่มเข้าเวร: {new Date(currentSession.clock_in).toLocaleTimeString('th-TH', { hour: '2-digit', minute: '2-digit' })} น.</span>
+              </div>
             </div>
-            <div className="flex items-center gap-2 mt-1 text-[0.7rem] text-slate-400">
-              <Clock size={12} />
-              <span>เริ่มเข้าเวร: {new Date(currentSession.clock_in).toLocaleTimeString('th-TH', { hour: '2-digit', minute: '2-digit' })} น.</span>
-            </div>
+
+            {/* Break Remaining Countdown Card (Only shown during on_break) */}
+            {isOnBreak && (
+              <div className={`flex flex-col items-center justify-center px-5 py-3 rounded-2xl border shadow-sm w-full sm:w-auto min-w-[200px] transition-all ${
+                breakRemainingSeconds <= 180
+                  ? 'bg-rose-950/90 border-rose-600/80 text-rose-100 ring-2 ring-rose-500/40 animate-pulse'
+                  : 'bg-amber-950/80 border-amber-600/70 text-amber-100'
+              }`}>
+                <div className="flex items-center gap-1.5 text-[0.68rem] font-black uppercase tracking-wider mb-0.5">
+                  <Clock size={13} className={breakRemainingSeconds <= 180 ? 'text-rose-400' : 'text-amber-400'} />
+                  <span>เวลาพักคงเหลือ</span>
+                </div>
+                <div className={`font-mono text-2xl sm:text-3xl font-black tracking-widest ${
+                  breakRemainingSeconds <= 180 ? 'text-rose-400' : 'text-amber-400'
+                }`}>
+                  {formatTime(breakRemainingSeconds)}
+                </div>
+                <div className="text-[0.65rem] font-semibold opacity-90 mt-0.5">
+                  {breakRemainingSeconds <= 180 ? '⚠️ ครบ 15 นาที ออกเวรอัตโนมัติ' : 'พักเบรกได้ไม่เกิน 15 นาที'}
+                </div>
+              </div>
+            )}
           </div>
         )}
 

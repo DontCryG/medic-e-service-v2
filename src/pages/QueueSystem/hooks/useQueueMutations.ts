@@ -3,7 +3,7 @@ import { showErrorAlert } from '@/utils/alert';
 import { supabase } from '@/lib/supabase';
 import type { QueueStatusType, QueueStatus } from '../types';
 
-async function saveManagerHistory(discord_id: string, manager_start_time: string) {
+export async function saveManagerHistory(discord_id: string, manager_start_time: string) {
   const start = new Date(manager_start_time);
   const end = new Date();
   const durationMins = Math.floor((end.getTime() - start.getTime()) / 60000); 

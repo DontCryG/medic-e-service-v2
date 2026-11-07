@@ -97,14 +97,29 @@ export default function LiveUsersList({
                     </div>
                   </td>
                   <td className="p-4 text-center align-middle">
-                    <span className={`inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold border ${
-                      isOnDuty 
-                        ? 'bg-emerald-50 text-emerald-700 border-emerald-200' 
-                        : 'bg-amber-50 text-amber-700 border-amber-200'
-                    }`}>
-                      <span className={`w-1.5 h-1.5 rounded-full ${isOnDuty ? 'bg-emerald-500 animate-pulse' : 'bg-amber-500'}`} />
-                      {isOnDuty ? 'ปฏิบัติหน้าที่' : 'พักเบรก'}
-                    </span>
+                    {isOnDuty ? (
+                      <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold border bg-emerald-50 text-emerald-700 border-emerald-200">
+                        <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" />
+                        ปฏิบัติหน้าที่
+                      </span>
+                    ) : (
+                      (() => {
+                        const elapsedMins = user.last_break_start 
+                          ? Math.floor(Math.max(0, Date.now() - new Date(user.last_break_start).getTime()) / 60000)
+                          : 0;
+                        const isNearLimit = elapsedMins >= 12;
+                        return (
+                          <span className={`inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold border ${
+                            isNearLimit 
+                              ? 'bg-rose-50 text-rose-700 border-rose-200 animate-pulse' 
+                              : 'bg-amber-50 text-amber-700 border-amber-200'
+                          }`}>
+                            <span className={`w-1.5 h-1.5 rounded-full ${isNearLimit ? 'bg-rose-500' : 'bg-amber-500'}`} />
+                            พักเบรก ({elapsedMins}/15 น.)
+                          </span>
+                        );
+                      })()
+                    )}
                   </td>
                   <td className="p-4 text-slate-700 align-middle">
                     <div className="flex items-center gap-1.5 text-xs font-medium text-slate-600">

@@ -2,6 +2,7 @@ import { useEffect } from 'react';
 import { useQueryClient } from '@tanstack/react-query';
 import { supabase } from '@/lib/supabase';
 import { dutyKeys } from '@/pages/DutySystem/hooks/useDutyQueries';
+import { cleanupAllExpiredBreaks } from '@/pages/DutySystem/hooks/useDutyMutations';
 import { useAuthStore } from '@/store/authStore';
 
 export const broadcastForceSync = () => {
@@ -121,7 +122,18 @@ export function useAppRealtime() {
       })
       .subscribe();
 
+    // Periodic sweep for expired breaks (> 15 mins) to keep active roster and queues clean
+    const breakSweepInterval = setInterval(() => {
+      cleanupAllExpiredBreaks().then((count) => {
+        if (count > 0) {
+          queryClient.invalidateQueries({ queryKey: dutyKeys.all });
+          queryClient.invalidateQueries({ queryKey: ['queue_users'] });
+        }
+      });
+    }, 60000);
+
     return () => {
+      clearInterval(breakSweepInterval);
       supabase.removeChannel(channel);
     };
   }, [queryClient]);

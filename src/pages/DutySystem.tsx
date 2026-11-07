@@ -1,4 +1,4 @@
-import { useState, useRef } from 'react';
+import { useState, useRef, useEffect, useCallback } from 'react';
 import { Clock } from 'lucide-react';
 import DutyControls from './DutySystem/components/DutyControls';
 import LiveUsersList from './DutySystem/components/LiveUsersList';
@@ -10,7 +10,7 @@ import { useQuery } from '@tanstack/react-query';
 
 // Import our new hooks
 import { useCurrentSession, useLiveUsers, useDutyHistory } from './DutySystem/hooks/useDutyQueries';
-import { useClockIn, useToggleBreak, useClockOut, useAdminToggleBreak, useAdminClockOut } from './DutySystem/hooks/useDutyMutations';
+import { useClockIn, useToggleBreak, useClockOut, useAdminToggleBreak, useAdminClockOut, useAutoClockOut, cleanupAllExpiredBreaks } from './DutySystem/hooks/useDutyMutations';
 import { useDutyRealtime } from './DutySystem/hooks/useDutyRealtime';
 import { enterpriseSwal, showConfirmDialog } from '@/utils/alert';
 
@@ -83,10 +83,38 @@ export default function DutySystem({ profile }: DutySystemProps) {
   const clockInMutation = useClockIn();
   const toggleBreakMutation = useToggleBreak();
   const clockOutMutation = useClockOut();
+  const autoClockOutMutation = useAutoClockOut();
   const adminToggleBreakMutation = useAdminToggleBreak();
   const adminClockOutMutation = useAdminClockOut();
 
   const processingRef = useRef(false);
+
+  // Background watchdog: sweep expired breaks on mount
+  useEffect(() => {
+    cleanupAllExpiredBreaks();
+  }, []);
+
+  // Check if current session's break already expired (> 15 mins)
+  useEffect(() => {
+    if (currentSession?.status === 'on_break' && currentSession?.last_break_start) {
+      const elapsedMs = Date.now() - new Date(currentSession.last_break_start).getTime();
+      if (elapsedMs >= 15 * 60 * 1000 && !autoClockOutMutation.isPending && !processingRef.current) {
+        processingRef.current = true;
+        autoClockOutMutation.mutate(currentSession, {
+          onSettled: () => { processingRef.current = false; }
+        });
+      }
+    }
+  }, [currentSession, autoClockOutMutation]);
+
+  const handleBreakTimeout = useCallback(() => {
+    if (!currentSession || currentSession.status !== 'on_break') return;
+    if (autoClockOutMutation.isPending || processingRef.current) return;
+    processingRef.current = true;
+    autoClockOutMutation.mutate(currentSession, {
+      onSettled: () => { processingRef.current = false; }
+    });
+  }, [currentSession, autoClockOutMutation]);
 
   const handleClockIn = () => {
     if (clockInMutation.isPending || processingRef.current) return;
@@ -195,7 +223,7 @@ export default function DutySystem({ profile }: DutySystemProps) {
 
   if (!profile) return null;
 
-  const isMutating = clockInMutation.isPending || toggleBreakMutation.isPending || clockOutMutation.isPending;
+  const isMutating = clockInMutation.isPending || toggleBreakMutation.isPending || clockOutMutation.isPending || autoClockOutMutation.isPending;
 
   return (
     <div className="w-full max-w-[1400px] mx-auto flex flex-col gap-6 animate-in fade-in duration-300">
@@ -225,6 +253,7 @@ export default function DutySystem({ profile }: DutySystemProps) {
         onClockIn={handleClockIn}
         onBreak={handleBreak}
         onClockOut={handleClockOut}
+        onBreakTimeout={handleBreakTimeout}
       />
 
       <div className="grid grid-cols-1 gap-8">
