@@ -99,7 +99,7 @@ export default function Header({ setIsMobileMenuOpen, isSidebarCollapsed, setIsS
         
         <div className="relative w-full max-w-[320px] hidden sm:block ml-2" ref={searchRef}>
           <div className="relative flex items-center group">
-            <Search size={18} className="absolute left-4 text-slate-400 group-focus-within:text-[#7e22ce] transition-colors" />
+            <Search size={16} className="absolute left-4 text-slate-400 group-focus-within:text-purple-600 transition-colors" />
             <input 
               type="text" 
               placeholder="ค้นหาเมนูการใช้งาน..." 
@@ -110,7 +110,7 @@ export default function Header({ setIsMobileMenuOpen, isSidebarCollapsed, setIsS
               }}
               onFocus={() => setIsOpen(true)}
               onKeyDown={handleKeyDown}
-              className="w-full bg-[#f1f5f9] border border-transparent text-slate-800 text-[0.95rem] rounded-full !pl-11 !pr-4 !py-2.5 outline-none focus:bg-white focus:border-[#7e22ce] focus:ring-4 focus:ring-[#7e22ce]/10 transition-all font-medium placeholder:text-slate-400 m-0"
+              className="w-full bg-slate-100/80 border border-transparent text-slate-900 text-xs rounded-full !pl-10 !pr-4 !py-2.5 outline-none focus:bg-white focus:border-purple-600 focus:ring-4 focus:ring-purple-500/10 transition-all font-medium placeholder:text-slate-400 m-0"
             />
           </div>
 
@@ -131,12 +131,12 @@ export default function Header({ setIsMobileMenuOpen, isSidebarCollapsed, setIsS
                         <button
                           onClick={() => handleSelect(result.path)}
                           onMouseEnter={() => setSelectedIndex(idx)}
-                          className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl border-none cursor-pointer text-left transition-all duration-150 ${idx === selectedIndex ? 'bg-[#7e22ce]/10 text-[#7e22ce]' : 'bg-transparent text-slate-700'}`}
+                          className={`w-full flex items-center gap-3 px-4 py-2.5 rounded-xl border-none cursor-pointer text-left transition-all duration-150 ${idx === selectedIndex ? 'bg-purple-50 text-purple-700' : 'bg-transparent text-slate-700'}`}
                         >
-                          <span className={`flex items-center justify-center ${idx === selectedIndex ? 'text-[#7e22ce]' : 'text-slate-400'}`}>
+                          <span className={`flex items-center justify-center ${idx === selectedIndex ? 'text-purple-600' : 'text-slate-400'}`}>
                             {result.icon}
                           </span>
-                          <span className={`font-medium ${idx === selectedIndex ? 'font-bold' : ''}`}>
+                          <span className={`text-sm ${idx === selectedIndex ? 'font-bold' : 'font-medium'}`}>
                             {result.title}
                           </span>
                         </button>
@@ -159,8 +159,8 @@ export default function Header({ setIsMobileMenuOpen, isSidebarCollapsed, setIsS
       <div className="flex items-center shrink-0 ml-4 gap-2">
         <NotificationBell />
         <div className="w-px h-8 bg-slate-200 mx-1 hidden sm:block"></div>
-        <div className="flex items-center gap-3 bg-white p-1.5 pr-4 rounded-[100px] hover:bg-slate-50 transition-colors cursor-pointer border border-transparent hover:border-slate-200">
-          <div className="w-[42px] h-[42px] rounded-full bg-indigo-50 shadow-sm flex items-center justify-center text-[#7e22ce] font-bold overflow-hidden shrink-0">
+        <div className="flex items-center gap-3 bg-white p-1.5 pr-4 rounded-full hover:bg-slate-50 transition-colors cursor-pointer border border-slate-200/80 shadow-sm">
+          <div className="w-9 h-9 rounded-full bg-purple-100 shadow-sm flex items-center justify-center text-purple-700 font-black text-sm overflow-hidden shrink-0">
             {user?.avatar_url ? (
               <img src={user.avatar_url} alt="Profile" className="w-full h-full object-cover" />
             ) : (
@@ -168,8 +168,8 @@ export default function Header({ setIsMobileMenuOpen, isSidebarCollapsed, setIsS
             )}
           </div>
           <div className="hidden sm:flex flex-col items-start justify-center">
-            <span className="text-[0.9rem] font-bold text-slate-800 leading-tight">{user?.ic_name || 'Guest'}</span>
-            <span className="text-[0.65rem] font-bold text-[#7e22ce] uppercase tracking-wider mt-0.5">{user?.position?.name || 'Loading...'}</span>
+            <span className="text-xs font-bold text-slate-900 leading-tight">{user?.ic_name || 'Guest'}</span>
+            <span className="text-[0.65rem] font-bold text-purple-700 uppercase tracking-wider mt-0.5">{user?.position?.name || 'กำลังโหลด...'}</span>
           </div>
         </div>
       </div>

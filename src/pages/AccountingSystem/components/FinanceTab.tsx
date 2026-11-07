@@ -127,36 +127,39 @@ export default function FinanceTab() {
       </div>
 
       {/* Summary Cards */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-        <div className="bg-white p-6 rounded-2xl shadow-sm border border-slate-100 flex items-center gap-5">
-          <div className="w-14 h-14 rounded-2xl flex items-center justify-center bg-emerald-100 text-emerald-600">
-            <ArrowDownRight size={28} strokeWidth={2.5} />
-          </div>
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-5">
+        <div className="bg-gradient-to-br from-white via-white to-emerald-50/40 p-6 rounded-3xl shadow-sm border border-slate-200/80 border-l-4 border-l-emerald-500 flex items-center justify-between gap-4">
           <div>
-            <h3 className="text-sm font-bold text-slate-500 mb-1">รายรับทั้งหมด</h3>
-            <p className="text-2xl font-black text-slate-800">฿{summary.income.toLocaleString()}</p>
+            <span className="text-[0.65rem] font-bold text-emerald-700 uppercase tracking-wider block mb-1">TOTAL INCOME</span>
+            <h3 className="text-xs font-bold text-slate-600 m-0 mb-2">รายรับทั้งหมด</h3>
+            <p className="text-2xl sm:text-3xl font-black text-slate-900 m-0 tracking-tight">฿{summary.income.toLocaleString()}</p>
+          </div>
+          <div className="w-12 h-12 rounded-2xl bg-emerald-50 text-emerald-600 border border-emerald-100 flex items-center justify-center shrink-0">
+            <ArrowDownRight size={24} strokeWidth={2.5} />
           </div>
         </div>
         
-        <div className="bg-white p-6 rounded-2xl shadow-sm border border-slate-100 flex items-center gap-5">
-          <div className="w-14 h-14 rounded-2xl flex items-center justify-center bg-rose-100 text-rose-600">
-            <ArrowUpRight size={28} strokeWidth={2.5} />
-          </div>
+        <div className="bg-gradient-to-br from-white via-white to-rose-50/40 p-6 rounded-3xl shadow-sm border border-slate-200/80 border-l-4 border-l-rose-500 flex items-center justify-between gap-4">
           <div>
-            <h3 className="text-sm font-bold text-slate-500 mb-1">รายจ่ายทั้งหมด</h3>
-            <p className="text-2xl font-black text-slate-800">฿{summary.expense.toLocaleString()}</p>
+            <span className="text-[0.65rem] font-bold text-rose-700 uppercase tracking-wider block mb-1">TOTAL EXPENSE</span>
+            <h3 className="text-xs font-bold text-slate-600 m-0 mb-2">รายจ่ายทั้งหมด</h3>
+            <p className="text-2xl sm:text-3xl font-black text-slate-900 m-0 tracking-tight">฿{summary.expense.toLocaleString()}</p>
+          </div>
+          <div className="w-12 h-12 rounded-2xl bg-rose-50 text-rose-600 border border-rose-100 flex items-center justify-center shrink-0">
+            <ArrowUpRight size={24} strokeWidth={2.5} />
           </div>
         </div>
 
-        <div className="bg-white p-6 rounded-2xl shadow-sm border border-slate-100 flex items-center gap-5">
-          <div className="w-14 h-14 rounded-2xl flex items-center justify-center bg-blue-100 text-blue-600">
-            <Wallet size={28} strokeWidth={2.5} />
-          </div>
+        <div className="bg-gradient-to-br from-white via-white to-blue-50/40 p-6 rounded-3xl shadow-sm border border-slate-200/80 border-l-4 border-l-blue-600 flex items-center justify-between gap-4">
           <div>
-            <h3 className="text-sm font-bold text-slate-500 mb-1">ยอดคงเหลือ (Net Balance)</h3>
-            <p className={`text-2xl font-black ${balance >= 0 ? 'text-blue-600' : 'text-rose-600'}`}>
+            <span className="text-[0.65rem] font-bold text-blue-700 uppercase tracking-wider block mb-1">NET BALANCE</span>
+            <h3 className="text-xs font-bold text-slate-600 m-0 mb-2">ยอดคงเหลือสุทธิ</h3>
+            <p className={`text-2xl sm:text-3xl font-black m-0 tracking-tight ${balance >= 0 ? 'text-blue-600' : 'text-rose-600'}`}>
               ฿{balance.toLocaleString()}
             </p>
+          </div>
+          <div className="w-12 h-12 rounded-2xl bg-blue-50 text-blue-600 border border-blue-100 flex items-center justify-center shrink-0">
+            <Wallet size={24} strokeWidth={2.5} />
           </div>
         </div>
       </div>

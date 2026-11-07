@@ -194,17 +194,23 @@ export function QueueRow({ user, isStoryQueue = false }: QueueRowProps) {
     <tr className={getRowClass()}>
       <td className="p-4 align-middle w-[25%]">
         <div className="flex items-center gap-3">
-          {user.avatar_url ? (
-            <img src={user.avatar_url} alt="" className="w-10 h-10 rounded-full bg-slate-100 flex items-center justify-center font-bold text-slate-500 border border-slate-200" />
-          ) : (
-            <div className="w-10 h-10 rounded-full bg-slate-100 flex items-center justify-center font-bold text-slate-500 border border-slate-200">
-              {user.ic_name.charAt(0)}
-            </div>
-          )}
-          <span className={`font-bold text-[0.95rem] ${currentStatus === 'unavailable' ? 'line-through decoration-red-500 decoration-2 text-red-400 italic' : 'text-slate-800'}`}>
-            {user.ic_name}
-          </span>
-          {user.is_current_user && <span className="bg-emerald-100 text-emerald-700 px-2 py-0.5 rounded-full text-xs font-bold">(คุณ)</span>}
+          <div className="w-10 h-10 rounded-full bg-purple-100 text-purple-700 flex items-center justify-center font-bold text-sm border border-purple-200/60 shrink-0 shadow-sm overflow-hidden">
+            {user.avatar_url ? (
+              <img src={user.avatar_url} alt="" className="w-full h-full object-cover" />
+            ) : (
+              user.ic_name.charAt(0)
+            )}
+          </div>
+          <div className="flex items-center gap-1.5 flex-wrap min-w-0">
+            <span className={`font-bold text-sm tracking-tight ${currentStatus === 'unavailable' ? 'line-through decoration-rose-500 decoration-2 text-rose-400 italic' : 'text-slate-900'}`}>
+              {user.ic_name}
+            </span>
+            {user.is_current_user && (
+              <span className="bg-emerald-50 text-emerald-700 border border-emerald-200 px-2 py-0.5 rounded-full text-[0.7rem] font-bold">
+                (คุณ)
+              </span>
+            )}
+          </div>
           {user.is_volunteer && (
             <button 
               onClick={async () => {
@@ -229,24 +235,24 @@ export function QueueRow({ user, isStoryQueue = false }: QueueRowProps) {
       {!isStoryQueue && (
         <>
           <td className="p-4 align-middle text-center w-[10%]">
-            <label className={`relative inline-flex items-center justify-center w-8 h-8 rounded-xl border-2 transition-all duration-200 cursor-pointer ${currentStatus === "unavailable" ? "bg-red-100 border-red-500 text-red-600 scale-110" : "bg-slate-50 border-slate-200 text-transparent hover:border-slate-400"} ${isLocked ? "opacity-50 cursor-not-allowed" : ""}`}>
+            <label className={`relative inline-flex items-center justify-center w-9 h-9 rounded-xl border transition-all duration-200 cursor-pointer ${currentStatus === "unavailable" ? "bg-rose-500 border-rose-600 text-white shadow-md shadow-rose-500/25 scale-105" : "bg-slate-50 border-slate-200 text-slate-300 hover:border-slate-300 hover:text-slate-400"} ${isLocked ? "opacity-50 cursor-not-allowed" : ""}`} title="ไม่สะดวก">
               <input type="checkbox" className="absolute opacity-0 w-0 h-0" 
                 checked={currentStatus === 'unavailable'} 
                 onChange={() => handleStatusChange('unavailable')} 
                 disabled={isLocked}
               />
-              <Check size={16} />
+              <Check size={18} strokeWidth={3} />
             </label>
           </td>
 
           <td className="p-4 align-middle text-center w-[10%]">
-            <label className={`relative inline-flex items-center justify-center w-8 h-8 rounded-xl border-2 transition-all duration-200 cursor-pointer ${currentStatus === "queued" ? "bg-emerald-100 border-emerald-500 text-emerald-600 scale-110" : "bg-slate-50 border-slate-200 text-transparent hover:border-slate-400"} ${isLocked ? "opacity-50 cursor-not-allowed" : ""}`}>
+            <label className={`relative inline-flex items-center justify-center w-9 h-9 rounded-xl border transition-all duration-200 cursor-pointer ${currentStatus === "queued" ? "bg-emerald-500 border-emerald-600 text-white shadow-md shadow-emerald-500/25 scale-105" : "bg-slate-50 border-slate-200 text-slate-300 hover:border-slate-300 hover:text-slate-400"} ${isLocked ? "opacity-50 cursor-not-allowed" : ""}`} title="พร้อมรับคิว">
               <input type="checkbox" className="absolute opacity-0 w-0 h-0" 
                 checked={currentStatus === 'queued'} 
                 onChange={() => handleStatusChange('queued')} 
                 disabled={isLocked}
               />
-              <Check size={16} />
+              <Check size={18} strokeWidth={3} />
             </label>
           </td>
 
@@ -255,16 +261,16 @@ export function QueueRow({ user, isStoryQueue = false }: QueueRowProps) {
               <span className="text-slate-300">-</span>
             ) : (
               <div className="flex flex-col items-center gap-1">
-                <label className={`relative inline-flex items-center justify-center w-8 h-8 rounded-xl border-2 transition-all duration-200 cursor-pointer ${currentStatus === "manager" ? "bg-sky-100 border-sky-500 text-sky-600 scale-110" : "bg-slate-50 border-slate-200 text-transparent hover:border-slate-400"} ${isLocked ? "opacity-50 cursor-not-allowed" : ""}`}>
+                <label className={`relative inline-flex items-center justify-center w-9 h-9 rounded-xl border transition-all duration-200 cursor-pointer ${currentStatus === "manager" ? "bg-sky-500 border-sky-600 text-white shadow-md shadow-sky-500/25 scale-105" : "bg-slate-50 border-slate-200 text-slate-300 hover:border-slate-300 hover:text-slate-400"} ${isLocked ? "opacity-50 cursor-not-allowed" : ""}`} title="ผู้จัดการคิว">
                   <input type="checkbox" className="absolute opacity-0 w-0 h-0" 
                     checked={currentStatus === 'manager'} 
                     onChange={() => handleStatusChange('manager')} 
                     disabled={isLocked}
                   />
-                  <Check size={16} />
+                  <Check size={18} strokeWidth={3} />
                 </label>
                 {currentStatus === 'manager' && (
-                  <span className="text-[0.7rem] font-semibold text-sky-500">
+                  <span className="text-[0.7rem] font-bold text-sky-600 bg-sky-50 px-2 py-0.5 rounded-full border border-sky-200">
                     ⏱ {managerTimer}
                   </span>
                 )}
@@ -278,7 +284,7 @@ export function QueueRow({ user, isStoryQueue = false }: QueueRowProps) {
         {user.is_volunteer ? (
           <span className="text-slate-300">-</span>
         ) : (
-          <label className={`relative inline-flex items-center justify-center w-8 h-8 rounded-xl border-2 transition-all duration-200 cursor-pointer ${currentStatus === "story" && isLocked ? "bg-purple-100 border-purple-500 text-purple-600 scale-110" : "bg-slate-50 border-slate-200 text-transparent hover:border-slate-400"} ${!isLocked ? "opacity-50 cursor-not-allowed" : ""}`}>
+          <label className={`relative inline-flex items-center justify-center w-9 h-9 rounded-xl border transition-all duration-200 cursor-pointer ${currentStatus === "story" && isLocked ? "bg-purple-600 border-purple-700 text-white shadow-md shadow-purple-600/25 scale-105" : "bg-slate-50 border-slate-200 text-slate-300 hover:border-slate-300 hover:text-slate-400"} ${!isLocked ? "opacity-50 cursor-not-allowed" : ""}`} title="เคสสตอรี่">
             <input type="checkbox" className="absolute opacity-0 w-0 h-0" 
               checked={currentStatus === 'story' && isLocked} 
               onChange={async () => {

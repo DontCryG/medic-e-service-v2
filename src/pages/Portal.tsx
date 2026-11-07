@@ -160,7 +160,7 @@ export default function Portal() {
           initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
           className="flex flex-col items-center justify-center h-full w-full max-w-md mx-auto text-center"
         >
-          <div className="w-16 h-16 border-4 border-slate-100 border-t-[#8b5cf6] rounded-full animate-spin mb-6"></div>
+          <div className="w-16 h-16 border-4 border-slate-100 border-t-purple-600 rounded-full animate-spin mb-6"></div>
           <h3 className="text-2xl font-bold text-slate-800 mb-2">กำลังตรวจสอบสิทธิ์...</h3>
           <p className="text-slate-500">Authenticating your secure session</p>
         </motion.div>
@@ -196,7 +196,7 @@ export default function Portal() {
                 value={icName}
                 onChange={(e) => setIcName(e.target.value)}
                 placeholder="เช่น Dr. สมชาย ใจดี"
-                className="w-full px-4 py-3 rounded-xl border border-slate-200 focus:outline-none focus:ring-2 focus:ring-[#8b5cf6]/20 focus:border-[#8b5cf6] transition-all bg-slate-50 focus:bg-white"
+                className="w-full px-4 py-3 rounded-xl border border-slate-200 focus:outline-none focus:ring-2 focus:ring-purple-500/10 focus:border-purple-600 transition-all bg-slate-50 focus:bg-white"
                 required
               />
             </div>
@@ -207,7 +207,7 @@ export default function Portal() {
                 value={icPhone}
                 onChange={(e) => setIcPhone(e.target.value)}
                 placeholder="เช่น 012-345-6789"
-                className="w-full px-4 py-3 rounded-xl border border-slate-200 focus:outline-none focus:ring-2 focus:ring-[#8b5cf6]/20 focus:border-[#8b5cf6] transition-all bg-slate-50 focus:bg-white"
+                className="w-full px-4 py-3 rounded-xl border border-slate-200 focus:outline-none focus:ring-2 focus:ring-purple-500/10 focus:border-purple-600 transition-all bg-slate-50 focus:bg-white"
                 required
               />
             </div>
@@ -216,7 +216,7 @@ export default function Portal() {
               <button 
                 type="submit" 
                 disabled={isSubmitting}
-                className="w-full bg-[#8b5cf6] hover:bg-[#7c3aed] text-white py-3.5 rounded-xl font-bold transition-colors shadow-[0_4px_12px_rgba(139,92,246,0.3)] disabled:opacity-70 disabled:cursor-not-allowed flex items-center justify-center gap-2"
+                className="w-full bg-purple-600 hover:bg-purple-700 text-white py-3.5 rounded-xl font-bold transition-colors shadow-[0_4px_12px_rgba(139,92,246,0.3)] disabled:opacity-70 disabled:cursor-not-allowed flex items-center justify-center gap-2"
               >
                 {isSubmitting ? (
                   <><div className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin"></div> กำลังบันทึกข้อมูล...</>
@@ -247,7 +247,7 @@ export default function Portal() {
         <div className="mb-12 text-center md:text-left">
           <h2 className="text-4xl xl:text-5xl font-black text-slate-800 mb-6 tracking-tight leading-[1.2]">
             ลงชื่อเข้าใช้งาน<br />
-            <span className="text-[#8b5cf6]">ระบบบุคลากรแพทย์</span>
+            <span className="text-purple-600">ระบบบุคลากรแพทย์</span>
           </h2>
           <p className="text-slate-500 leading-relaxed text-lg xl:text-xl">
             ระบบยืนยันตัวตนผ่าน Discord ที่มีความปลอดภัยระดับสูง<br className="hidden md:block" />
@@ -256,15 +256,15 @@ export default function Portal() {
         </div>
 
         <button 
-          className="group w-full bg-[#5865F2] hover:bg-[#4752C4] text-white py-5 px-6 rounded-[20px] font-bold text-xl transition-all duration-300 shadow-[0_8px_24px_rgba(88,101,242,0.25)] hover:shadow-[0_12px_32px_rgba(88,101,242,0.4)] hover:-translate-y-1 flex items-center justify-center mb-10"
+          className="group w-full bg-[#5865F2] hover:bg-[#4752C4] text-white py-5 px-6 rounded-2xl font-bold text-xl transition-all duration-300 shadow-[0_8px_24px_rgba(88,101,242,0.25)] hover:shadow-[0_12px_32px_rgba(88,101,242,0.4)] hover:-translate-y-1 flex items-center justify-center mb-10"
           onClick={handleDiscordLogin}
         >
           <DiscordSVG />
           เข้าสู่ระบบด้วย Discord
         </button>
 
-        <div className="flex items-start gap-4 p-6 bg-slate-50 rounded-[20px] border border-slate-200">
-          <Shield className="text-[#8b5cf6] shrink-0 mt-1" size={24} />
+        <div className="flex items-start gap-4 p-6 bg-slate-50 rounded-2xl border border-slate-200">
+          <Shield className="text-purple-600 shrink-0 mt-1" size={24} />
           <p className="text-sm xl:text-base text-slate-500 m-0 leading-relaxed">
             ระบบจะดึงข้อมูลสาธารณะจาก Discord ของท่าน (เช่น รูปโปรไฟล์ และไอดี) เพื่อใช้สำหรับการตรวจสอบสิทธิ์เท่านั้น และจะถูกเก็บรักษาเป็นความลับ
           </p>
@@ -281,7 +281,7 @@ export default function Portal() {
         
         {/* Background Decorative Elements */}
         <div className="absolute top-0 right-0 w-[500px] h-[500px] bg-white opacity-5 rounded-full blur-[100px] translate-x-1/2 -translate-y-1/2 pointer-events-none"></div>
-        <div className="absolute bottom-0 left-0 w-[400px] h-[400px] bg-[#8b5cf6] opacity-30 rounded-full blur-[80px] -translate-x-1/3 translate-y-1/3 pointer-events-none"></div>
+        <div className="absolute bottom-0 left-0 w-[400px] h-[400px] bg-purple-600 opacity-30 rounded-full blur-[80px] -translate-x-1/3 translate-y-1/3 pointer-events-none"></div>
         
         {/* Top Logo & Title */}
         <motion.div 

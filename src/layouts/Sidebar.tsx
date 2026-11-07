@@ -40,10 +40,10 @@ export default function Sidebar({ isMobileMenuOpen, setIsMobileMenuOpen, isColla
   };
 
   const navLinkClass = ({ isActive }: { isActive: boolean }) => 
-    `no-underline flex items-center gap-3 px-4 py-3.5 mx-3 my-1 rounded-2xl font-medium transition-all duration-300 ${
+    `no-underline flex items-center gap-3 px-4 py-3 mx-3 my-1 rounded-2xl font-bold text-sm transition-all duration-200 ${
       isActive 
-        ? 'bg-[#7e22ce]/10 text-[#7e22ce] font-semibold' 
-        : 'text-slate-500 hover:bg-slate-50 hover:text-[#7e22ce] hover:translate-x-1'
+        ? 'bg-purple-600 text-white shadow-md shadow-purple-600/25' 
+        : 'text-slate-500 hover:bg-slate-50 hover:text-purple-700 hover:translate-x-0.5'
     } ${isCollapsed ? 'justify-center px-0 mx-2' : ''}`;
 
   const handleNavClick = () => {
@@ -70,8 +70,8 @@ export default function Sidebar({ isMobileMenuOpen, setIsMobileMenuOpen, isColla
         <div className={`flex items-center ${isCollapsed ? 'justify-center' : 'gap-3 px-6'} py-6 shrink-0 h-[80px]`}>
           <img src="/logo.png" alt="Logo" className={`${isCollapsed ? 'w-10 h-10' : 'w-11 h-11'} object-contain drop-shadow-sm`} />
           {!isCollapsed && (
-            <h2 className="text-[1.1rem] font-black leading-tight text-slate-800 tracking-tight">
-              MEDIC<br/><span className="text-[#7e22ce]">WIPTOWN</span>
+            <h2 className="text-base font-black leading-tight text-slate-900 tracking-tight">
+              MEDIC<br/><span className="text-purple-600">WIPTOWN</span>
             </h2>
           )}
         </div>
@@ -83,9 +83,9 @@ export default function Sidebar({ isMobileMenuOpen, setIsMobileMenuOpen, isColla
             {!isCollapsed && <span className="truncate">กระดานหลัก</span>}
           </NavLink>
           
-          <div className="h-px bg-slate-100 my-4 mx-6"></div>
+          <div className="h-px bg-slate-100 my-3 mx-6"></div>
           {!isCollapsed && (
-            <div className="px-6 text-[0.7rem] font-bold text-slate-400 mb-2 tracking-wider">MEDIC SERVICES</div>
+            <div className="px-6 text-[0.65rem] font-black text-slate-400 mb-1.5 tracking-widest uppercase">MEDIC SERVICES</div>
           )}
           
           <NavLink to="/queue" className={navLinkClass} onClick={handleNavClick}>
@@ -103,9 +103,9 @@ export default function Sidebar({ isMobileMenuOpen, setIsMobileMenuOpen, isColla
           
           {isAdmin(user?.role) && (
             <>
-              <div className="h-px bg-slate-100 my-4 mx-6"></div>
+              <div className="h-px bg-slate-100 my-3 mx-6"></div>
               {!isCollapsed && (
-                <div className="px-6 text-[0.7rem] font-bold text-slate-400 mb-2 tracking-wider">ADMIN ONLY</div>
+                <div className="px-6 text-[0.65rem] font-black text-slate-400 mb-1.5 tracking-widest uppercase">ADMIN ONLY</div>
               )}
               
               <NavLink to="/personnel" className={navLinkClass} onClick={handleNavClick}>

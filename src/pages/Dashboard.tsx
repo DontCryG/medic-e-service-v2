@@ -12,8 +12,12 @@ import {
   Wallet,
   Star,
   ExternalLink,
-  Activity
+  Activity,
+  ArrowRight,
+  ShieldCheck,
+  Radio
 } from 'lucide-react';
+import { useLiveUsers, useCurrentSession } from './DutySystem/hooks/useDutyQueries';
 
 interface MenuCardProps {
   icon: React.ReactNode;
@@ -21,36 +25,37 @@ interface MenuCardProps {
   description: string;
   path: string;
   theme: 'purple' | 'orange';
+  badge?: string;
 }
 
 const containerVariants: any = {
   hidden: { opacity: 0 },
   show: {
     opacity: 1,
-    transition: { staggerChildren: 0.1 }
+    transition: { staggerChildren: 0.08 }
   }
 };
 
 const itemVariants: any = {
-  hidden: { opacity: 0, y: 20 },
-  show: { opacity: 1, y: 0, transition: { type: 'spring', stiffness: 300, damping: 24 } }
+  hidden: { opacity: 0, y: 15 },
+  show: { opacity: 1, y: 0, transition: { type: 'spring', stiffness: 350, damping: 25 } }
 };
 
-const MenuCard = ({ icon, title, description, path, theme }: MenuCardProps) => {
+const MenuCard = ({ icon, title, description, path, theme, badge }: MenuCardProps) => {
   const navigate = useNavigate();
   
   const themeStyles = {
     purple: {
-      accentLine: 'bg-[#8b5cf6]',
-      iconBox: 'bg-purple-100 text-[#8b5cf6]',
-      titleHover: 'group-hover:text-[#8b5cf6]',
-      btn: 'bg-purple-50 text-[#8b5cf6] hover:bg-[#8b5cf6] hover:text-white border-purple-100 hover:border-[#8b5cf6] shadow-sm'
+      accentLine: 'bg-gradient-to-r from-purple-600 to-indigo-600',
+      iconBox: 'bg-purple-50 text-purple-700 border border-purple-200/80 group-hover:bg-purple-600 group-hover:text-white',
+      badge: 'bg-purple-50 text-purple-700 border-purple-200',
+      btn: 'bg-slate-50 text-slate-700 group-hover:bg-purple-600 group-hover:text-white border-slate-200 group-hover:border-purple-600 shadow-sm'
     },
     orange: {
-      accentLine: 'bg-[#f97316]',
-      iconBox: 'bg-orange-100 text-[#f97316]',
-      titleHover: 'group-hover:text-[#f97316]',
-      btn: 'bg-orange-50 text-[#f97316] hover:bg-[#f97316] hover:text-white border-orange-100 hover:border-[#f97316] shadow-sm'
+      accentLine: 'bg-gradient-to-r from-orange-500 to-amber-500',
+      iconBox: 'bg-orange-50 text-orange-600 border border-orange-200/80 group-hover:bg-orange-500 group-hover:text-white',
+      badge: 'bg-orange-50 text-orange-700 border-orange-200',
+      btn: 'bg-slate-50 text-slate-700 group-hover:bg-orange-500 group-hover:text-white border-slate-200 group-hover:border-orange-500 shadow-sm'
     }
   };
 
@@ -58,47 +63,56 @@ const MenuCard = ({ icon, title, description, path, theme }: MenuCardProps) => {
 
   return (
     <motion.div 
-      className="group relative flex flex-col bg-white rounded-3xl p-6 shadow-[0_4px_20px_rgba(0,0,0,0.03)] border border-slate-100 hover:shadow-2xl transition-all duration-300 overflow-hidden cursor-pointer"
+      className="group relative flex flex-col bg-white rounded-3xl p-6 shadow-sm border border-slate-200/80 hover:shadow-xl hover:border-slate-300 transition-all duration-300 overflow-hidden cursor-pointer"
       variants={itemVariants}
-      whileHover={{ y: -6 }}
+      whileHover={{ y: -4 }}
       onClick={() => navigate(path)}
     >
       {/* Top Accent Line */}
-      <div className={`absolute top-0 left-0 w-full h-1.5 ${current.accentLine} opacity-80`}></div>
+      <div className={`absolute top-0 left-0 w-full h-1.5 ${current.accentLine}`}></div>
       
       {/* Header */}
-      <div className="flex items-start gap-4 mb-4 mt-2">
-        <div className={`w-14 h-14 rounded-2xl flex items-center justify-center shrink-0 ${current.iconBox} group-hover:scale-110 transition-transform duration-300 shadow-inner`}>
+      <div className="flex items-start justify-between gap-4 mb-4 mt-2">
+        <div className={`w-13 h-13 rounded-2xl flex items-center justify-center shrink-0 ${current.iconBox} transition-all duration-300 shadow-sm`}>
           {icon}
         </div>
-        <div className="pt-2 flex-grow">
-          <h3 className={`text-[1.15rem] font-bold text-slate-800 m-0 ${current.titleHover} transition-colors`}>{title}</h3>
-        </div>
+        {badge && (
+          <span className={`text-[0.7rem] font-bold px-2.5 py-1 rounded-full border ${current.badge}`}>
+            {badge}
+          </span>
+        )}
       </div>
       
       {/* Body */}
-      <div className="flex-grow mb-6">
-        <p className="text-[0.9rem] leading-relaxed text-slate-500 m-0">{description}</p>
+      <div className="flex-grow mb-5">
+        <h3 className="text-lg font-bold text-slate-900 m-0 mb-1.5 group-hover:text-purple-700 transition-colors">
+          {title}
+        </h3>
+        <p className="text-xs leading-relaxed text-slate-500 m-0">
+          {description}
+        </p>
       </div>
       
       {/* Footer / Button */}
-      <motion.button 
-        className={`w-full py-3 rounded-xl font-semibold text-[0.95rem] transition-all flex items-center justify-center border ${current.btn}`}
-        onClick={(e) => {
-          e.stopPropagation();
-          navigate(path);
-        }}
-        whileTap={{ scale: 0.96 }}
-      >
-        {theme === 'purple' ? 'เข้าใช้งานระบบ' : 'เข้าสู่ระบบจัดการ'}
-      </motion.button>
+      <div className={`w-full py-2.5 px-4 rounded-xl font-bold text-xs transition-all flex items-center justify-between border ${current.btn}`}>
+        <span>{theme === 'purple' ? 'เข้าสู่ระบบปฏิบัติงาน' : 'เข้าสู่ระบบจัดการ'}</span>
+        <ArrowRight size={14} className="group-hover:translate-x-1 transition-transform" />
+      </div>
     </motion.div>
   );
 };
 
 export default function Dashboard() {
   const { user: profile } = useAuthStore();
+  const navigate = useNavigate();
   const isAdmin = checkIsAdmin(profile?.role);
+
+  // Live ops data
+  const { data: liveUsers = [] } = useLiveUsers();
+  const { data: currentSession } = useCurrentSession(profile?.discord_id);
+
+  const onDutyCount = liveUsers.filter(u => u.status === 'on_duty').length;
+  const onBreakCount = liveUsers.filter(u => u.status === 'on_break').length;
 
   const today = new Date().toLocaleDateString('th-TH', { 
     weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' 
@@ -106,75 +120,165 @@ export default function Dashboard() {
 
   return (
     <motion.div 
-      className="flex flex-col w-full max-w-[1200px] mx-auto pt-4 pb-16 px-4 md:px-8 gap-10"
+      className="flex flex-col w-full max-w-[1240px] mx-auto pt-2 pb-16 px-4 md:px-6 gap-8 animate-in fade-in duration-300"
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
-      exit={{ opacity: 0 }}
     >
-      {/* Welcome Banner */}
-      <motion.div 
-        className="relative bg-gradient-to-r from-[#4c1d95] via-[#5b21b6] to-[#6d28d9] rounded-3xl p-8 md:p-10 shadow-xl overflow-hidden"
-        initial={{ opacity: 0, y: -20 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.5, type: 'spring' }}
-      >
+      {/* Operations Welcome Banner */}
+      <div className="relative bg-gradient-to-r from-slate-900 via-indigo-950 to-purple-950 rounded-3xl p-6 md:p-8 shadow-xl overflow-hidden text-white border border-slate-800">
         {/* Background Decor */}
         <div className="absolute top-0 right-0 opacity-10 pointer-events-none">
-           <Activity size={300} className="translate-x-1/4 -translate-y-1/4 text-white" />
+          <Activity size={260} className="translate-x-1/4 -translate-y-1/4 text-white" />
         </div>
-        <div className="absolute -bottom-10 -left-10 w-40 h-40 bg-white opacity-5 rounded-full blur-2xl pointer-events-none"></div>
+        <div className="absolute -bottom-10 -left-10 w-48 h-48 bg-purple-500 opacity-20 rounded-full blur-3xl pointer-events-none"></div>
         
         <div className="relative z-10 flex flex-col md:flex-row md:items-center justify-between gap-6">
           <div>
-            <h1 className="text-3xl md:text-4xl font-bold mb-3 mt-0 tracking-tight text-white">
-              ยินดีต้อนรับ, {profile?.ic_name || 'ผู้ใช้งาน'} 👋
+            <div className="flex items-center gap-2 mb-2">
+              <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-xs font-bold bg-white/10 text-purple-200 border border-white/10 backdrop-blur-sm">
+                <Radio size={12} className="text-emerald-400 animate-pulse" />
+                Medical Operations Center
+              </span>
+              <span className="text-xs text-purple-300 font-medium hidden sm:inline">• WIP TOWN COUNCIL</span>
+            </div>
+            <h1 className="text-2xl md:text-3xl font-black mb-1.5 mt-0 tracking-tight text-white flex items-center gap-2">
+              ยินดีต้อนรับ, {profile?.ic_name || 'ผู้ใช้งาน'}
             </h1>
-            <p className="text-purple-200 text-lg m-0 flex items-center gap-2">
-              <CalendarDays size={20} />
+            <p className="text-purple-200/90 text-sm m-0 flex items-center gap-2 font-medium">
+              <CalendarDays size={16} />
               {today}
             </p>
           </div>
-          {isAdmin && (
-            <div className="bg-white/10 backdrop-blur-md border border-white/20 rounded-2xl p-4 flex flex-col items-center justify-center min-w-[160px]">
-              <span className="text-purple-200 text-sm font-semibold mb-1 uppercase tracking-wider">สถานะ</span>
-              <span className="text-white font-bold text-lg">{profile?.position?.name || 'ผู้บริหาร'}</span>
+
+          <div className="flex items-center gap-3">
+            <div className="bg-white/10 backdrop-blur-md border border-white/15 rounded-2xl px-5 py-3 flex flex-col items-end justify-center">
+              <span className="text-purple-300 text-[0.7rem] font-bold uppercase tracking-wider">ตำแหน่ง / สิทธิ์</span>
+              <span className="text-white font-black text-sm">{profile?.position?.name || (isAdmin ? 'ผู้บริหาร' : 'แพทย์')}</span>
+              <span className="text-[0.65rem] text-emerald-400 font-semibold mt-0.5 flex items-center gap-1">
+                <ShieldCheck size={11} /> {profile?.role ? profile.role.toUpperCase() : 'VERIFIED'}
+              </span>
             </div>
-          )}
+          </div>
         </div>
-      </motion.div>
+      </div>
+
+      {/* Operations HUD (Live Status Bar) */}
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+        {/* On Duty LIVE Counter */}
+        <div 
+          onClick={() => navigate('/duty')}
+          className="bg-white rounded-2xl p-5 border border-slate-200/80 shadow-sm hover:shadow-md transition-all cursor-pointer group flex items-center justify-between gap-4"
+        >
+          <div>
+            <div className="flex items-center gap-2 mb-1">
+              <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
+              <span className="text-xs font-bold text-slate-500 uppercase tracking-wider">แพทย์เข้าเวร (LIVE)</span>
+            </div>
+            <div className="flex items-baseline gap-2">
+              <span className="text-2xl font-black text-slate-900">{onDutyCount}</span>
+              <span className="text-xs font-semibold text-slate-400">ท่านกำลังปฏิบัติหน้าที่</span>
+            </div>
+            {onBreakCount > 0 && (
+              <span className="text-[0.7rem] font-semibold text-amber-600 block mt-1">
+                (พักเบรก {onBreakCount} ท่าน)
+              </span>
+            )}
+          </div>
+          <div className="w-12 h-12 rounded-2xl bg-emerald-50 text-emerald-600 flex items-center justify-center shrink-0 group-hover:scale-105 transition-transform border border-emerald-100">
+            <Activity size={24} />
+          </div>
+        </div>
+
+        {/* Current User Duty Status */}
+        <div 
+          onClick={() => navigate('/duty')}
+          className="bg-white rounded-2xl p-5 border border-slate-200/80 shadow-sm hover:shadow-md transition-all cursor-pointer group flex items-center justify-between gap-4"
+        >
+          <div>
+            <div className="flex items-center gap-2 mb-1">
+              <span className={`w-2 h-2 rounded-full ${currentSession ? 'bg-purple-600' : 'bg-slate-300'}`} />
+              <span className="text-xs font-bold text-slate-500 uppercase tracking-wider">สถานะเวรของคุณ</span>
+            </div>
+            <div className="flex items-baseline gap-2">
+              <span className={`text-base font-black ${
+                currentSession?.status === 'on_duty' 
+                  ? 'text-emerald-600' 
+                  : currentSession?.status === 'on_break' 
+                  ? 'text-amber-600' 
+                  : 'text-slate-500'
+              }`}>
+                {currentSession?.status === 'on_duty' 
+                  ? 'กำลังปฏิบัติหน้าที่' 
+                  : currentSession?.status === 'on_break' 
+                  ? 'กำลังพักเบรก' 
+                  : 'อยู่นอกเวลาเวร'}
+              </span>
+            </div>
+            <span className="text-[0.7rem] font-semibold text-purple-600 group-hover:underline block mt-1">
+              {currentSession ? 'คลิกเพื่อจัดการเวลาเวร →' : 'คลิกเพื่อลงเวลาเข้าเวร →'}
+            </span>
+          </div>
+          <div className={`w-12 h-12 rounded-2xl flex items-center justify-center shrink-0 group-hover:scale-105 transition-transform border ${
+            currentSession ? 'bg-purple-50 text-purple-700 border-purple-200' : 'bg-slate-50 text-slate-400 border-slate-200'
+          }`}>
+            <Clock size={24} />
+          </div>
+        </div>
+
+        {/* Realtime Connection Status */}
+        <div className="bg-white rounded-2xl p-5 border border-slate-200/80 shadow-sm flex items-center justify-between gap-4 sm:col-span-2 lg:col-span-1">
+          <div>
+            <div className="flex items-center gap-2 mb-1">
+              <span className="w-2 h-2 rounded-full bg-blue-500" />
+              <span className="text-xs font-bold text-slate-500 uppercase tracking-wider">ระบบเชื่อมต่อ</span>
+            </div>
+            <div className="flex items-baseline gap-2">
+              <span className="text-base font-black text-slate-900">Realtime Sync Active</span>
+            </div>
+            <span className="text-[0.7rem] font-semibold text-emerald-600 block mt-1">
+              ● อัปเดตข้อมูลอัตโนมัติแบบเรียลไทม์
+            </span>
+          </div>
+          <div className="w-12 h-12 rounded-2xl bg-blue-50 text-blue-600 flex items-center justify-center shrink-0 border border-blue-100">
+            <Radio size={24} />
+          </div>
+        </div>
+      </div>
 
       {/* Medic Services Section */}
       <section>
-        <div className="flex items-center gap-4 mb-6 pl-2">
-          <div className="w-2.5 h-8 bg-gradient-to-b from-[#8b5cf6] to-[#6d28d9] rounded-full shadow-sm"></div>
-          <h2 className="text-2xl font-bold text-slate-800 m-0 tracking-tight">ระบบปฏิบัติการแพทย์</h2>
+        <div className="flex items-center gap-3 mb-5 pl-1">
+          <div className="w-2 h-6 bg-purple-600 rounded-full shadow-sm"></div>
+          <h2 className="text-xl font-bold text-slate-900 m-0 tracking-tight">ระบบปฏิบัติการแพทย์</h2>
         </div>
         
         <motion.div 
-          className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6"
+          className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5"
           variants={containerVariants}
           initial="hidden"
           animate="show"
         >
           <MenuCard 
             theme="purple"
-            icon={<LayoutGrid size={28} strokeWidth={2.5} />}
+            icon={<LayoutGrid size={24} strokeWidth={2.5} />}
             title="ระบบรับคิวแพทย์"
-            description="ระบบจัดการคิวผู้ป่วย จัดลำดับการเข้ารับการรักษาและการเรียกคิวเข้าห้องตรวจ"
+            description="จัดการคิวผู้ป่วย จัดลำดับการเข้ารับการรักษา และบันทึกเคสสตอรี่"
             path="/queue"
+            badge="REALTIME QUEUE"
           />
           <MenuCard 
             theme="purple"
-            icon={<Clock size={28} strokeWidth={2.5} />}
+            icon={<Clock size={24} strokeWidth={2.5} />}
             title="ระบบเข้าเวรออกเวร"
-            description="บันทึกการลงเวลาปฏิบัติงาน และตรวจสอบตารางเวรของแพทย์แต่ละท่าน"
+            description="ลงเวลาปฏิบัติงาน พักเบรก ตรวจสอบแพทย์เข้าเวรสด และดูประวัติย้อนหลัง"
             path="/duty"
+            badge={onDutyCount > 0 ? `${onDutyCount} LIVE` : undefined}
           />
           <MenuCard 
             theme="purple"
-            icon={<CalendarDays size={28} strokeWidth={2.5} />}
+            icon={<CalendarDays size={24} strokeWidth={2.5} />}
             title="ระบบลางาน"
-            description="ระบบส่งใบลาพักผ่อน ลาป่วย และตรวจสอบประวัติการลางานของบุคลากร"
+            description="ยื่นใบลาพักผ่อน ลากิจ ติดตามสถานะการอนุมัติ และบันทึกประวัติการลา"
             path="/leave"
           />
         </motion.div>
@@ -182,73 +286,66 @@ export default function Dashboard() {
 
       {/* Admin Services Section */}
       {isAdmin && (
-        <section className="mt-4">
-          <div className="flex items-center gap-4 mb-6 pl-2">
-            <div className="w-2.5 h-8 bg-gradient-to-b from-[#f97316] to-[#ea580c] rounded-full shadow-sm"></div>
-            <h2 className="text-2xl font-bold text-slate-800 m-0 tracking-tight">ระบบจัดการภายใน (Admin Only)</h2>
+        <section className="mt-2">
+          <div className="flex items-center gap-3 mb-5 pl-1">
+            <div className="w-2 h-6 bg-orange-500 rounded-full shadow-sm"></div>
+            <h2 className="text-xl font-bold text-slate-900 m-0 tracking-tight">ระบบจัดการภายใน (Admin Only)</h2>
           </div>
           
           <motion.div 
-            className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6"
+            className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5"
             variants={containerVariants}
             initial="hidden"
             animate="show"
           >
             <MenuCard 
               theme="orange"
-              icon={<Users size={28} strokeWidth={2.5} />}
+              icon={<Users size={24} strokeWidth={2.5} />}
               title="ระบบจัดการบุคลากร"
-              description="ฐานข้อมูลทะเบียนประวัติ และปรับเปลี่ยนสิทธิ์ (Role) เจ้าหน้าที่"
+              description="ทะเบียนประวัติแพทย์ ปรับตำแหน่ง กำหนดสิทธิ์ และเพิ่มเวลาเวรย้อนหลัง"
               path="/personnel"
             />
             <MenuCard 
               theme="orange"
-              icon={<Banknote size={28} strokeWidth={2.5} />}
+              icon={<Banknote size={24} strokeWidth={2.5} />}
               title="ระบบคำนวณเงินเดือน"
-              description="คำนวณรายได้ สรุปยอดเงินเดือน โบนัส และค่าตอบแทนพิเศษของบุคลากร"
+              description="คำนวณรายได้ สรุปค่าเวร โบนัสสตอรี่/พี่เลี้ยง และพิมพ์สลิปเงินเดือน"
               path="/salary"
             />
             <MenuCard 
               theme="orange"
-              icon={<Wallet size={28} strokeWidth={2.5} />}
+              icon={<Wallet size={24} strokeWidth={2.5} />}
               title="ระบบบัญชี & คลังสิ่งของ"
-              description="บันทึกรายรับ-รายจ่ายทางการเงิน และบริหารจัดการรับเข้า-เบิกออกสิ่งของ"
+              description="บันทึกรายรับ-รายจ่ายทางการเงิน และบริหารจัดการคลังยา/เวชภัณฑ์"
               path="/accounting"
             />
           </motion.div>
         </section>
       )}
 
-      {/* Recommended Link Section */}
-      <motion.section 
-        className="mt-6"
-        initial={{ opacity: 0, y: 20 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ delay: 0.5, type: 'spring' }}
-      >
-        <div className="w-full bg-slate-50 border border-slate-200 rounded-3xl p-8 flex flex-col md:flex-row items-center justify-between gap-6 shadow-sm">
+      {/* Guide Links */}
+      <section className="mt-2">
+        <div className="w-full bg-slate-50 border border-slate-200/80 rounded-3xl p-6 flex flex-col md:flex-row items-center justify-between gap-4 shadow-sm">
           <div className="flex items-center gap-4">
-            <div className="w-12 h-12 bg-amber-100 rounded-2xl flex items-center justify-center shrink-0">
-               <Star size={24} className="text-amber-500 fill-amber-500" />
+            <div className="w-11 h-11 bg-amber-100 rounded-2xl flex items-center justify-center shrink-0 text-amber-600">
+              <Star size={22} className="fill-amber-500" />
             </div>
             <div>
-               <h3 className="text-lg font-bold text-slate-800 m-0 mb-1">แนะนำเว็บไซต์ที่เกี่ยวข้อง</h3>
-               <p className="text-sm text-slate-500 m-0">อ่านคู่มือและกฎระเบียบของหน่วยงานแพทย์</p>
+              <h3 className="text-sm font-bold text-slate-800 m-0 mb-0.5">คู่มือและกฎระเบียบหน่วยงานแพทย์</h3>
+              <p className="text-xs text-slate-500 m-0">อ่านแนวทางการปฏิบัติงานและระเบียบของหน่วยงานแพทย์ WIP TOWN</p>
             </div>
           </div>
-          <motion.a 
+          <a 
             href="https://sites.google.com/view/wiptown/medic" 
             target="_blank" 
             rel="noopener noreferrer" 
-            className="flex items-center gap-2 px-6 py-3.5 bg-white border border-slate-200 text-[#8b5cf6] rounded-xl font-bold text-[0.95rem] no-underline transition-all shadow-sm hover:shadow-md hover:border-purple-300 hover:text-purple-700 whitespace-nowrap"
-            whileHover={{ y: -2 }}
-            whileTap={{ scale: 0.95 }}
+            className="flex items-center gap-2 px-5 py-2.5 bg-white border border-slate-200 text-purple-700 hover:text-purple-800 hover:border-purple-300 rounded-xl font-bold text-xs no-underline transition-all shadow-sm hover:shadow whitespace-nowrap"
           >
-            <ExternalLink size={18} />
-            กฎหน่วยงานแพทย์ WIP TOWN
-          </motion.a>
+            <ExternalLink size={15} />
+            เปิดอ่านคู่มือหน่วยงาน
+          </a>
         </div>
-      </motion.section>
+      </section>
     </motion.div>
   );
 }
