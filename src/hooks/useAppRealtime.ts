@@ -17,34 +17,16 @@ export const useRealtimeStore = create<RealtimeStore>((set) => ({
 }));
 
 export const broadcastForceSync = () => {
-  const channels = supabase.getChannels();
-  const existingChannel = channels.find(c => c.topic === 'realtime:global_broadcast_channel');
-  
-  if (existingChannel && existingChannel.state === 'joined') {
-    existingChannel.send({ type: 'broadcast', event: 'force_sync', payload: {} });
-  } else {
-    const newChannel = supabase.channel('global_broadcast_channel');
-    newChannel.subscribe((status) => {
-      if (status === 'SUBSCRIBED') {
-        newChannel.send({ type: 'broadcast', event: 'force_sync', payload: {} });
-      }
-    });
+  const channel = supabase.getChannels().find(c => c.topic === 'realtime:app_realtime_global');
+  if (channel && channel.state === 'joined') {
+    channel.send({ type: 'broadcast', event: 'force_sync', payload: {} });
   }
 };
 
 export const broadcastForceReload = () => {
-  const channels = supabase.getChannels();
-  const existingChannel = channels.find(c => c.topic === 'realtime:global_broadcast_channel');
-  
-  if (existingChannel && existingChannel.state === 'joined') {
-    existingChannel.send({ type: 'broadcast', event: 'force_reload', payload: { by: 'admin', at: new Date().toISOString() } });
-  } else {
-    const newChannel = supabase.channel('global_broadcast_channel');
-    newChannel.subscribe((status) => {
-      if (status === 'SUBSCRIBED') {
-        newChannel.send({ type: 'broadcast', event: 'force_reload', payload: { by: 'admin', at: new Date().toISOString() } });
-      }
-    });
+  const channel = supabase.getChannels().find(c => c.topic === 'realtime:app_realtime_global');
+  if (channel && channel.state === 'joined') {
+    channel.send({ type: 'broadcast', event: 'force_reload', payload: { by: 'admin', at: new Date().toISOString() } });
   }
 };
 
@@ -142,7 +124,11 @@ export function useAppRealtime() {
       .on('postgres_changes', { event: '*', schema: 'public', table: 'inventory_logs' }, () => {
         debouncedInvalidate(['accounting', 'inventory']);
       })
-      // 10. Admin broadcast reload
+      // 10. Notifications
+      .on('postgres_changes', { event: '*', schema: 'public', table: 'notifications' }, () => {
+        debouncedInvalidate(['notifications']);
+      })
+      // 11. Admin broadcast reload
       .on('broadcast', { event: 'force_reload' }, () => {
         window.location.reload();
       })
@@ -164,7 +150,9 @@ export function useAppRealtime() {
       clearInterval(breakSweepInterval);
       debounceMap.current.forEach(t => clearTimeout(t));
       debounceMap.current.clear();
-      supabase.removeChannel(channel);
+      channel.unsubscribe().finally(() => {
+        supabase.removeChannel(channel);
+      });
     };
   }, [queryClient]);
 }

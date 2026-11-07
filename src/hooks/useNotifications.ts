@@ -35,9 +35,8 @@ export function useNotifications() {
       if (error) throw error;
       return data as AppNotification[];
     },
-    refetchInterval: false // Realtime subscription handles updates
+    refetchInterval: false // Realtime updates multiplexed via useAppRealtime
   });
-
 
   const unreadCount = notifications.filter(n => !n.is_read).length;
 
@@ -48,8 +47,6 @@ export function useNotifications() {
     if (notifications.length > 0) {
       const topId = notifications[0].id;
       if (latestNotifId !== null && topId !== latestNotifId) {
-        // If the top notification ID changed, it means a new one arrived!
-        // Only play if it's unread
         if (!notifications[0].is_read) {
           playNotificationSound();
         }
@@ -58,25 +55,7 @@ export function useNotifications() {
     }
   }, [notifications, latestNotifId]);
 
-
-  useEffect(() => {
-    if (!user) return;
-    const channel = supabase.channel('public:notifications:' + user.discord_id)
-      .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'notifications' }, () => {
-        queryClient.invalidateQueries({ queryKey: ['notifications'] });
-      })
-      .on('postgres_changes', { event: 'UPDATE', schema: 'public', table: 'notifications' }, () => {
-        queryClient.invalidateQueries({ queryKey: ['notifications'] });
-      })
-      .on('postgres_changes', { event: 'DELETE', schema: 'public', table: 'notifications' }, () => {
-        queryClient.invalidateQueries({ queryKey: ['notifications'] });
-      })
-      .subscribe();
-
-    return () => {
-      supabase.removeChannel(channel);
-    };
-  }, [user, queryClient]);
+  // Realtime notification invalidation is handled globally by useAppRealtime
 
   const { mutate: markAsRead } = useMutation({
     mutationFn: async (id: string) => {
@@ -101,8 +80,7 @@ export function useNotifications() {
       queryClient.invalidateQueries({ queryKey: ['notifications', user?.discord_id] });
     }
   });
-  
-  
+
   const { mutate: markAllAsRead } = useMutation({
     mutationFn: async () => {
       await supabase.from('notifications').update({ is_read: true })
@@ -160,7 +138,6 @@ export function useNotifications() {
       queryClient.invalidateQueries({ queryKey: ['notifications', user?.discord_id] });
     }
   });
-
 
   return { 
     notifications, 
