@@ -98,7 +98,7 @@ export default function AddDutyModal({
 
   return (
     <div className="fixed inset-0 bg-black/40 backdrop-blur-sm flex justify-center items-center z-[9999] p-4">
-      <div className="bg-[var(--surface-color)] rounded-[20px] p-6 sm:p-10 w-full max-w-[500px] shadow-xl relative max-h-[90vh] overflow-y-auto">
+      <div className="bg-white rounded-3xl p-6 sm:p-10 w-full max-w-[500px] shadow-xl relative max-h-[90vh] overflow-y-auto">
         <div className="flex justify-between items-center mb-6">
           <h2 className="text-2xl font-bold text-slate-800 m-0">เพิ่มเวรย้อนหลัง</h2>
           <button 
@@ -110,7 +110,7 @@ export default function AddDutyModal({
         </div>
         
         <div className="mb-6 p-4 bg-slate-50 rounded-xl text-slate-700">
-          กำลังเพิ่มเวรให้: <strong className="text-[var(--primary)] text-lg block mt-1">{user.ic_name}</strong>
+          กำลังเพิ่มเวรให้: <strong className="text-purple-600 text-lg block mt-1">{user.ic_name}</strong>
         </div>
 
         <form onSubmit={handleSubmit(onSubmit)}>
@@ -123,7 +123,7 @@ export default function AddDutyModal({
                 <select
                   value={field.value || 'manual_add'}
                   onChange={field.onChange}
-                  className="w-full px-4 py-3 border border-slate-200 rounded-xl text-sm outline-none focus:border-[var(--primary)] bg-white font-medium"
+                  className="w-full px-4 py-3 border border-slate-200 rounded-xl text-sm outline-none focus:border-purple-600 focus:ring-2 focus:ring-purple-500/10 bg-white font-medium"
                 >
                   <option value="manual_add">เพิ่มเวรย้อนหลัง</option>
                   <option value="mentor">พี่เลี้ยงหมอใหม่ (+1 ชม. + เงิน 500,000)</option>
@@ -176,9 +176,9 @@ export default function AddDutyModal({
             </div>
           )}
 
-          <div className="flex justify-end gap-4 mt-8 sticky -bottom-10 bg-[var(--surface-color)] pt-6 pb-10 -mb-10 border-t border-slate-200 z-10">
-            <button type="button" className="px-6 py-3 rounded-[8px] font-semibold text-base cursor-pointer border-none transition-all bg-slate-100 text-slate-600 hover:bg-slate-200" onClick={onClose} disabled={isSaving}>ยกเลิก</button>
-            <button type="submit" className="px-6 py-3 rounded-[8px] font-semibold text-base cursor-pointer border-none transition-all bg-[var(--primary)] text-white hover:bg-[var(--primary-hover)] disabled:opacity-50 disabled:cursor-not-allowed" disabled={isSaving}>
+          <div className="flex justify-end gap-4 mt-8 sticky -bottom-10 bg-white pt-6 pb-10 -mb-10 border-t border-slate-200 z-10">
+            <button type="button" className="px-6 py-3 rounded-xl font-semibold text-base cursor-pointer border-none transition-all bg-slate-100 text-slate-600 hover:bg-slate-200" onClick={onClose} disabled={isSaving}>ยกเลิก</button>
+            <button type="submit" className="px-6 py-3 rounded-xl font-semibold text-base cursor-pointer border-none transition-all bg-purple-600 text-white hover:bg-purple-700 disabled:opacity-50 disabled:cursor-not-allowed" disabled={isSaving}>
               {isSaving ? 'กำลังบันทึก...' : 'เพิ่มเวรย้อนหลัง'}
             </button>
           </div>

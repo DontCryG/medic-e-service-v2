@@ -1,7 +1,8 @@
 import { useState, useRef } from 'react';
-import { History, UserPlus, Activity } from 'lucide-react';
+import { History, UserPlus, Activity, LayoutGrid } from 'lucide-react';
 import TableSkeleton from '@/components/common/TableSkeleton';
 import EmptyState from '@/components/common/EmptyState';
+import PageHeader from '@/components/common/PageHeader';
 import { useAuthStore } from '@/store/authStore';
 import { useQueue } from './hooks/useQueue';
 import { useQueueMutations } from './hooks/useQueueMutations';
@@ -34,41 +35,46 @@ export function QueueSystem() {
 
   return (
     <div className="p-4 md:p-6 lg:p-8 bg-slate-50 min-h-full text-slate-800">
-      <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 mb-6">
-        <div>
-          <h1 className="text-2xl font-bold text-slate-800 m-0 flex items-center gap-2">ระบบจัดการคิว (Queue System)</h1>
-          <p className="text-sm text-slate-500 m-0 mt-1">
-            แสดงสถานะหมอที่กำลังเข้าเวรปัจจุบัน 
-            <span className={`ml-2 font-medium ${realtimeConnected ? 'text-emerald-600' : 'text-rose-500'}`}>
-              ● {realtimeConnected ? 'ระบบเชื่อมต่อสด (Realtime)' : 'ขาดการเชื่อมต่อ (Offline)'}
-            </span>
-          </p>
-        </div>
-        <div className="flex flex-wrap gap-4 w-full md:w-auto">
-          <div className="flex items-center gap-2">
-            <input 
-              type="text" 
-              placeholder="ระบุชื่อแพทย์อาสา..." 
-              value={volunteerName}
-              onChange={(e) => setVolunteerName(e.target.value)}
-              onKeyDown={(e) => e.key === 'Enter' && handleAddVolunteer()}
-              className="px-4 py-2 text-sm bg-white border border-slate-200 rounded-xl outline-none focus:border-purple-500 focus:ring-2 focus:ring-purple-500/10 w-44 transition-all placeholder:text-slate-400"
-            />
+      <PageHeader
+        title="ระบบจัดการคิว (Queue System)"
+        subtitle="แสดงสถานะแพทย์ที่กำลังเข้าเวร จัดลำดับการเรียกคิว และเคสสตอรี่"
+        icon={<LayoutGrid size={24} />}
+        iconTheme="purple"
+        badge={
+          realtimeConnected
+            ? { label: 'ระบบเชื่อมต่อสด (Realtime)', variant: 'live' }
+            : { label: 'ขาดการเชื่อมต่อ (Offline)', variant: 'warning' }
+        }
+        actions={
+          <div className="flex flex-wrap items-center gap-3 w-full sm:w-auto">
+            <div className="flex items-center gap-2">
+              <input 
+                type="text" 
+                placeholder="ระบุชื่อแพทย์อาสา..." 
+                value={volunteerName}
+                onChange={(e) => setVolunteerName(e.target.value)}
+                onKeyDown={(e) => e.key === 'Enter' && handleAddVolunteer()}
+                className="px-3.5 py-2 text-sm bg-white border border-slate-200 rounded-xl outline-none focus:border-purple-600 focus:ring-2 focus:ring-purple-500/10 w-44 transition-all placeholder:text-slate-400"
+              />
+              <button 
+                onClick={(e) => { e.currentTarget.disabled = true; handleAddVolunteer(); }}
+                disabled={!volunteerName.trim() || isProcessing}
+                className="flex items-center gap-1.5 px-4 py-2 bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl text-sm font-bold transition-all shadow-sm hover:shadow active:scale-95 disabled:opacity-50 disabled:cursor-not-allowed border-none cursor-pointer"
+              >
+                <UserPlus size={16} />
+                เพิ่มแพทย์อาสา
+              </button>
+            </div>
             <button 
-              onClick={(e) => { e.currentTarget.disabled = true; handleAddVolunteer(); }}
-              disabled={!volunteerName.trim() || isProcessing}
-              className="flex items-center gap-1.5 px-4 py-2 bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl text-sm font-semibold transition-all shadow-sm hover:shadow active:scale-95 disabled:opacity-50 disabled:cursor-not-allowed border-none cursor-pointer"
+              className="flex items-center gap-2 px-4 py-2 bg-white border border-slate-200/80 rounded-xl text-sm font-bold text-slate-700 cursor-pointer transition-all hover:bg-slate-50 shadow-sm" 
+              onClick={() => setIsHistoryOpen(true)}
             >
-              <UserPlus size={16} />
-              เพิ่มแพทย์อาสา
+              <History size={16} />
+              ประวัติการจัดการ
             </button>
           </div>
-          <button className="flex flex-1 md:flex-none justify-center items-center gap-2 px-4 py-2.5 bg-white border border-slate-200 rounded-xl text-sm font-semibold text-slate-700 cursor-pointer transition-all hover:bg-slate-50 hover:-translate-y-[1px] shadow-sm hover:shadow-md" onClick={() => setIsHistoryOpen(true)}>
-            <History size={18} />
-            ประวัติการจัดการ
-          </button>
-        </div>
-      </div>
+        }
+      />
 
       <div className="bg-white rounded-2xl shadow-sm border border-slate-200 overflow-visible mb-8">
         <div className="w-full overflow-x-auto pb-[120px] -mb-[120px]">

@@ -111,7 +111,7 @@ export default function PositionSettings() {
         <button 
           onClick={handleAdd}
           disabled={isAdding || !!editingId}
-          className="flex items-center gap-2 px-4 !py-2 bg-[var(--primary)] text-white border-none rounded-md font-medium cursor-pointer transition-colors hover:bg-[var(--primary-hover)] disabled:opacity-50 disabled:cursor-not-allowed"
+          className="flex items-center gap-2 px-4 !py-2 bg-purple-600 text-white border-none rounded-md font-medium cursor-pointer transition-colors hover:bg-purple-700 disabled:opacity-50 disabled:cursor-not-allowed"
         >
           <Plus size={18} />
           เพิ่มตำแหน่ง
@@ -146,7 +146,7 @@ export default function PositionSettings() {
                       <input 
                         type="number"
                         {...register('rank', { valueAsNumber: true })}
-                        className={`w-full !p-2.5 rounded-md border ${errors.rank ? 'border-red-400 bg-red-50' : 'border-slate-300'} outline-none focus:border-[var(--primary)]`}
+                        className={`w-full !p-2.5 rounded-md border ${errors.rank ? 'border-red-400 bg-red-50' : 'border-slate-300'} outline-none focus:border-purple-600 focus:ring-2 focus:ring-purple-500/10`}
                       />
                     </td>
                     <td className="p-3">
@@ -154,7 +154,7 @@ export default function PositionSettings() {
                         type="text" 
                         {...register('name')}
                         placeholder="ระบุชื่อตำแหน่ง"
-                        className={`w-full !p-2.5 rounded-md border ${errors.name ? 'border-red-400 bg-red-50' : 'border-slate-300'} outline-none focus:border-[var(--primary)]`}
+                        className={`w-full !p-2.5 rounded-md border ${errors.name ? 'border-red-400 bg-red-50' : 'border-slate-300'} outline-none focus:border-purple-600 focus:ring-2 focus:ring-purple-500/10`}
                       />
                     </td>
                     <td className="p-3">
@@ -163,7 +163,7 @@ export default function PositionSettings() {
                         <input 
                           type="number" 
                           {...register('ic_rate', { valueAsNumber: true })}
-                          className={`w-full !p-2.5 !pl-8 rounded-md border ${errors.ic_rate ? 'border-red-400 bg-red-50' : 'border-slate-300'} outline-none focus:border-[var(--primary)]`}
+                          className={`w-full !p-2.5 !pl-8 rounded-md border ${errors.ic_rate ? 'border-red-400 bg-red-50' : 'border-slate-300'} outline-none focus:border-purple-600 focus:ring-2 focus:ring-purple-500/10`}
                         />
                       </div>
                     </td>
@@ -173,7 +173,7 @@ export default function PositionSettings() {
                         <input 
                           type="number" 
                           {...register('oc_rate', { valueAsNumber: true })}
-                          className={`w-full !p-2.5 !pl-8 rounded-md border ${errors.oc_rate ? 'border-red-400 bg-red-50' : 'border-slate-300'} outline-none focus:border-[var(--primary)]`}
+                          className={`w-full !p-2.5 !pl-8 rounded-md border ${errors.oc_rate ? 'border-red-400 bg-red-50' : 'border-slate-300'} outline-none focus:border-purple-600 focus:ring-2 focus:ring-purple-500/10`}
                         />
                       </div>
                     </td>
@@ -198,14 +198,14 @@ export default function PositionSettings() {
                           <input 
                             type="number"
                             {...register('rank', { valueAsNumber: true })}
-                            className={`w-full !p-2.5 rounded-md border ${errors.rank ? 'border-red-400 bg-red-50' : 'border-slate-300'} outline-none focus:border-[var(--primary)]`}
+                            className={`w-full !p-2.5 rounded-md border ${errors.rank ? 'border-red-400 bg-red-50' : 'border-slate-300'} outline-none focus:border-purple-600 focus:ring-2 focus:ring-purple-500/10`}
                           />
                         </td>
                         <td className="p-3">
                           <input 
                             type="text" 
                             {...register('name')}
-                            className={`w-full !p-2.5 rounded-md border ${errors.name ? 'border-red-400 bg-red-50' : 'border-slate-300'} outline-none focus:border-[var(--primary)]`}
+                            className={`w-full !p-2.5 rounded-md border ${errors.name ? 'border-red-400 bg-red-50' : 'border-slate-300'} outline-none focus:border-purple-600 focus:ring-2 focus:ring-purple-500/10`}
                           />
                         </td>
                         <td className="p-3">
@@ -214,7 +214,7 @@ export default function PositionSettings() {
                             <input 
                               type="number" 
                               {...register('ic_rate', { valueAsNumber: true })}
-                              className={`w-full !p-2.5 !pl-8 rounded-md border ${errors.ic_rate ? 'border-red-400 bg-red-50' : 'border-slate-300'} outline-none focus:border-[var(--primary)]`}
+                              className={`w-full !p-2.5 !pl-8 rounded-md border ${errors.ic_rate ? 'border-red-400 bg-red-50' : 'border-slate-300'} outline-none focus:border-purple-600 focus:ring-2 focus:ring-purple-500/10`}
                             />
                           </div>
                         </td>
@@ -224,7 +224,7 @@ export default function PositionSettings() {
                             <input 
                               type="number" 
                               {...register('oc_rate', { valueAsNumber: true })}
-                              className={`w-full !p-2.5 !pl-8 rounded-md border ${errors.oc_rate ? 'border-red-400 bg-red-50' : 'border-slate-300'} outline-none focus:border-[var(--primary)]`}
+                              className={`w-full !p-2.5 !pl-8 rounded-md border ${errors.oc_rate ? 'border-red-400 bg-red-50' : 'border-slate-300'} outline-none focus:border-purple-600 focus:ring-2 focus:ring-purple-500/10`}
                             />
                           </div>
                         </td>

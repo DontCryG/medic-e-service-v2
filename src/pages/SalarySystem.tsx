@@ -1,5 +1,6 @@
 ﻿import { useState } from 'react';
-import { CalendarDays, Printer } from 'lucide-react';
+import { CalendarDays, Printer, Banknote } from 'lucide-react';
+import PageHeader from '@/components/common/PageHeader';
 import SmartDatePicker from '../components/common/SmartDatePicker';
 import TableSkeleton from '../components/common/TableSkeleton';
 
@@ -45,56 +46,64 @@ export default function SalarySystem({ profile: _profile }: SalarySystemProps) {
   };
 
   return (
-    <div className="flex flex-col gap-8 w-full max-w-7xl mx-auto">
-      {/* Header and Controls */}
-      <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-6">
-        <div className="flex flex-wrap items-center gap-4 bg-white p-4 px-6 rounded-3xl shadow-[0_10px_40px_-10px_rgba(0,0,0,0.05)] border border-[var(--border-color)]">
-          <div className="flex items-center gap-3">
-            <CalendarDays size={20} className="text-[var(--primary)]" />
-            <label className="text-[0.95rem] text-slate-500 font-semibold whitespace-nowrap">ตั้งแต่วันที่:</label>
-            <SmartDatePicker
-              selected={startDate}
-              onChange={(date: Date | null) => {
-                if (date) {
-                  const d = new Date(date);
-                  d.setHours(0, 0, 0, 0);
-                  setStartDate(d);
-                } else {
-                  setStartDate(null);
-                }
-              }}
-              className="date-picker-input"
-            />
-          </div>
-          <div className="w-[1px] h-6 bg-slate-200 mx-2 hidden sm:block"></div>
-          <div className="flex items-center gap-3">
-            <label className="text-[0.95rem] text-slate-500 font-semibold whitespace-nowrap">ถึงวันที่:</label>
-            <SmartDatePicker
-              selected={endDate}
-              onChange={(date: Date | null) => {
-                if (date) {
-                  const d = new Date(date);
-                  d.setHours(23, 59, 59, 999);
-                  setEndDate(d);
-                } else {
-                  setEndDate(null);
-                }
-              }}
-              className="date-picker-input"
-              minDate={startDate || undefined}
-            />
-          </div>
-        </div>
-
-        <div className="flex gap-3">
-          
+    <div className="flex flex-col gap-6 w-full max-w-7xl mx-auto animate-in fade-in duration-300">
+      <PageHeader
+        title="ระบบคำนวณเงินเดือน (Salary System)"
+        subtitle="สรุปชั่วโมงเวร คำนวณรายได้ IC/OC ค่าสตอรี่ และพิมพ์สลิปเงินเดือน"
+        icon={<Banknote size={24} />}
+        iconTheme="orange"
+        badge={{ label: 'ระบบจัดการ (Admin Only)', variant: 'admin' }}
+        actions={
           <button 
             onClick={handlePrint}
             disabled={!salaryData || salaryData.length === 0}
-            className={`flex items-center gap-2 px-6 py-2.5 rounded-xl font-semibold text-[0.95rem] border-none text-white transition-all shadow-sm ${(!salaryData || salaryData.length === 0) ? 'bg-purple-300 opacity-70 cursor-not-allowed' : 'bg-[var(--primary)] hover:brightness-110 cursor-pointer hover:-translate-y-0.5'}`}
+            className={`flex items-center gap-2 px-5 py-2.5 rounded-xl font-bold text-sm border-none text-white transition-all shadow-sm ${
+              (!salaryData || salaryData.length === 0) 
+                ? 'bg-purple-300 opacity-70 cursor-not-allowed' 
+                : 'bg-purple-600 hover:bg-purple-700 cursor-pointer hover:shadow'
+            }`}
           >
-            <Printer size={18} /> พิมพ์ / บันทึก PDF
+            <Printer size={16} /> พิมพ์ / บันทึก PDF
           </button>
+        }
+      />
+
+      {/* Date Range Selector */}
+      <div className="flex flex-wrap items-center gap-4 bg-white p-4 px-6 rounded-2xl shadow-sm border border-slate-200/80">
+        <div className="flex items-center gap-3">
+          <CalendarDays size={18} className="text-purple-600 shrink-0" />
+          <label className="text-xs text-slate-500 font-bold uppercase tracking-wider whitespace-nowrap">ตั้งแต่วันที่:</label>
+          <SmartDatePicker
+            selected={startDate}
+            onChange={(date: Date | null) => {
+              if (date) {
+                const d = new Date(date);
+                d.setHours(0, 0, 0, 0);
+                setStartDate(d);
+              } else {
+                setStartDate(null);
+              }
+            }}
+            className="date-picker-input"
+          />
+        </div>
+        <div className="w-[1px] h-6 bg-slate-200 mx-2 hidden sm:block"></div>
+        <div className="flex items-center gap-3">
+          <label className="text-xs text-slate-500 font-bold uppercase tracking-wider whitespace-nowrap">ถึงวันที่:</label>
+          <SmartDatePicker
+            selected={endDate}
+            onChange={(date: Date | null) => {
+              if (date) {
+                const d = new Date(date);
+                d.setHours(23, 59, 59, 999);
+                setEndDate(d);
+              } else {
+                setEndDate(null);
+              }
+            }}
+            className="date-picker-input"
+            minDate={startDate || undefined}
+          />
         </div>
       </div>
 

@@ -8,8 +8,7 @@ import { showConfirmDialog, showErrorAlert } from '@/utils/alert';
 import toast from 'react-hot-toast';
 import TableSkeleton from '@/components/common/TableSkeleton';
 import EmptyState from '@/components/common/EmptyState';
-import DatePicker from 'react-datepicker';
-import "react-datepicker/dist/react-datepicker.css";
+import SmartDatePicker from '@/components/common/SmartDatePicker';
 import FinanceReportModal from './FinanceReportModal';
 import EditFinanceLogModal from './EditFinanceLogModal';
 
@@ -93,7 +92,7 @@ export default function FinanceTab() {
         <div className="flex flex-wrap items-center gap-3">
           <div className="flex items-center gap-2 bg-white border border-slate-200 rounded-xl px-4 py-2 shadow-sm w-full sm:w-auto">
             <span className="text-sm font-bold text-slate-600">ตั้งแต่:</span>
-            <DatePicker 
+            <SmartDatePicker showIcon={false} 
               selected={startDate} 
               onChange={(date: Date | null) => { if(date) date.setHours(0,0,0,0); setStartDate(date); }}
               selectsStart startDate={startDate} endDate={endDate}
@@ -101,7 +100,7 @@ export default function FinanceTab() {
               className="w-[100px] outline-none text-sm font-bold text-slate-800 bg-transparent cursor-pointer"
             />
             <span className="text-sm font-bold text-slate-600">ถึง:</span>
-            <DatePicker 
+            <SmartDatePicker showIcon={false} 
               selected={endDate} 
               onChange={(date: Date | null) => { if(date) date.setHours(23,59,59,999); setEndDate(date); }}
               selectsEnd startDate={startDate} endDate={endDate} minDate={startDate || undefined}

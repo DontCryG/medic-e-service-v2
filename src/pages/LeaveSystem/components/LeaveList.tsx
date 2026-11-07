@@ -88,7 +88,7 @@ export default function LeaveList({ leaves, isAdmin }: LeaveListProps) {
             
             {isAdmin ? (
               <div className="flex items-center gap-3">
-                <div className="w-11 h-11 rounded-full bg-[var(--primary-light)] text-[var(--primary)] flex items-center justify-center font-bold text-[0.95rem] overflow-hidden flex-shrink-0">
+                <div className="w-11 h-11 rounded-full bg-purple-100 text-purple-700 flex items-center justify-center font-bold text-[0.95rem] overflow-hidden flex-shrink-0">
                   {leave.users?.avatar_url ? (
                     <img src={leave.users.avatar_url} alt="Avatar" className="w-full h-full object-cover" />
                   ) : (

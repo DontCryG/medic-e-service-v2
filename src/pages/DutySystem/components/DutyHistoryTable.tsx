@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Clock, Filter, Pencil, Trash2 } from 'lucide-react';
+import { Clock, Filter, Pencil, Trash2, ChevronLeft, ChevronRight } from 'lucide-react';
 import EmptyState from '@/components/common/EmptyState';
 import { enterpriseSwal, showErrorAlert } from '@/utils/alert';
 import SmartDatePicker from '../../../components/common/SmartDatePicker';
@@ -30,6 +30,20 @@ interface DutyHistoryTableProps {
   doctors?: DoctorOption[];
   selectedDoctorId?: string;
   onDoctorChange?: (id: string) => void;
+}
+
+
+function getPageNumbers(currentPage: number, totalPages: number): (number | string)[] {
+  if (totalPages <= 7) {
+    return Array.from({ length: totalPages }, (_, i) => i + 1);
+  }
+  if (currentPage <= 4) {
+    return [1, 2, 3, 4, 5, '...', totalPages];
+  }
+  if (currentPage >= totalPages - 3) {
+    return [1, '...', totalPages - 4, totalPages - 3, totalPages - 2, totalPages - 1, totalPages];
+  }
+  return [1, '...', currentPage - 1, currentPage, currentPage + 1, '...', totalPages];
 }
 
 const DutyHistoryTable = React.memo(function DutyHistoryTable({
@@ -115,7 +129,7 @@ const DutyHistoryTable = React.memo(function DutyHistoryTable({
             </div>
           )}
 
-          <Filter size={18} color="var(--text-secondary)" />
+          <Filter size={18} className="text-slate-400" />
           <div className="flex items-center gap-2">
             <span className="text-sm text-slate-500">ตั้งแต่:</span>
             <SmartDatePicker 
@@ -124,7 +138,7 @@ const DutyHistoryTable = React.memo(function DutyHistoryTable({
               selectsStart
               startDate={startDate}
               endDate={endDate}
-              className="w-[130px] px-3 py-1.5 border border-slate-200 rounded-lg text-sm text-center outline-none focus:border-[var(--primary)]"
+              className="w-[130px] px-3 py-1.5 border border-slate-200 rounded-lg text-sm text-center outline-none focus:border-purple-600 focus:ring-2 focus:ring-purple-500/10"
             />
           </div>
           <div className="flex items-center gap-2">
@@ -136,23 +150,12 @@ const DutyHistoryTable = React.memo(function DutyHistoryTable({
               startDate={startDate}
               endDate={endDate}
               minDate={startDate || undefined}
-              className="w-[130px] px-3 py-1.5 border border-slate-200 rounded-lg text-sm text-center outline-none focus:border-[var(--primary)]"
+              className="w-[130px] px-3 py-1.5 border border-slate-200 rounded-lg text-sm text-center outline-none focus:border-purple-600 focus:ring-2 focus:ring-purple-500/10"
             />
           </div>
           <button 
             onClick={onClearFilters}
-            style={{
-              padding: '8px 12px',
-              borderRadius: '6px',
-              border: '1px solid var(--border-color)',
-              background: 'var(--surface-color)',
-              color: 'var(--text-secondary)',
-              cursor: 'pointer',
-              fontSize: '0.85rem',
-              display: 'flex',
-              alignItems: 'center',
-              gap: '4px'
-            }}
+            className="px-3.5 py-1.5 rounded-xl border border-slate-200 bg-white hover:bg-slate-50 text-slate-600 hover:text-slate-900 text-xs font-semibold flex items-center gap-1.5 transition-all shadow-sm cursor-pointer"
           >
             ดูทั้งหมด
           </button>
@@ -247,41 +250,53 @@ const DutyHistoryTable = React.memo(function DutyHistoryTable({
         </table>
       </div>
       
-      {historyTotal > itemsPerPage && (
-        <div className="flex justify-center items-center gap-4 p-4 border-t border-slate-100 mt-4">
-          <button 
-            onClick={() => onPageChange(Math.max(1, historyPage - 1))}
-            disabled={historyPage === 1}
-            style={{ 
-              padding: '6px 16px', 
-              borderRadius: '6px',
-              background: historyPage === 1 ? 'var(--bg-color)' : 'var(--surface-color)', 
-              color: historyPage === 1 ? 'var(--text-tertiary)' : 'var(--text-primary)', 
-              border: '1px solid var(--border-color)',
-              cursor: historyPage === 1 ? 'not-allowed' : 'pointer'
-            }}
-          >
-            ก่อนหน้า
-          </button>
-          <span className="text-sm text-slate-500">
-            หน้า {historyPage} จาก {Math.ceil(historyTotal / itemsPerPage)}
-          </span>
-          <button 
-            onClick={() => onPageChange(Math.min(Math.ceil(historyTotal / itemsPerPage), historyPage + 1))}
-            disabled={historyPage >= Math.ceil(historyTotal / itemsPerPage)}
-            style={{ 
-              padding: '6px 16px', 
-              borderRadius: '6px',
-              background: historyPage >= Math.ceil(historyTotal / itemsPerPage) ? 'var(--bg-color)' : 'var(--surface-color)', 
-              color: historyPage >= Math.ceil(historyTotal / itemsPerPage) ? 'var(--text-tertiary)' : 'var(--text-primary)', 
-              border: '1px solid var(--border-color)',
-              cursor: historyPage >= Math.ceil(historyTotal / itemsPerPage) ? 'not-allowed' : 'pointer'
-            }}
-          >
-            ถัดไป
-          </button>
-        </div>
-      )}
+      {historyTotal > itemsPerPage && (() => {
+        const totalPages = Math.ceil(historyTotal / itemsPerPage);
+        return (
+          <div className="flex flex-col sm:flex-row justify-between items-center gap-4 p-4 border-t border-slate-100 mt-4">
+            <span className="text-xs font-medium text-slate-500">
+              แสดงรายการที่ <strong className="text-slate-700">{((historyPage - 1) * itemsPerPage) + 1}</strong> ถึง <strong className="text-slate-700">{Math.min(historyPage * itemsPerPage, historyTotal)}</strong> จากทั้งหมด <strong className="text-purple-600 font-bold">{historyTotal.toLocaleString()}</strong> รายการ
+            </span>
+            <div className="flex items-center gap-1.5 flex-wrap justify-center">
+              <button
+                onClick={() => onPageChange(Math.max(1, historyPage - 1))}
+                disabled={historyPage === 1}
+                className="w-8 h-8 rounded-xl border border-slate-200 bg-white text-slate-600 hover:bg-slate-50 disabled:opacity-30 disabled:cursor-not-allowed transition-all shadow-sm flex items-center justify-center cursor-pointer"
+                title="หน้าก่อนหน้า"
+              >
+                <ChevronLeft size={16} />
+              </button>
+              
+              {getPageNumbers(historyPage, totalPages).map((p, idx) => (
+                p === '...' ? (
+                  <span key={`dots-${idx}`} className="px-1 text-slate-400 text-xs select-none">...</span>
+                ) : (
+                  <button
+                    key={`page-${p}`}
+                    onClick={() => onPageChange(p as number)}
+                    className={`w-8 h-8 rounded-xl text-xs font-bold transition-all border cursor-pointer ${
+                      historyPage === p
+                        ? 'bg-purple-600 border-purple-600 text-white shadow-sm shadow-purple-500/30'
+                        : 'bg-white border-slate-200 text-slate-600 hover:bg-slate-50'
+                    }`}
+                  >
+                    {p}
+                  </button>
+                )
+              ))}
+
+              <button
+                onClick={() => onPageChange(Math.min(totalPages, historyPage + 1))}
+                disabled={historyPage >= totalPages}
+                className="w-8 h-8 rounded-xl border border-slate-200 bg-white text-slate-600 hover:bg-slate-50 disabled:opacity-30 disabled:cursor-not-allowed transition-all shadow-sm flex items-center justify-center cursor-pointer"
+                title="หน้าถัดไป"
+              >
+                <ChevronRight size={16} />
+              </button>
+            </div>
+          </div>
+        );
+      })()}
     </div>
   );
 });

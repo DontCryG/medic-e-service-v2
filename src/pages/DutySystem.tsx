@@ -1,7 +1,9 @@
 import { useState, useRef } from 'react';
+import { Clock } from 'lucide-react';
 import DutyControls from './DutySystem/components/DutyControls';
 import LiveUsersList from './DutySystem/components/LiveUsersList';
 import DutyHistoryTable from './DutySystem/components/DutyHistoryTable';
+import PageHeader from '@/components/common/PageHeader';
 import { supabase } from '@/lib/supabase';
 import { isAdmin as checkIsAdmin } from '@/utils/permissions';
 import { useQuery } from '@tanstack/react-query';
@@ -196,8 +198,21 @@ export default function DutySystem({ profile }: DutySystemProps) {
   const isMutating = clockInMutation.isPending || toggleBreakMutation.isPending || clockOutMutation.isPending;
 
   return (
-    <div className="w-full max-w-[1400px] mx-auto flex flex-col gap-8 animate-in fade-in duration-300">
-      
+    <div className="w-full max-w-[1400px] mx-auto flex flex-col gap-6 animate-in fade-in duration-300">
+      <PageHeader
+        title="ระบบลงเวลาปฏิบัติงาน (Duty System)"
+        subtitle="บันทึกเวลาเข้าเวร-ออกเวร พักเบรก และตรวจสอบประวัติการปฏิบัติหน้าที่"
+        icon={<Clock size={24} />}
+        iconTheme="purple"
+        badge={
+          currentSession
+            ? {
+                label: currentSession.status === 'on_duty' ? 'กำลังปฏิบัติหน้าที่' : 'กำลังพักเบรก',
+                variant: currentSession.status === 'on_duty' ? 'live' : 'warning',
+              }
+            : undefined
+        }
+      />
 
       {showSpecialDutyModal && <SpecialDutyModal onClose={() => setShowSpecialDutyModal(false)} />}
 

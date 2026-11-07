@@ -116,13 +116,13 @@ function GangSettings() {
               placeholder="ค้นหาชื่อแก๊ง..."
               value={search}
               onChange={(e) => setSearch(e.target.value)}
-              className="w-full !pl-10 !pr-4 !py-2 bg-slate-50 border border-slate-200 rounded-md outline-none focus:border-[var(--primary)] text-sm transition-colors"
+              className="w-full !pl-10 !pr-4 !py-2 bg-slate-50 border border-slate-200 rounded-md outline-none focus:border-purple-600 focus:ring-2 focus:ring-purple-500/10 text-sm transition-colors"
             />
           </div>
           <button 
             onClick={handleAdd}
             disabled={isAdding || !!editingId}
-            className="flex justify-end items-center gap-2 px-4 !py-2 bg-[var(--primary)] text-white border-none rounded-md text-sm font-semibold cursor-pointer transition-colors hover:bg-[var(--primary-hover)] disabled:opacity-50 disabled:cursor-not-allowed"
+            className="flex justify-end items-center gap-2 px-4 !py-2 bg-purple-600 text-white border-none rounded-md text-sm font-semibold cursor-pointer transition-colors hover:bg-purple-700 disabled:opacity-50 disabled:cursor-not-allowed"
           >
             <Plus size={16} /> เพิ่ม
           </button>
@@ -148,7 +148,7 @@ function GangSettings() {
                         type="text" 
                         {...register('name')}
                         placeholder="ระบุชื่อแก๊ง..."
-                        className={`w-full px-3 !py-2 bg-white border ${errors.name ? 'border-red-400 bg-red-50' : 'border-slate-300'} rounded-md outline-none focus:border-[var(--primary)] text-sm`}
+                        className={`w-full px-3 !py-2 bg-white border ${errors.name ? 'border-red-400 bg-red-50' : 'border-slate-300'} rounded-md outline-none focus:border-purple-600 focus:ring-2 focus:ring-purple-500/10 text-sm`}
                       />
                     </td>
                     <td className="p-3 text-right">
@@ -167,7 +167,7 @@ function GangSettings() {
                           <input 
                             type="text" 
                             {...register('name')}
-                            className={`w-full px-3 !py-2 bg-white border ${errors.name ? 'border-red-400 bg-red-50' : 'border-slate-300'} rounded-md outline-none focus:border-[var(--primary)] text-sm`}
+                            className={`w-full px-3 !py-2 bg-white border ${errors.name ? 'border-red-400 bg-red-50' : 'border-slate-300'} rounded-md outline-none focus:border-purple-600 focus:ring-2 focus:ring-purple-500/10 text-sm`}
                           />
                         </td>
                         <td className="p-3 text-right">
@@ -295,13 +295,13 @@ function FamilySettings() {
               placeholder="ค้นหาชื่อแฟมิลี่..."
               value={search}
               onChange={(e) => setSearch(e.target.value)}
-              className="w-full !pl-10 !pr-4 !py-2 bg-slate-50 border border-slate-200 rounded-md outline-none focus:border-[var(--primary)] text-sm transition-colors"
+              className="w-full !pl-10 !pr-4 !py-2 bg-slate-50 border border-slate-200 rounded-md outline-none focus:border-purple-600 focus:ring-2 focus:ring-purple-500/10 text-sm transition-colors"
             />
           </div>
           <button 
             onClick={handleAdd}
             disabled={isAdding || !!editingId}
-            className="flex justify-end items-center gap-2 px-4 !py-2 bg-[var(--primary)] text-white border-none rounded-md text-sm font-semibold cursor-pointer transition-colors hover:bg-[var(--primary-hover)] disabled:opacity-50 disabled:cursor-not-allowed"
+            className="flex justify-end items-center gap-2 px-4 !py-2 bg-purple-600 text-white border-none rounded-md text-sm font-semibold cursor-pointer transition-colors hover:bg-purple-700 disabled:opacity-50 disabled:cursor-not-allowed"
           >
             <Plus size={16} /> เพิ่ม
           </button>
@@ -327,7 +327,7 @@ function FamilySettings() {
                         type="text" 
                         {...register('name')}
                         placeholder="ระบุชื่อแฟมิลี่..."
-                        className={`w-full px-3 !py-2 bg-white border ${errors.name ? 'border-red-400 bg-red-50' : 'border-slate-300'} rounded-md outline-none focus:border-[var(--primary)] text-sm`}
+                        className={`w-full px-3 !py-2 bg-white border ${errors.name ? 'border-red-400 bg-red-50' : 'border-slate-300'} rounded-md outline-none focus:border-purple-600 focus:ring-2 focus:ring-purple-500/10 text-sm`}
                       />
                     </td>
                     <td className="p-3 text-right">
@@ -346,7 +346,7 @@ function FamilySettings() {
                           <input 
                             type="text" 
                             {...register('name')}
-                            className={`w-full px-3 !py-2 bg-white border ${errors.name ? 'border-red-400 bg-red-50' : 'border-slate-300'} rounded-md outline-none focus:border-[var(--primary)] text-sm`}
+                            className={`w-full px-3 !py-2 bg-white border ${errors.name ? 'border-red-400 bg-red-50' : 'border-slate-300'} rounded-md outline-none focus:border-purple-600 focus:ring-2 focus:ring-purple-500/10 text-sm`}
                           />
                         </td>
                         <td className="p-3 text-right">

@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { Settings, Users, Shield, DollarSign, RefreshCw } from 'lucide-react';
+import PageHeader from '@/components/common/PageHeader';
 import { showConfirmDialog, showSuccessAlert } from '@/utils/alert';
 import { broadcastForceReload } from '@/hooks/useAppRealtime';
 
@@ -30,29 +31,28 @@ export default function SystemSettings() {
 
   return (
     <div className="max-w-[1400px] mx-auto p-4 sm:p-6 lg:p-8 animate-in fade-in duration-500">
-      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-8">
-        <div>
-          <h1 className="text-3xl font-bold text-slate-800 m-0 flex items-center gap-3">
-            <Settings size={32} className="text-[var(--primary)]" />
-            ตั้งค่าระบบ
-          </h1>
-          <p className="text-slate-500 mt-2 text-[0.95rem]">
-            จัดการข้อมูลตำแหน่ง, แก๊ง, ครอบครัว, และตั้งค่าราคาการรักษา
-          </p>
-        </div>
-        <button 
-          onClick={handleForceRefresh}
-          className="flex items-center gap-2 px-5 py-2.5 rounded-md border-2 border-red-500 text-red-500 font-semibold bg-transparent hover:bg-red-50 transition-colors cursor-pointer"
-        >
-          <RefreshCw size={18} />
-          Force Refresh (All Users)
-        </button>
-      </div>
+      <PageHeader
+        title="ตั้งค่าระบบ (System Settings)"
+        subtitle="จัดการข้อมูลตำแหน่ง อัตราค่าตอบแทน รายชื่อแก๊ง/ครอบครัว และราคาการรักษา"
+        icon={<Settings size={24} />}
+        iconTheme="orange"
+        badge={{ label: 'ระบบจัดการ (Admin Only)', variant: 'admin' }}
+        actions={
+          <button 
+            onClick={handleForceRefresh}
+            className="flex items-center gap-2 px-4 py-2 rounded-xl border border-rose-300 text-rose-600 font-bold text-xs bg-rose-50 hover:bg-rose-100 transition-colors cursor-pointer shadow-sm"
+            title="ส่งคำสั่งรีเฟรชหน้าต่างของผู้ใช้ทุกคน"
+          >
+            <RefreshCw size={14} />
+            Force Refresh All Users
+          </button>
+        }
+      />
 
-      <div className="flex bg-slate-100 p-1.5 rounded-[16px] w-fit mb-8 overflow-x-auto max-w-full">
+      <div className="flex bg-slate-100 p-1.5 rounded-2xl border border-slate-200/80 w-fit mb-8 overflow-x-auto max-w-full">
         <button 
           className={`flex items-center gap-2 px-6 py-2.5 rounded-md text-[0.95rem] font-semibold cursor-pointer border-none transition-all whitespace-nowrap ${
-            activeTab === 'positions' ? 'bg-white text-[var(--primary)] shadow-sm' : 'bg-transparent text-slate-500 hover:text-slate-700'
+            activeTab === 'positions' ? 'bg-white text-purple-600 shadow-sm' : 'bg-transparent text-slate-500 hover:text-slate-700'
           }`}
           onClick={() => setActiveTab('positions')}
         >
@@ -61,7 +61,7 @@ export default function SystemSettings() {
         </button>
         <button 
           className={`flex items-center gap-2 px-6 py-2.5 rounded-md text-[0.95rem] font-semibold cursor-pointer border-none transition-all whitespace-nowrap ${
-            activeTab === 'gangs' ? 'bg-white text-[var(--primary)] shadow-sm' : 'bg-transparent text-slate-500 hover:text-slate-700'
+            activeTab === 'gangs' ? 'bg-white text-purple-600 shadow-sm' : 'bg-transparent text-slate-500 hover:text-slate-700'
           }`}
           onClick={() => setActiveTab('gangs')}
         >
@@ -70,7 +70,7 @@ export default function SystemSettings() {
         </button>
         <button 
           className={`flex items-center gap-2 px-6 py-2.5 rounded-md text-[0.95rem] font-semibold cursor-pointer border-none transition-all whitespace-nowrap ${
-            activeTab === 'pricing' ? 'bg-white text-[var(--primary)] shadow-sm' : 'bg-transparent text-slate-500 hover:text-slate-700'
+            activeTab === 'pricing' ? 'bg-white text-purple-600 shadow-sm' : 'bg-transparent text-slate-500 hover:text-slate-700'
           }`}
           onClick={() => setActiveTab('pricing')}
         >
@@ -79,7 +79,7 @@ export default function SystemSettings() {
         </button>
       </div>
 
-      <div className="bg-white rounded-3xl p-6 sm:p-8 shadow-[0_10px_40px_-10px_rgba(0,0,0,0.05)] border border-[var(--border-color)]">
+      <div className="bg-white rounded-3xl p-6 sm:p-8 shadow-[0_10px_40px_-10px_rgba(0,0,0,0.05)] border border-slate-200/80 shadow-sm">
         {activeTab === 'positions' && <PositionSettings />}
         {activeTab === 'gangs' && <GangFamilySettings />}
         {activeTab === 'pricing' && <PricingSettings />}

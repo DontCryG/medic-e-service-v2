@@ -91,7 +91,7 @@ export default function SalaryTable({ data, onOpenDutyLogModal, onPrintPayslip }
       cell: info => {
         const val = info.getValue();
         return (
-          <div className="text-right font-bold" style={{ color: val > 0 ? '#ea580c' : 'inherit' }}>
+          <div className={`text-right font-bold ${val > 0 ? 'text-orange-600' : 'text-slate-300'}`}>
             {val > 0 ? val.toLocaleString() : '-'}
           </div>
         );
@@ -106,7 +106,7 @@ export default function SalaryTable({ data, onOpenDutyLogModal, onPrintPayslip }
         cell: info => {
           const val = info.getValue();
           return (
-            <div className="text-center font-bold" style={{ color: val > 0 ? '#8b5cf6' : 'inherit' }}>
+            <div className={`text-center font-bold ${val > 0 ? 'text-violet-600' : 'text-slate-300'}`}>
               {val > 0 ? val : '-'}
             </div>
           );
@@ -119,7 +119,7 @@ export default function SalaryTable({ data, onOpenDutyLogModal, onPrintPayslip }
       cell: info => {
         const val = info.getValue();
         return (
-          <div className="text-center font-bold" style={{ color: val > 0 ? '#f59e0b' : 'inherit' }}>
+          <div className={`text-center font-bold ${val > 0 ? 'text-amber-500' : 'text-slate-300'}`}>
             {val > 0 ? val : '-'}
           </div>
         );
@@ -190,7 +190,7 @@ export default function SalaryTable({ data, onOpenDutyLogModal, onPrintPayslip }
     : 0;
 
   return (
-    <div className="bg-white rounded-3xl p-6 shadow-[0_10px_40px_-10px_rgba(0,0,0,0.05)] border border-[var(--border-color)] overflow-hidden flex flex-col">
+    <div className="bg-white rounded-3xl p-6 shadow-[0_10px_40px_-10px_rgba(0,0,0,0.05)] border border-slate-200/80 overflow-hidden flex flex-col">
       <div 
         ref={tableContainerRef} 
         className="overflow-auto max-h-[600px] w-full"
@@ -206,20 +206,17 @@ export default function SalaryTable({ data, onOpenDutyLogModal, onPrintPayslip }
                   return (
                     <th 
                       key={header.id} 
-                      className="p-4 text-slate-500 font-semibold border-b-2 border-slate-100 text-sm whitespace-nowrap bg-white"
+                      className={`p-4 text-slate-500 font-semibold border-b-2 border-slate-100 text-sm whitespace-nowrap bg-white select-none ${canSort ? 'cursor-pointer hover:bg-slate-50/80 transition-colors' : 'cursor-default'}`}
                       style={{
                         width: header.column.getSize(),
-                        cursor: canSort ? 'pointer' : 'default',
-                        userSelect: 'none'
                       }}
                       onClick={header.column.getToggleSortingHandler()}
                     >
-                      <div className="flex items-center gap-2" style={{
-                        justifyContent: header.id === 'netTotal' || header.id === 'oc_money' ? 'flex-end' 
-                          : header.id === 'actions' ? 'center' 
-                          : header.id === 'total_minutes' || header.id === 'totalGacha' || header.id === 'coins' ? 'center' 
-                          : 'flex-start'
-                      }}>
+                      <div className={`flex items-center gap-2 ${
+                        header.id === 'netTotal' || header.id === 'oc_money' ? 'justify-end' 
+                          : header.id === 'actions' || header.id === 'total_minutes' || header.id === 'totalGacha' || header.id === 'coins' ? 'justify-center' 
+                          : 'justify-start'
+                      }`}>
                         {flexRender(
                           header.column.columnDef.header,
                           header.getContext()

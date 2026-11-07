@@ -133,7 +133,7 @@ export default function LeaveRequestModal({ onClose, profile }: LeaveRequestModa
           <h2 className="text-xl font-bold text-slate-800 m-0 flex items-center gap-2">
             <ClipboardList size={22} className={
               leaveType === 'vacation' ? 'text-green-500' :
-              leaveType === 'resign' ? 'text-red-500' : 'text-[var(--primary)]'
+              leaveType === 'resign' ? 'text-red-500' : 'text-purple-600'
             } />
             ยื่นใบลา
           </h2>
@@ -221,7 +221,7 @@ export default function LeaveRequestModal({ onClose, profile }: LeaveRequestModa
                   {...field}
                   placeholder="ระบุเหตุผลการลา..."
                   rows={4}
-                  className="w-full px-4 py-3 rounded-xl border border-slate-200 bg-slate-50 text-slate-800 text-sm focus:outline-none focus:ring-2 focus:ring-[var(--primary)]/20 focus:border-[var(--primary)] transition-all resize-none"
+                  className="w-full px-4 py-3 rounded-xl border border-slate-200 bg-slate-50 text-slate-800 text-sm focus:outline-none focus:ring-2 focus:ring-purple-500/10 focus:border-purple-600 transition-all resize-none"
                 />
               )}
             />
@@ -242,7 +242,7 @@ export default function LeaveRequestModal({ onClose, profile }: LeaveRequestModa
               className={`px-6 py-2.5 rounded-xl border-none font-semibold text-white transition-all w-full sm:w-auto cursor-pointer ${
                 leaveType === 'vacation' ? 'bg-green-500 hover:bg-green-600 shadow-green-500/20' :
                 leaveType === 'resign' ? 'bg-red-500 hover:bg-red-600 shadow-red-500/20' :
-                'bg-[var(--primary)] hover:opacity-90 shadow-sm'
+                'bg-purple-600 hover:bg-purple-700 hover:opacity-90 shadow-sm'
               } shadow-md hover:shadow-lg hover:-translate-y-0.5 disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none`}
               disabled={isSubmitting || createLeaveMutation.isPending}
             >

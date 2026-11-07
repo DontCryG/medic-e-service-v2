@@ -62,7 +62,7 @@ export default function EditPersonnelModal({
 
   return (
     <div className="fixed inset-0 bg-black/40 backdrop-blur-sm flex justify-center items-center z-[9999] p-4">
-      <div className="bg-[var(--surface-color)] rounded-[20px] p-6 sm:p-10 w-full max-w-[500px] shadow-xl relative max-h-[90vh] overflow-y-auto">
+      <div className="bg-white rounded-3xl p-6 sm:p-10 w-full max-w-[500px] shadow-xl relative max-h-[90vh] overflow-y-auto">
         <div className="flex justify-between items-center mb-6">
           <h2 className="text-2xl font-bold text-slate-800 m-0">แก้ไขข้อมูลบุคลากร</h2>
           <button 
@@ -75,8 +75,7 @@ export default function EditPersonnelModal({
         
         <div className="mb-6 flex items-center gap-4 p-4 bg-slate-50 rounded-xl">
           <div 
-            className="w-[50px] h-[50px] rounded-full bg-[var(--primary-light)] text-[var(--primary)] flex items-center justify-center font-bold text-lg overflow-hidden shrink-0"
-            style={{ padding: user.avatar_url ? 0 : undefined }}
+            className={`w-[50px] h-[50px] rounded-full bg-purple-100 text-purple-700 flex items-center justify-center font-bold text-lg overflow-hidden shrink-0 ${user.avatar_url ? 'p-0' : ''}`}
           >
             {user.avatar_url ? (
               <img src={user.avatar_url} alt="Avatar" className="w-full h-full object-cover" />
@@ -136,9 +135,9 @@ export default function EditPersonnelModal({
             </div>
           )}
 
-          <div className="flex justify-end gap-4 mt-8 sticky -bottom-10 bg-[var(--surface-color)] pt-6 pb-10 -mb-10 border-t border-slate-200 z-10">
-            <button type="button" className="px-6 py-3 rounded-[8px] font-semibold text-base cursor-pointer border-none transition-all bg-slate-100 text-slate-600 hover:bg-slate-200" onClick={onClose} disabled={isSaving}>ยกเลิก</button>
-            <button type="submit" className="px-6 py-3 rounded-[8px] font-semibold text-base cursor-pointer border-none transition-all bg-[var(--primary)] text-white hover:bg-[var(--primary-hover)] disabled:opacity-50 disabled:cursor-not-allowed" disabled={isSaving}>
+          <div className="flex justify-end gap-4 mt-8 sticky -bottom-10 bg-white pt-6 pb-10 -mb-10 border-t border-slate-200 z-10">
+            <button type="button" className="px-6 py-3 rounded-xl font-semibold text-base cursor-pointer border-none transition-all bg-slate-100 text-slate-600 hover:bg-slate-200" onClick={onClose} disabled={isSaving}>ยกเลิก</button>
+            <button type="submit" className="px-6 py-3 rounded-xl font-semibold text-base cursor-pointer border-none transition-all bg-purple-600 text-white hover:bg-purple-700 disabled:opacity-50 disabled:cursor-not-allowed" disabled={isSaving}>
               {isSaving ? 'กำลังบันทึก...' : 'บันทึกการเปลี่ยนแปลง'}
             </button>
           </div>

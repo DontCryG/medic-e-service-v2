@@ -3,6 +3,8 @@ import { useQueryClient } from '@tanstack/react-query';
 import { supabase } from '@/lib/supabase';
 import { showConfirmDialog } from '@/utils/alert';
 import toast from 'react-hot-toast';
+import { Users } from 'lucide-react';
+import PageHeader from '@/components/common/PageHeader';
 
 import PersonnelTable from './PersonnelSystem/components/PersonnelTable';
 
@@ -99,7 +101,15 @@ export default function PersonnelSystem({ profile }: PersonnelSystemProps) {
   };
 
   return (
-    <div className="w-full max-w-[1400px] mx-auto p-4 md:p-6">
+    <div className="w-full max-w-[1400px] mx-auto p-4 md:p-6 animate-in fade-in duration-300">
+      <PageHeader
+        title="ระบบจัดการบุคลากร (Personnel System)"
+        subtitle="บริหารจัดการรายชื่อแพทย์ ตำแหน่งหน้าที่ สิทธิ์การเข้าถึง และการปรับสถานะ"
+        icon={<Users size={24} />}
+        iconTheme="orange"
+        badge={{ label: 'ระบบจัดการ (Admin Only)', variant: 'admin' }}
+      />
+
       <PersonnelTable 
         profile={profile}
         filteredUsers={filteredUsers as any}

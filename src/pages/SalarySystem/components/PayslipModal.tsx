@@ -125,7 +125,7 @@ export default function PayslipModal({ user, startDate, endDate, onClose }: Pays
                 <span>เงินพี่เลี้ยงหมอใหม่</span>
                 <span className="font-medium text-slate-800">{user.mentor_money > 0 ? user.mentor_money.toLocaleString() : '-'}</span>
               </div>
-              <div className="flex justify-between py-4 mt-2 border-t-2 border-slate-100 text-lg font-bold text-[var(--primary)]">
+              <div className="flex justify-between py-4 mt-2 border-t-2 border-slate-100 text-lg font-bold text-purple-600">
                 <span>รวมรายรับทั้งสิ้น (Total Income)</span>
                 <span>฿ {totalIncome.toLocaleString()}</span>
               </div>

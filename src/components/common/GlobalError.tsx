@@ -40,7 +40,7 @@ export default function GlobalError() {
 
         <button 
           onClick={handleRefresh}
-          className="w-full py-3.5 px-6 bg-[var(--primary)] text-white font-semibold rounded-xl hover:opacity-90 transition-all flex items-center justify-center gap-2 shadow-sm cursor-pointer"
+          className="w-full py-3.5 px-6 bg-purple-600 text-white font-semibold rounded-xl hover:opacity-90 transition-all flex items-center justify-center gap-2 shadow-sm cursor-pointer"
         >
           <RefreshCw size={18} />
           รีเฟรชหน้าจอ

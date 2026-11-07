@@ -1,6 +1,8 @@
 import { memo } from 'react';
 import { Users, Search, Edit2, Trash2, Clock } from 'lucide-react';
 import { getInitial } from '../utils/personnelUtils';
+import TableSkeleton from '@/components/common/TableSkeleton';
+import EmptyState from '@/components/common/EmptyState';
 
 export interface UserWithPosition {
   discord_id: string;
@@ -42,98 +44,148 @@ const PersonnelTable = memo(function PersonnelTable({
   onAddDutyClick,
   onDeleteUser
 }: PersonnelTableProps) {
+  const roleFilters = [
+    { id: 'all', label: 'ทั้งหมด', activeClass: 'bg-slate-900 text-white shadow-sm' },
+    { id: 'admin', label: 'แอดมิน (Admin)', activeClass: 'bg-red-600 text-white shadow-sm' },
+    { id: 'medic', label: 'แพทย์ (Medic)', activeClass: 'bg-purple-600 text-white shadow-sm' },
+    { id: 'user', label: 'บุคคลทั่วไป (User)', activeClass: 'bg-amber-500 text-white shadow-sm' },
+    { id: 'resigned', label: 'พ้นสภาพ', activeClass: 'bg-slate-600 text-white shadow-sm' },
+  ];
+
   return (
     <>
       {/* Header & Controls */}
-      <div className="flex flex-col md:flex-row justify-between items-center flex-wrap gap-6 mb-8">
-        <div className="flex items-center gap-3 bg-white px-5 py-3 rounded-2xl shadow-[0_4px_15px_rgba(0,0,0,0.05)] border border-[var(--border-color)] w-full md:max-w-[450px]">
-          <Search size={18} color="#94a3b8" />
+      <div className="flex flex-col md:flex-row justify-between items-center flex-wrap gap-4 mb-6">
+        <div className="flex items-center gap-3 bg-white px-4 py-2.5 rounded-2xl shadow-sm border border-slate-200/80 w-full md:max-w-[420px] focus-within:border-purple-600 focus-within:ring-2 focus-within:ring-purple-500/10 transition-all">
+          <Search size={18} className="text-slate-400 shrink-0" />
           <input 
             type="text" 
-            placeholder="ค้นหาด้วยชื่อ IC..." 
+            placeholder="ค้นหาด้วยชื่อ IC หรือเบอร์โทร..." 
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
+            className="w-full bg-transparent border-none outline-none text-sm text-slate-800 placeholder:text-slate-400"
           />
         </div>
 
-        <div className="flex gap-2 bg-white p-2 rounded-2xl shadow-[0_4px_15px_rgba(0,0,0,0.05)] border border-[var(--border-color)] flex-wrap justify-center sm:justify-start">
-          <button className={`px-6 py-2.5 rounded-xl text-[0.95rem] font-semibold cursor-pointer border-none bg-transparent transition-all sm:flex-auto flex-1 text-center ${filterRole === 'all' ? 'bg-slate-100 text-slate-700' : 'text-[var(--text-secondary)]'}`} onClick={() => setFilterRole('all')}>ทั้งหมด</button>
-          <button className={`px-6 py-2.5 rounded-xl text-[0.95rem] font-semibold cursor-pointer border-none bg-transparent transition-all sm:flex-auto flex-1 text-center ${filterRole === 'admin' ? 'bg-red-100 text-red-500' : 'text-[var(--text-secondary)]'}`} onClick={() => setFilterRole('admin')}>แอดมิน (Admin)</button>
-          <button className={`px-6 py-2.5 rounded-xl text-[0.95rem] font-semibold cursor-pointer border-none bg-transparent transition-all sm:flex-auto flex-1 text-center ${filterRole === 'medic' ? 'bg-indigo-100 text-indigo-600' : 'text-[var(--text-secondary)]'}`} onClick={() => setFilterRole('medic')}>แพทย์ (Medic)</button>
-          <button className={`px-6 py-2.5 rounded-xl text-[0.95rem] font-semibold cursor-pointer border-none bg-transparent transition-all sm:flex-auto flex-1 text-center ${filterRole === 'user' ? 'bg-amber-100 text-amber-600' : 'text-[var(--text-secondary)]'}`} onClick={() => setFilterRole('user')}>บุคคลทั่วไป (User)</button>
-          <button className={`px-6 py-2.5 rounded-xl text-[0.95rem] font-semibold cursor-pointer border-none bg-transparent transition-all sm:flex-auto flex-1 text-center ${filterRole === 'resigned' ? 'bg-red-50 text-red-500' : 'text-[var(--text-secondary)]'}`} onClick={() => setFilterRole('resigned')}>พ้นสภาพ</button>
+        <div className="flex gap-1.5 bg-white p-1.5 rounded-2xl shadow-sm border border-slate-200/80 flex-wrap justify-center sm:justify-start">
+          {roleFilters.map((f) => {
+            const isActive = filterRole === f.id;
+            return (
+              <button
+                key={f.id}
+                className={`px-4 py-2 rounded-xl text-xs font-bold cursor-pointer border-none transition-all ${
+                  isActive ? f.activeClass : 'bg-transparent text-slate-500 hover:text-slate-800 hover:bg-slate-50'
+                }`}
+                onClick={() => setFilterRole(f.id)}
+              >
+                {f.label}
+              </button>
+            );
+          })}
         </div>
       </div>
 
       {/* Table Card */}
-      <div className="bg-white rounded-3xl p-5 sm:p-10 shadow-[0_10px_40px_-10px_rgba(0,0,0,0.05)] border border-[var(--border-color)] overflow-hidden">
-        <h2 style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', marginBottom: '2rem', color: '#ea580c' }}>
-          <Users size={28} /> ทะเบียนบุคลากรแพทย์
-        </h2>
+      <div className="bg-white rounded-3xl p-6 sm:p-8 shadow-sm border border-slate-200/80 overflow-hidden">
+        <div className="flex items-center justify-between mb-6">
+          <div className="flex items-center gap-3">
+            <div className="w-10 h-10 rounded-xl bg-orange-100 text-orange-600 flex items-center justify-center shrink-0">
+              <Users size={22} />
+            </div>
+            <div>
+              <h2 className="text-xl font-bold text-slate-800 m-0">ทะเบียนบุคลากรแพทย์</h2>
+              <p className="text-xs text-slate-500 m-0 mt-0.5">รายชื่อเจ้าหน้าที่ สิทธิ์การใช้งาน และตำแหน่งในหน่วยงาน</p>
+            </div>
+          </div>
+          <span className="text-xs font-semibold text-slate-500 bg-slate-100 px-3 py-1.5 rounded-full">
+            ทั้งหมด {filteredUsers.length} คน
+          </span>
+        </div>
 
         {loading ? (
-          <div style={{ textAlign: 'center', padding: '2rem', color: '#64748b' }}>กำลังโหลดข้อมูล...</div>
+          <div className="py-4">
+            <TableSkeleton rows={6} columns={5} />
+          </div>
         ) : (
-          <div style={{ overflowX: 'auto' }}>
-            <table className="w-full border-collapse">
+          <div className="overflow-x-auto rounded-2xl border border-slate-100">
+            <table className="w-full border-collapse min-w-[850px] text-left">
               <thead>
-                <tr>
-                  <th className="w-[30%] text-left p-4 text-slate-500 font-semibold border-b-2 border-slate-100 text-[0.95rem]">ข้อมูลบุคลากร (IC)</th>
-                  <th className="w-[25%] text-left p-4 text-slate-500 font-semibold border-b-2 border-slate-100 text-[0.95rem]">ตำแหน่ง (Position)</th>
-                  <th className="w-[15%] text-left p-4 text-slate-500 font-semibold border-b-2 border-slate-100 text-[0.95rem]">สิทธิ์ (Role)</th>
-                  <th className="w-[20%] text-left p-4 text-slate-500 font-semibold border-b-2 border-slate-100 text-[0.95rem]">Discord ID</th>
-                  <th className="w-[10%] text-right p-4 text-slate-500 font-semibold border-b-2 border-slate-100 text-[0.95rem]">จัดการ</th>
+                <tr className="bg-slate-50/80">
+                  <th className="w-[30%] p-4 text-slate-600 font-bold border-b border-slate-100 text-xs uppercase tracking-wider">ข้อมูลบุคลากร (IC)</th>
+                  <th className="w-[25%] p-4 text-slate-600 font-bold border-b border-slate-100 text-xs uppercase tracking-wider">ตำแหน่ง (Position)</th>
+                  <th className="w-[15%] p-4 text-slate-600 font-bold border-b border-slate-100 text-xs uppercase tracking-wider">สิทธิ์ (Role)</th>
+                  <th className="w-[20%] p-4 text-slate-600 font-bold border-b border-slate-100 text-xs uppercase tracking-wider">Discord ID</th>
+                  <th className="w-[10%] p-4 text-slate-600 font-bold border-b border-slate-100 text-xs uppercase tracking-wider text-right">จัดการ</th>
                 </tr>
               </thead>
-              <tbody>
-                  {filteredUsers.length > 0 ? filteredUsers.map(user => (
-                    <tr key={user.discord_id}>
-                    <td className="p-4 sm:p-5 border-b border-slate-100 text-slate-700 text-[0.95rem] align-middle">
-                      <div className="flex items-center gap-4">
-                        <div className="w-[45px] h-[45px] rounded-full bg-[var(--primary-light)] text-[var(--primary)] flex items-center justify-center font-bold text-lg overflow-hidden shrink-0" style={{ padding: user.avatar_url ? 0 : undefined }}>
+              <tbody className="divide-y divide-slate-100">
+                {filteredUsers.length > 0 ? filteredUsers.map(user => (
+                  <tr key={user.discord_id} className="hover:bg-slate-50/60 transition-colors">
+                    <td className="p-4 text-slate-700 align-middle">
+                      <div className="flex items-center gap-3">
+                        <div className="w-10 h-10 rounded-full bg-purple-100 text-purple-700 flex items-center justify-center font-bold text-sm overflow-hidden shrink-0 shadow-sm">
                           {user.avatar_url ? (
-                            <img src={user.avatar_url} alt="Avatar" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
-                          ) : getInitial(user.ic_name)}
+                            <img src={user.avatar_url} alt="Avatar" className="w-full h-full object-cover" />
+                          ) : (
+                            getInitial(user.ic_name)
+                          )}
                         </div>
                         <div>
-                          <div className="font-semibold text-slate-800 text-base">{user.ic_name}</div>
-                          <div className="text-sm text-slate-500 mt-1">{user.ic_phone || '-'}</div>
+                          <div className="font-semibold text-slate-800 text-sm">{user.ic_name}</div>
+                          <div className="text-xs text-slate-400 mt-0.5">{user.ic_phone || '-'}</div>
                         </div>
                       </div>
                     </td>
-                    <td className="p-4 sm:p-5 border-b border-slate-100 text-slate-700 text-[0.95rem] align-middle">{user.positions?.name || '-'}</td>
-                    <td className="p-4 sm:p-5 border-b border-slate-100 text-slate-700 text-[0.95rem] align-middle">
-                      <span className={`px-3 py-1.5 rounded-xl text-sm font-semibold inline-block capitalize ${user.role === "admin" || user.role === "superadmin" ? "bg-red-100 text-red-600" : user.role === "medic" ? "bg-indigo-100 text-indigo-600" : user.role === "user" ? "bg-amber-100 text-amber-600" : "bg-slate-100 text-slate-600"}`}>{user.role}</span>
+                    <td className="p-4 text-slate-700 text-sm font-medium align-middle">{user.positions?.name || '-'}</td>
+                    <td className="p-4 align-middle">
+                      <span className={`px-2.5 py-1 rounded-full text-xs font-bold inline-block capitalize ${
+                        user.role === "admin" || user.role === "superadmin" 
+                          ? "bg-red-50 text-red-600 border border-red-200" 
+                          : user.role === "medic" 
+                          ? "bg-purple-50 text-purple-700 border border-purple-200" 
+                          : user.role === "user" 
+                          ? "bg-amber-50 text-amber-700 border border-amber-200" 
+                          : "bg-slate-100 text-slate-600 border border-slate-200"
+                      }`}>
+                        {user.role}
+                      </span>
                     </td>
-                    <td className="p-4 sm:p-5 border-b border-slate-100 text-slate-500 text-[0.85rem] align-middle">{user.discord_id}</td>
-                    <td className="p-4 sm:p-5 border-b border-slate-100 text-slate-700 text-[0.95rem] align-middle">
-                      <div className="flex gap-2 justify-end">
-                        <button className="p-2 rounded-xl border border-slate-200 text-blue-500 bg-white hover:bg-blue-50 transition-colors flex items-center justify-center cursor-pointer" onClick={() => onEditClick(user)} title="แก้ไขข้อมูล">
-                          <Edit2 size={18} />
+                    <td className="p-4 text-slate-500 text-xs font-mono align-middle">{user.discord_id}</td>
+                    <td className="p-4 align-middle">
+                      <div className="flex gap-1.5 justify-end">
+                        <button 
+                          className="w-8 h-8 rounded-lg border border-blue-200 bg-blue-50 text-blue-600 hover:bg-blue-100 transition-colors flex items-center justify-center cursor-pointer" 
+                          onClick={() => onEditClick(user)} 
+                          title="แก้ไขข้อมูล"
+                        >
+                          <Edit2 size={15} />
                         </button>
-                        <button className="p-2 rounded-xl border border-slate-200 text-emerald-500 bg-white hover:bg-emerald-50 transition-colors flex items-center justify-center cursor-pointer" onClick={() => onAddDutyClick(user)} title="เพิ่มเวลาเวรย้อนหลัง">
-                          <Clock size={18} />
+                        <button 
+                          className="w-8 h-8 rounded-lg border border-emerald-200 bg-emerald-50 text-emerald-600 hover:bg-emerald-100 transition-colors flex items-center justify-center cursor-pointer" 
+                          onClick={() => onAddDutyClick(user)} 
+                          title="เพิ่มเวลาเวรย้อนหลัง"
+                        >
+                          <Clock size={15} />
                         </button>
                         {user.discord_id !== profile?.discord_id && (
-                          <button className="p-2 rounded-xl border border-slate-200 text-red-500 bg-white hover:bg-red-50 transition-colors flex items-center justify-center cursor-pointer" onClick={() => onDeleteUser(user)} title="พ้นสภาพ">
-                            <Trash2 size={18} />
+                          <button 
+                            className="w-8 h-8 rounded-lg border border-rose-200 bg-rose-50 text-rose-600 hover:bg-rose-100 transition-colors flex items-center justify-center cursor-pointer" 
+                            onClick={() => onDeleteUser(user)} 
+                            title="พ้นสภาพ"
+                          >
+                            <Trash2 size={15} />
                           </button>
                         )}
                       </div>
                     </td>
                   </tr>
-                  )) : (
+                )) : (
                   <tr>
-                    <td colSpan={5} style={{ textAlign: 'center', padding: '4rem 2rem' }}>
-                      <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '1rem' }}>
-                        <div style={{ width: '64px', height: '64px', borderRadius: '50%', background: 'rgba(234, 88, 12, 0.1)', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#ea580c' }}>
-                          <Search size={32} />
-                        </div>
-                        <div>
-                          <p style={{ margin: '0 0 0.5rem 0', fontWeight: 600, color: '#475569', fontSize: '1.1rem' }}>ไม่พบข้อมูลบุคลากร</p>
-                          <p style={{ margin: 0, color: '#94a3b8', fontSize: '0.9rem' }}>ลองเปลี่ยนคำค้นหาหรือตัวกรองบทบาท</p>
-                        </div>
-                      </div>
+                    <td colSpan={5} className="p-8">
+                      <EmptyState 
+                        title="ไม่พบข้อมูลบุคลากร" 
+                        description="ลองเปลี่ยนคำค้นหาหรือตัวกรองบทบาท" 
+                      />
                     </td>
                   </tr>
                 )}
