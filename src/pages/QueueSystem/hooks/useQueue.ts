@@ -1,13 +1,12 @@
-import { useEffect, useState } from 'react';
-import { useQuery, useQueryClient } from '@tanstack/react-query';
+import { useQuery } from '@tanstack/react-query';
 import { supabase } from '@/lib/supabase';
+import { useRealtimeStore } from '@/hooks/useAppRealtime';
 import type { QueueUser, QueueStatus } from '../types';
 
 export function useQueue(currentUserId: string | undefined) {
-  const queryClient = useQueryClient();
-  const [realtimeConnected, setRealtimeConnected] = useState(false);
+  const realtimeConnected = useRealtimeStore((state) => state.isConnected);
 
-  // Fetch active users (on_duty or on_break)
+  // Fetch active users (only on_duty doctors, excluding doctors on break)
   const { data: queueUsers = [], isLoading, error } = useQuery({
     queryKey: ['queue_users'],
     queryFn: async () => {
@@ -103,20 +102,31 @@ export function useQueue(currentUserId: string | undefined) {
             story_type: null,
             story_locked: false,
             story_premium: null,
-            updated_at: new Date().toISOString()
+            remark: null,
+            updated_at: addedAt
           }
         };
       });
 
       users = [...users, ...volunteerUsers];
 
-      // Sort logic
+      // Sort users
       users.sort((a, b) => {
-        // 1. "Unavailable" always goes to the bottom
-        const aUnavail = a.status_record?.status === 'unavailable';
-        const bUnavail = b.status_record?.status === 'unavailable';
-        if (aUnavail && !bUnavail) return 1;
-        if (!aUnavail && bUnavail) return -1;
+        const statusOrder: Record<string, number> = {
+          'manager': 1,
+          'attending': 2,
+          'in_case': 3,
+          'queued': 4,
+          'story': 5,
+        };
+
+        const orderA = a.status_record?.status ? (statusOrder[a.status_record.status] || 6) : 6;
+        const orderB = b.status_record?.status ? (statusOrder[b.status_record.status] || 6) : 6;
+
+        // 1. Sort by Status Priority
+        if (orderA !== orderB) {
+          return orderA - orderB;
+        }
 
         // 2. Sort chronologically by "join time"
         const getJoinTime = (user: QueueUser) => {
@@ -135,46 +145,9 @@ export function useQueue(currentUserId: string | undefined) {
     },
     enabled: !!currentUserId,
     refetchInterval: 30000,
-    staleTime: 10 * 1000,
+    staleTime: 5 * 1000,
     refetchOnWindowFocus: false,
   });
-
-  // Subscribe to Realtime changes
-  useEffect(() => {
-    if (!currentUserId) return;
-
-    const suffix = Date.now().toString() + Math.random().toString().slice(2, 6);
-    const channel = supabase
-      .channel(`queue_status_changes_${suffix}`)
-      .on(
-        'postgres_changes',
-        { event: '*', schema: 'public', table: 'queue_status' },
-        () => {
-          queryClient.invalidateQueries({ queryKey: ['queue_users'] });
-        }
-      )
-      .on(
-        'postgres_changes',
-        { event: '*', schema: 'public', table: 'duty_logs' },
-        () => {
-          queryClient.invalidateQueries({ queryKey: ['queue_users'] });
-        }
-      )
-      .on(
-        'postgres_changes',
-        { event: '*', schema: 'public', table: 'system_settings' },
-        () => {
-          queryClient.invalidateQueries({ queryKey: ['queue_users'] });
-        }
-      )
-      .subscribe((status) => {
-        setRealtimeConnected(status === 'SUBSCRIBED');
-      });
-
-    return () => {
-      supabase.removeChannel(channel);
-    };
-  }, [currentUserId, queryClient]);
 
   return { queueUsers, isLoading, error, realtimeConnected };
 }
