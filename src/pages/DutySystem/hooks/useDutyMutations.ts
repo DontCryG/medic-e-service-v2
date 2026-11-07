@@ -211,6 +211,9 @@ export function useToggleBreak() {
           })
           .eq('id', currentSession.id);
         if (error) throw error;
+
+        // Clear queue status (story, manager, queue) when pausing duty
+        await cleanupUserQueueAndStory(currentSession.discord_id);
       } else {
         const breakStart = new Date(currentSession.last_break_start).getTime();
         const now = Date.now();
@@ -339,6 +342,9 @@ export function useAdminToggleBreak() {
           })
           .eq('id', session.id);
         if (error) throw error;
+
+        // Clear queue status (story, manager, queue) when admin pauses duty
+        await cleanupUserQueueAndStory(session.discord_id);
       } else {
         const breakStart = new Date(session.last_break_start).getTime();
         const now = Date.now();

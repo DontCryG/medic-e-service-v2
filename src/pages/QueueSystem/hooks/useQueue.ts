@@ -25,7 +25,7 @@ export function useQueue(currentUserId: string | undefined) {
               )
             )
           `)
-          .in('status', ['on_duty', 'on_break'])
+          .eq('status', 'on_duty')
           .order('clock_in', { ascending: true }),
         supabase
           .from('system_settings')
