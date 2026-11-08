@@ -145,9 +145,9 @@ export function useQueue(currentUserId: string | undefined) {
       return users;
     },
     enabled: !!currentUserId,
-    refetchInterval: 30000,
-    staleTime: 5 * 1000,
-    refetchOnWindowFocus: false,
+    refetchInterval: 15000,
+    staleTime: 0,
+    refetchOnWindowFocus: true,
   });
 
   return { queueUsers, isLoading, error, realtimeConnected };
