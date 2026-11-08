@@ -67,8 +67,12 @@ export async function saveManagerHistory(discord_id: string, manager_start_time:
 }
 
 const clearOtherQueued = async (excludeDiscordId: string) => {
-  // Clear regular doctors
-  await supabase.from('queue_status').delete().eq('status', 'queued').neq('discord_id', excludeDiscordId);
+  // Clear regular doctors by setting status to null (preserves remarks and story drafts)
+  await supabase
+    .from('queue_status')
+    .update({ status: null, updated_at: new Date().toISOString() })
+    .eq('status', 'queued')
+    .neq('discord_id', excludeDiscordId);
   
   // Clear volunteers
   const { data: setting } = await supabase.from('system_settings').select('value').eq('key', 'queue_volunteers').maybeSingle();

@@ -55,9 +55,10 @@ export function initGlobalRealtimeChannels(queryClient: QueryClient) {
         dutyQueueChannel = existingDQ;
       } else {
         supabase.removeChannel(existingDQ);
+        dutyQueueChannel = null;
       }
     }
-    if (!dutyQueueChannel || dutyQueueChannel.state === 'closed') {
+    if (!dutyQueueChannel || dutyQueueChannel.state === 'closed' || dutyQueueChannel.state === 'errored') {
       dutyQueueChannel = supabase
         .channel('rt_duty_queue')
         .on('postgres_changes', { event: '*', schema: 'public', table: 'duty_logs' }, () => {
@@ -96,9 +97,10 @@ export function initGlobalRealtimeChannels(queryClient: QueryClient) {
         usersAuthChannel = existingUA;
       } else {
         supabase.removeChannel(existingUA);
+        usersAuthChannel = null;
       }
     }
-    if (!usersAuthChannel || usersAuthChannel.state === 'closed') {
+    if (!usersAuthChannel || usersAuthChannel.state === 'closed' || usersAuthChannel.state === 'errored') {
       usersAuthChannel = supabase
         .channel('rt_users_auth')
         .on('postgres_changes', { event: '*', schema: 'public', table: 'users' }, async (payload) => {
@@ -144,9 +146,10 @@ export function initGlobalRealtimeChannels(queryClient: QueryClient) {
         operationsChannel = existingOp;
       } else {
         supabase.removeChannel(existingOp);
+        operationsChannel = null;
       }
     }
-    if (!operationsChannel || operationsChannel.state === 'closed') {
+    if (!operationsChannel || operationsChannel.state === 'closed' || operationsChannel.state === 'errored') {
       operationsChannel = supabase
         .channel('rt_operations')
         .on('postgres_changes', { event: '*', schema: 'public', table: 'leave_requests' }, () => {
@@ -171,9 +174,10 @@ export function initGlobalRealtimeChannels(queryClient: QueryClient) {
         broadcastChannel = existingBC;
       } else {
         supabase.removeChannel(existingBC);
+        broadcastChannel = null;
       }
     }
-    if (!broadcastChannel || broadcastChannel.state === 'closed') {
+    if (!broadcastChannel || broadcastChannel.state === 'closed' || broadcastChannel.state === 'errored') {
       broadcastChannel = supabase
         .channel('rt_broadcast')
         .on('broadcast', { event: 'force_reload' }, () => {
