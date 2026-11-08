@@ -36,23 +36,25 @@ export function QueueRow({ user, isStoryQueue = false }: QueueRowProps) {
 
   // Sync local state when external data changes
   useEffect(() => {
-    setLocalStatus(statusRecord?.status || null);
-    if (statusRecord) {
-      setTargetTime(statusRecord.story_target_time || '');
-      setRemark(statusRecord.remark || '');
-      setGang1(statusRecord.story_gang_1 || '');
-      setGang2(statusRecord.story_gang_2 || '');
-      setStoryType(statusRecord.story_type || 'ทั่วไป (1 คน)');
-    } else {
-      setTargetTime('');
-      setRemark('');
-      setGang1('');
-      setGang2('');
-      setStoryType('ทั่วไป (1 คน)');
+    if (!isProcessing) {
+      setLocalStatus(statusRecord?.status || null);
+      if (statusRecord) {
+        setTargetTime(statusRecord.story_target_time || '');
+        setRemark(statusRecord.remark || '');
+        setGang1(statusRecord.story_gang_1 || '');
+        setGang2(statusRecord.story_gang_2 || '');
+        setStoryType(statusRecord.story_type || 'ทั่วไป (1 คน)');
+      } else {
+        setTargetTime('');
+        setRemark('');
+        setGang1('');
+        setGang2('');
+        setStoryType('ทั่วไป (1 คน)');
+      }
     }
-  }, [statusRecord]);
+  }, [statusRecord, isProcessing]);
 
-  const currentStatus = localStatus;
+  const currentStatus = isProcessing ? localStatus : (statusRecord?.status || null);
 
   // Handle Checkbox Changes
   const handleStatusChange = async (newStatus: QueueStatusType) => {

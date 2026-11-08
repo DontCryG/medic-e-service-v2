@@ -1,10 +1,39 @@
-import { useQuery } from '@tanstack/react-query';
+import { useEffect, useState } from 'react';
+import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { supabase } from '@/lib/supabase';
 import { useRealtimeStore } from '@/hooks/useAppRealtime';
 import type { QueueUser, QueueStatus } from '../types';
 
 export function useQueue(currentUserId: string | undefined) {
-  const realtimeConnected = useRealtimeStore((state) => state.isConnected);
+  const queryClient = useQueryClient();
+  const globalConnected = useRealtimeStore((state) => state.isConnected);
+  const [localConnected, setLocalConnected] = useState(false);
+
+  // Dedicated realtime channel for the queue page
+  useEffect(() => {
+    if (!currentUserId) return;
+
+    const channel = supabase
+      .channel('queue_screen_live')
+      .on('postgres_changes', { event: '*', schema: 'public', table: 'queue_status' }, () => {
+        queryClient.invalidateQueries({ queryKey: ['queue_users'] });
+      })
+      .on('postgres_changes', { event: '*', schema: 'public', table: 'duty_logs' }, () => {
+        queryClient.invalidateQueries({ queryKey: ['queue_users'] });
+      })
+      .on('postgres_changes', { event: '*', schema: 'public', table: 'system_settings' }, () => {
+        queryClient.invalidateQueries({ queryKey: ['queue_users'] });
+      })
+      .subscribe((status) => {
+        setLocalConnected(status === 'SUBSCRIBED');
+      });
+
+    return () => {
+      supabase.removeChannel(channel);
+    };
+  }, [currentUserId, queryClient]);
+
+  const realtimeConnected = localConnected || globalConnected;
 
   // Fetch active users (only on_duty doctors, excluding doctors on break)
   const { data: queueUsers = [], isLoading, error } = useQuery({
