@@ -187,7 +187,7 @@ export default function SalaryTable({ data, onOpenDutyLogModal, onPrintPayslip }
     : 0;
 
   return (
-    <div className="bg-white rounded-3xl p-6 shadow-[0_10px_40px_-10px_rgba(0,0,0,0.05)] border border-slate-200/80 overflow-hidden flex flex-col">
+    <div className="bg-white rounded-xl p-5 shadow-2xs border border-slate-200/80 overflow-hidden flex flex-col">
       <div 
         ref={tableContainerRef} 
         className="overflow-auto max-h-[600px] w-full"
@@ -203,7 +203,7 @@ export default function SalaryTable({ data, onOpenDutyLogModal, onPrintPayslip }
                   return (
                     <th 
                       key={header.id} 
-                      className={`p-4 text-slate-500 font-semibold border-b-2 border-slate-100 text-sm whitespace-nowrap bg-white select-none ${canSort ? 'cursor-pointer hover:bg-slate-50/80 transition-colors' : 'cursor-default'}`}
+                      className={`p-3 text-slate-500 font-semibold border-b-2 border-slate-100 text-sm whitespace-nowrap bg-white select-none ${canSort ? 'cursor-pointer hover:bg-slate-50/80 transition-colors' : 'cursor-default'}`}
                       style={{
                         width: header.column.getSize(),
                       }}
@@ -247,7 +247,7 @@ export default function SalaryTable({ data, onOpenDutyLogModal, onPrintPayslip }
                   {row.getVisibleCells().map(cell => (
                     <td 
                       key={cell.id} 
-                      className="p-4 align-middle"
+                      className="p-3 align-middle"
                     >
                       {flexRender(cell.column.columnDef.cell, cell.getContext())}
                     </td>

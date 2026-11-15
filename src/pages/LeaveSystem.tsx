@@ -36,23 +36,22 @@ export default function LeaveSystem({ profile }: LeaveSystemProps) {
     return matchesSearch && matchesStatus;
   });
 
-  // Roles that can manage leaves
   const isManager = isAdmin(profile?.role);
 
   return (
-    <div className="max-w-[1400px] mx-auto p-4 sm:p-6 lg:p-8 animate-in fade-in duration-500">
+    <div className="w-full max-w-[1400px] mx-auto flex flex-col gap-6 animate-in fade-in duration-200">
       <PageHeader
         title="ระบบลางาน (Leave System)"
         subtitle="ส่งคำขอลาพักร้อน ลากิจ และติดตามสถานะการอนุมัติคำขอ"
-        icon={<CalendarDays size={24} />}
+        icon={<CalendarDays size={18} />}
         iconTheme="purple"
         actions={
           activeTab === 'my_leaves' ? (
             <button 
               onClick={() => setShowRequestModal(true)}
-              className="flex items-center gap-2 px-5 py-2.5 rounded-xl font-bold bg-purple-600 hover:bg-purple-700 text-white transition-all border-none cursor-pointer shadow-sm hover:shadow"
+              className="flex items-center gap-1.5 px-3.5 py-1.5 rounded-lg text-xs font-bold bg-purple-600 hover:bg-purple-700 text-white transition-colors border-none cursor-pointer shadow-2xs"
             >
-              <PlusCircle size={18} />
+              <PlusCircle size={15} />
               ยื่นใบลา
             </button>
           ) : undefined
@@ -60,122 +59,129 @@ export default function LeaveSystem({ profile }: LeaveSystemProps) {
       />
       
       {/* Navigation Tabs */}
-      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-6">
-        <div className="flex bg-slate-100 p-1.5 rounded-2xl w-full sm:w-fit overflow-x-auto max-w-full border border-slate-200/80">
+      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3">
+        <div className="flex bg-slate-100 p-1 rounded-lg w-full sm:w-fit overflow-x-auto max-w-full border border-slate-200/80">
           <button
             onClick={() => setActiveTab('my_leaves')}
-            className={`flex-1 sm:flex-none flex items-center justify-center gap-2 px-6 py-2.5 rounded-md text-[0.95rem] font-semibold cursor-pointer border-none transition-all whitespace-nowrap ${
+            className={`flex-1 sm:flex-none flex items-center justify-center gap-2 px-4 py-1.5 rounded-md text-xs font-semibold cursor-pointer border-none transition-colors whitespace-nowrap ${
               activeTab === 'my_leaves'
-                ? 'bg-white text-purple-600 shadow-sm'
+                ? 'bg-white text-purple-700 shadow-2xs'
                 : 'bg-transparent text-slate-500 hover:text-slate-700'
             }`}
           >
-            <ClipboardList size={18} />
+            <ClipboardList size={15} />
             ประวัติการลาของฉัน
           </button>
           
           {isManager && (
             <button
               onClick={() => setActiveTab('manage_leaves')}
-              className={`flex-1 sm:flex-none flex items-center justify-center gap-2 px-6 py-2.5 rounded-md text-[0.95rem] font-semibold cursor-pointer border-none transition-all whitespace-nowrap ${
+              className={`flex-1 sm:flex-none flex items-center justify-center gap-2 px-4 py-1.5 rounded-md text-xs font-semibold cursor-pointer border-none transition-colors whitespace-nowrap ${
                 activeTab === 'manage_leaves'
-                  ? 'bg-white text-purple-600 shadow-sm'
+                  ? 'bg-white text-purple-700 shadow-2xs'
                   : 'bg-transparent text-slate-500 hover:text-slate-700'
               }`}
             >
-              <Users size={18} />
+              <Users size={15} />
               จัดการคำขอลา
             </button>
           )}
         </div>
-
-        
       </div>
 
       {/* Content Area */}
-      <div className="bg-white rounded-3xl p-6 sm:p-8 shadow-[0_10px_40px_-10px_rgba(0,0,0,0.05)] border border-slate-200/80">
+      <div className="bg-white rounded-xl p-5 shadow-2xs border border-slate-200/80">
         {activeTab === 'my_leaves' ? (
-          <div className="flex flex-col gap-6">
-            <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 mb-2">
-              <h3 className="text-xl font-bold text-slate-800 flex items-center gap-2 m-0">
-                <ClipboardList size={24} className="text-purple-600" />
-                ประวัติการลาของคุณ
-              </h3>
-              <div className="flex gap-1.5 bg-slate-100 p-1 rounded-[14px] overflow-x-auto w-full md:w-auto border border-slate-200">
+          <div className="flex flex-col gap-4">
+            <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3">
+              <div className="flex items-center gap-2">
+                <div className="w-8 h-8 rounded-lg bg-purple-50 text-purple-700 border border-purple-200/60 flex items-center justify-center shrink-0">
+                  <ClipboardList size={16} />
+                </div>
+                <h3 className="text-sm font-bold text-slate-800 m-0">
+                  ประวัติการลาของคุณ
+                </h3>
+              </div>
+
+              <div className="flex gap-1 bg-slate-100 p-0.5 rounded-lg overflow-x-auto w-full sm:w-auto border border-slate-200/80">
                 <button 
                   onClick={() => setStatusFilter('pending')}
-                  className={`px-4 py-2 rounded-xl text-sm font-semibold whitespace-nowrap transition-all border-none cursor-pointer ${statusFilter === 'pending' ? 'bg-amber-400 text-amber-950 shadow-sm' : 'bg-transparent text-slate-500 hover:text-slate-700'}`}
+                  className={`px-3 py-1 rounded-md text-xs font-semibold whitespace-nowrap transition-colors border-none cursor-pointer ${statusFilter === 'pending' ? 'bg-amber-400 text-amber-950 shadow-2xs font-bold' : 'bg-transparent text-slate-500 hover:text-slate-700'}`}
                 >
                   รออนุมัติ
                 </button>
                 <button 
                   onClick={() => setStatusFilter('approved')}
-                  className={`px-4 py-2 rounded-xl text-sm font-semibold whitespace-nowrap transition-all border-none cursor-pointer ${statusFilter === 'approved' ? 'bg-green-500 text-white shadow-sm' : 'bg-transparent text-slate-500 hover:text-slate-700'}`}
+                  className={`px-3 py-1 rounded-md text-xs font-semibold whitespace-nowrap transition-colors border-none cursor-pointer ${statusFilter === 'approved' ? 'bg-emerald-600 text-white shadow-2xs font-bold' : 'bg-transparent text-slate-500 hover:text-slate-700'}`}
                 >
                   อนุมัติแล้ว
                 </button>
                 <button 
                   onClick={() => setStatusFilter('rejected')}
-                  className={`px-4 py-2 rounded-xl text-sm font-semibold whitespace-nowrap transition-all border-none cursor-pointer ${statusFilter === 'rejected' ? 'bg-red-500 text-white shadow-sm' : 'bg-transparent text-slate-500 hover:text-slate-700'}`}
+                  className={`px-3 py-1 rounded-md text-xs font-semibold whitespace-nowrap transition-colors border-none cursor-pointer ${statusFilter === 'rejected' ? 'bg-rose-600 text-white shadow-2xs font-bold' : 'bg-transparent text-slate-500 hover:text-slate-700'}`}
                 >
                   ปฏิเสธ
                 </button>
                 <button 
                   onClick={() => setStatusFilter('all')}
-                  className={`px-4 py-2 rounded-xl text-sm font-semibold whitespace-nowrap transition-all border-none cursor-pointer ${statusFilter === 'all' ? 'bg-white text-purple-600 shadow-sm' : 'bg-transparent text-slate-500 hover:text-slate-700'}`}
+                  className={`px-3 py-1 rounded-md text-xs font-semibold whitespace-nowrap transition-colors border-none cursor-pointer ${statusFilter === 'all' ? 'bg-white text-purple-700 shadow-2xs font-bold' : 'bg-transparent text-slate-500 hover:text-slate-700'}`}
                 >
                   ทั้งหมด
                 </button>
-                </div>
               </div>
-              {loadingMyLeaves ? (
-                <div className="py-4">
-                  <TableSkeleton columns={4} rows={3} />
-                </div>
-              ) : (
+            </div>
+
+            {loadingMyLeaves ? (
+              <div className="py-4">
+                <TableSkeleton columns={4} rows={3} />
+              </div>
+            ) : (
               <LeaveList leaves={myLeaves} isAdmin={false} />
             )}
           </div>
         ) : (
-          <div className="flex flex-col gap-6">
-            <div className="flex flex-col md:flex-row justify-between items-center flex-wrap gap-4 mb-2">
-              <div className="flex items-center gap-3 w-full md:w-auto">
-                <Users size={24} className="text-purple-600 hidden sm:block" />
-                <div className="flex gap-1.5 bg-slate-100 p-1 rounded-[14px] overflow-x-auto w-full md:w-auto border border-slate-200">
+          <div className="flex flex-col gap-4">
+            <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3">
+              <div className="flex items-center gap-2">
+                <div className="w-8 h-8 rounded-lg bg-purple-50 text-purple-700 border border-purple-200/60 flex items-center justify-center shrink-0">
+                  <Users size={16} />
+                </div>
+                <div className="flex gap-1 bg-slate-100 p-0.5 rounded-lg overflow-x-auto w-full sm:w-auto border border-slate-200/80">
                   <button 
                     onClick={() => setStatusFilter('pending')}
-                    className={`px-4 py-2 rounded-xl text-sm font-semibold whitespace-nowrap transition-all border-none cursor-pointer ${statusFilter === 'pending' ? 'bg-amber-400 text-amber-950 shadow-sm' : 'bg-transparent text-slate-500 hover:text-slate-700'}`}
+                    className={`px-3 py-1 rounded-md text-xs font-semibold whitespace-nowrap transition-colors border-none cursor-pointer ${statusFilter === 'pending' ? 'bg-amber-400 text-amber-950 shadow-2xs font-bold' : 'bg-transparent text-slate-500 hover:text-slate-700'}`}
                   >
                     รออนุมัติ
                   </button>
                   <button 
                     onClick={() => setStatusFilter('approved')}
-                    className={`px-4 py-2 rounded-xl text-sm font-semibold whitespace-nowrap transition-all border-none cursor-pointer ${statusFilter === 'approved' ? 'bg-green-500 text-white shadow-sm' : 'bg-transparent text-slate-500 hover:text-slate-700'}`}
+                    className={`px-3 py-1 rounded-md text-xs font-semibold whitespace-nowrap transition-colors border-none cursor-pointer ${statusFilter === 'approved' ? 'bg-emerald-600 text-white shadow-2xs font-bold' : 'bg-transparent text-slate-500 hover:text-slate-700'}`}
                   >
                     อนุมัติแล้ว
                   </button>
                   <button 
                     onClick={() => setStatusFilter('rejected')}
-                    className={`px-4 py-2 rounded-xl text-sm font-semibold whitespace-nowrap transition-all border-none cursor-pointer ${statusFilter === 'rejected' ? 'bg-red-500 text-white shadow-sm' : 'bg-transparent text-slate-500 hover:text-slate-700'}`}
+                    className={`px-3 py-1 rounded-md text-xs font-semibold whitespace-nowrap transition-colors border-none cursor-pointer ${statusFilter === 'rejected' ? 'bg-rose-600 text-white shadow-2xs font-bold' : 'bg-transparent text-slate-500 hover:text-slate-700'}`}
                   >
                     ปฏิเสธ
                   </button>
                   <button 
                     onClick={() => setStatusFilter('all')}
-                    className={`px-4 py-2 rounded-xl text-sm font-semibold whitespace-nowrap transition-all border-none cursor-pointer ${statusFilter === 'all' ? 'bg-white text-purple-600 shadow-sm' : 'bg-transparent text-slate-500 hover:text-slate-700'}`}
+                    className={`px-3 py-1 rounded-md text-xs font-semibold whitespace-nowrap transition-colors border-none cursor-pointer ${statusFilter === 'all' ? 'bg-white text-purple-700 shadow-2xs font-bold' : 'bg-transparent text-slate-500 hover:text-slate-700'}`}
                   >
                     ทั้งหมด
                   </button>
                 </div>
               </div>
-              <div className="relative w-full md:w-64">
-                <Search size={18} className="absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400" />
+
+              <div className="relative w-full sm:w-60">
+                <Search size={14} className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" />
                 <input
                   type="text"
                   placeholder="ค้นหาชื่อหรือเหตุผล..."
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
-                  className="w-full pl-10 pr-4 py-2.5 rounded-xl border border-slate-200 bg-slate-50 text-slate-800 text-sm focus:outline-none focus:ring-2 focus:ring-purple-500/10 focus:border-purple-600 transition-all !pl-10 !py-2.5"
+                  className="w-full !pl-8.5 !pr-3 !py-1.5 rounded-lg border border-slate-200/80 bg-slate-50 text-slate-800 text-xs focus:bg-white focus:outline-none focus:ring-1 focus:ring-purple-500/20 focus:border-purple-600 transition-all font-medium"
                 />
               </div>
             </div>

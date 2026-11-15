@@ -46,18 +46,18 @@ export default function SalarySystem({ profile: _profile }: SalarySystemProps) {
   };
 
   return (
-    <div className="flex flex-col gap-6 w-full max-w-7xl mx-auto animate-in fade-in duration-300">
+    <div className="w-full max-w-[1400px] mx-auto flex flex-col gap-6 animate-in fade-in duration-200">
       <PageHeader
         title="ระบบคำนวณเงินเดือน (Salary System)"
         subtitle="สรุปชั่วโมงเวร คำนวณรายได้ IC/OC และพิมพ์สลิปเงินเดือน"
-        icon={<Banknote size={24} />}
+        icon={<Banknote size={18} />}
         iconTheme="orange"
         badge={{ label: 'ระบบจัดการ (Admin Only)', variant: 'admin' }}
         actions={
           <button 
             onClick={handlePrint}
             disabled={!salaryData || salaryData.length === 0}
-            className={`flex items-center gap-2 px-5 py-2.5 rounded-xl font-bold text-sm border-none text-white transition-all shadow-sm ${
+            className={`flex items-center gap-1.5 px-3.5 py-1.5 rounded-lg font-bold text-xs border-none text-white transition-all shadow-2xs ${
               (!salaryData || salaryData.length === 0) 
                 ? 'bg-purple-300 opacity-70 cursor-not-allowed' 
                 : 'bg-purple-600 hover:bg-purple-700 cursor-pointer hover:shadow'
@@ -69,7 +69,7 @@ export default function SalarySystem({ profile: _profile }: SalarySystemProps) {
       />
 
       {/* Date Range Selector */}
-      <div className="flex flex-wrap items-center gap-4 bg-white p-4 px-6 rounded-2xl shadow-sm border border-slate-200/80">
+      <div className="flex flex-wrap items-center gap-3.5 bg-white p-3.5 px-5 rounded-xl shadow-2xs border border-slate-200/80">
         <div className="flex items-center gap-3">
           <CalendarDays size={18} className="text-purple-600 shrink-0" />
           <label className="text-xs text-slate-500 font-bold uppercase tracking-wider whitespace-nowrap">ตั้งแต่วันที่:</label>
