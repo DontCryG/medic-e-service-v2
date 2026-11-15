@@ -213,12 +213,6 @@ export function useQueueMutations() {
 
       // Cleanup: Delete from queue_status
       await supabase.from('queue_status').delete().eq('discord_id', id);
-
-      // Cleanup: Delete fake user from users table if it's not a real Discord ID
-      const isDiscordId = /^\d{17,20}$/.test(id);
-      if (!isDiscordId) {
-        await supabase.from('users').delete().eq('discord_id', id);
-      }
     },
     onSuccess: () => { queryClient.invalidateQueries({ queryKey: ['queue_users'] }); }
   });
