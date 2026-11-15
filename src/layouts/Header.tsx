@@ -19,6 +19,7 @@ import {
 } from 'lucide-react';
 import { AnimatePresence, motion } from 'framer-motion';
 import NotificationBell from '@/components/common/NotificationBell';
+import UserProfileModal from '@/components/common/UserProfileModal';
 
 interface HeaderProps {
   setIsMobileMenuOpen: (open: boolean) => void;
@@ -43,6 +44,7 @@ export default function Header({ setIsMobileMenuOpen, isSidebarCollapsed, setIsS
 
   const [query, setQuery] = useState('');
   const [isOpen, setIsOpen] = useState(false);
+  const [isProfileModalOpen, setIsProfileModalOpen] = useState(false);
   const [selectedIndex, setSelectedIndex] = useState(0);
   const searchRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
@@ -209,11 +211,11 @@ export default function Header({ setIsMobileMenuOpen, isSidebarCollapsed, setIsS
 
         {/* Minimal Profile Tile */}
         <div 
-          onClick={() => navigate('/duty')}
-          className="flex items-center gap-2.5 p-1 pr-3 rounded-lg hover:bg-slate-50 transition-colors cursor-pointer border border-transparent hover:border-slate-200/60"
-          title="ไปที่หน้าเข้าออกเวร"
+          onClick={() => setIsProfileModalOpen(true)}
+          className="flex items-center gap-2.5 p-1 pr-3 rounded-lg hover:bg-slate-50 transition-colors cursor-pointer border border-transparent hover:border-slate-200/60 group"
+          title="คลิกเพื่อแก้ไขโปรไฟล์ส่วนตัว"
         >
-          <div className="w-8 h-8 rounded-lg bg-purple-100 border border-purple-200/60 flex items-center justify-center text-purple-700 font-black text-xs overflow-hidden shrink-0">
+          <div className="w-8 h-8 rounded-lg bg-purple-100 border border-purple-200/60 flex items-center justify-center text-purple-700 font-black text-xs overflow-hidden shrink-0 group-hover:scale-105 transition-transform">
             {user?.avatar_url ? (
               <img src={user.avatar_url} alt="Profile" className="w-full h-full object-cover" />
             ) : (
@@ -221,16 +223,21 @@ export default function Header({ setIsMobileMenuOpen, isSidebarCollapsed, setIsS
             )}
           </div>
           <div className="hidden sm:flex flex-col items-start justify-center">
-            <span className="text-xs font-bold text-slate-800 leading-tight truncate max-w-[130px]">
+            <span className="text-xs font-bold text-slate-800 leading-tight truncate max-w-[130px] group-hover:text-purple-700 transition-colors">
               {user?.ic_name || 'แพทย์'}
             </span>
             <span className="text-[10px] font-medium text-slate-400 tracking-tight leading-none mt-0.5">
-              {user?.position?.name || (isAdmin ? 'ผู้ดูแลระบบ' : 'บุคลากร')}
+              {user?.position?.name || (isAdmin ? 'ผู้ดูแลระบบ' : 'บุคลากร')} • แก้ไข
             </span>
           </div>
         </div>
       </div>
       
+      {/* Profile Edit Modal */}
+      <UserProfileModal 
+        isOpen={isProfileModalOpen} 
+        onClose={() => setIsProfileModalOpen(false)} 
+      />
     </header>
   );
 }

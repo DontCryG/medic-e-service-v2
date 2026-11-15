@@ -1,3 +1,4 @@
+import { useState } from 'react';
 import { NavLink } from 'react-router-dom';
 import { 
   LayoutDashboard, 
@@ -7,12 +8,14 @@ import {
   Users, 
   Banknote, 
   Settings, 
-  LogOut
+  LogOut,
+  UserCog
 } from 'lucide-react';
 import { useAuthStore } from '../store/authStore';
 import { isAdmin } from '../utils/permissions';
 import { showConfirmDialog } from '@/utils/alert';
 import { supabase } from '../lib/supabase';
+import UserProfileModal from '@/components/common/UserProfileModal';
 
 interface SidebarProps {
   isMobileMenuOpen: boolean;
@@ -23,6 +26,7 @@ interface SidebarProps {
 
 export default function Sidebar({ isMobileMenuOpen, setIsMobileMenuOpen, isCollapsed }: SidebarProps) {
   const { user, logout } = useAuthStore();
+  const [isProfileOpen, setIsProfileOpen] = useState(false);
 
   const handleLogout = async () => {
     const result = await showConfirmDialog({
@@ -148,6 +152,17 @@ export default function Sidebar({ isMobileMenuOpen, setIsMobileMenuOpen, isColla
           
           {/* Bottom Actions */}
           <div className="mt-auto pt-3 border-t border-slate-100 shrink-0">
+            <button 
+              className={`w-full flex items-center gap-2.5 px-3 py-2 mx-2.5 my-0.5 rounded-lg text-xs font-semibold text-slate-600 hover:text-purple-700 hover:bg-purple-50 transition-colors cursor-pointer border-none bg-transparent ${
+                isCollapsed ? 'justify-center px-0 mx-2 !w-[calc(100%-1rem)]' : '!w-[calc(100%-1.25rem)]'
+              }`}
+              onClick={() => setIsProfileOpen(true)} 
+              title="แก้ไขโปรไฟล์ส่วนตัว"
+            >
+              <UserCog size={17} className={isCollapsed ? '' : 'shrink-0 text-slate-500'} />
+              {!isCollapsed && <span className="truncate">โปรไฟล์ส่วนตัว</span>}
+            </button>
+
             {isAdmin(user?.role) && (
               <NavLink to="/settings" className={navLinkClass} onClick={handleNavClick} title="ตั้งค่าระบบ">
                 <Settings size={17} className={isCollapsed ? '' : 'shrink-0 text-slate-500'} />
@@ -168,6 +183,12 @@ export default function Sidebar({ isMobileMenuOpen, setIsMobileMenuOpen, isColla
           </div>
         </nav>
       </aside>
+
+      {/* User Profile Modal */}
+      <UserProfileModal 
+        isOpen={isProfileOpen} 
+        onClose={() => setIsProfileOpen(false)} 
+      />
     </>
   );
 }

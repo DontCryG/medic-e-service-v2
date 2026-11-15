@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuthStore } from '../store/authStore';
 import { isAdmin as checkIsAdmin } from '../utils/permissions';
@@ -13,10 +13,12 @@ import {
   ArrowRight, 
   ShieldCheck, 
   Radio,
-  Megaphone
+  Megaphone,
+  UserCog
 } from 'lucide-react';
 import { useLiveUsers, useCurrentSession } from './DutySystem/hooks/useDutyQueries';
 import { useAppConfig } from '@/hooks/useAppConfig';
+import UserProfileModal from '@/components/common/UserProfileModal';
 
 interface ServiceCardProps {
   icon: React.ReactNode;
@@ -76,6 +78,7 @@ export default function Dashboard() {
   const navigate = useNavigate();
   const isAdmin = checkIsAdmin(profile?.role);
   const { config } = useAppConfig();
+  const [isProfileOpen, setIsProfileOpen] = useState(false);
 
   // Live ops data
   const { data: liveUsers = [] } = useLiveUsers();
@@ -112,7 +115,11 @@ export default function Dashboard() {
         </div>
 
         {/* Doctor Identity Tile */}
-        <div className="bg-slate-50/90 border border-slate-200/70 rounded-lg px-4 py-2.5 flex items-center justify-between md:justify-end gap-4 shrink-0">
+        <div 
+          onClick={() => setIsProfileOpen(true)}
+          className="bg-slate-50/90 hover:bg-slate-100/90 border border-slate-200/70 rounded-lg px-4 py-2.5 flex items-center justify-between md:justify-end gap-3.5 shrink-0 cursor-pointer transition-colors group shadow-2xs"
+          title="คลิกเพื่อแก้ไขโปรไฟล์ส่วนตัว"
+        >
           <div className="flex flex-col md:items-end">
             <span className="text-[10px] font-semibold text-slate-400 uppercase tracking-wider">ตำแหน่ง / หน้าที่</span>
             <span className="text-xs font-bold text-slate-800 leading-tight mt-0.5">
@@ -126,6 +133,11 @@ export default function Dashboard() {
               <ShieldCheck size={12} />
               {profile?.role ? profile.role.toUpperCase() : 'MEDIC'}
             </span>
+          </div>
+          <div className="w-px h-7 bg-slate-200 hidden sm:block" />
+          <div className="hidden sm:flex items-center gap-1 text-[11px] font-bold text-purple-700 bg-white px-2.5 py-1 rounded-md border border-purple-200 shadow-2xs group-hover:bg-purple-50 transition-colors">
+            <UserCog size={13} />
+            <span>แก้ไขโปรไฟล์</span>
           </div>
         </div>
       </div>
@@ -313,6 +325,12 @@ export default function Dashboard() {
           เปิดอ่านคู่มือ
         </a>
       </div>
+
+      {/* User Profile Modal */}
+      <UserProfileModal 
+        isOpen={isProfileOpen} 
+        onClose={() => setIsProfileOpen(false)} 
+      />
     </div>
   );
 }
