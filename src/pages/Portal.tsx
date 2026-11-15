@@ -3,12 +3,14 @@ import { supabase } from '../lib/supabase';
 import { useNavigate } from 'react-router-dom';
 import { enterpriseSwal, showErrorAlert } from '@/utils/alert';
 import { useAuthStore } from '../store/authStore';
+import { useMaintenanceMode } from '@/hooks/useMaintenanceMode';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Shield, Activity, Users, ChevronRight, CheckCircle2, Stethoscope, Lock } from 'lucide-react';
+import { Shield, Activity, Users, ChevronRight, CheckCircle2, Stethoscope, Lock, Wrench } from 'lucide-react';
 
 export default function Portal() {
   const navigate = useNavigate();
   const { login } = useAuthStore();
+  const { data: maintenance } = useMaintenanceMode();
 
   const [isCheckingAuth, setIsCheckingAuth] = useState(true);
   const [isRegistering, setIsRegistering] = useState(false);
@@ -399,6 +401,27 @@ export default function Portal() {
         </div>
 
         <div className="w-full max-w-[420px] bg-white border border-slate-200/90 rounded-2xl p-6 sm:p-8 shadow-sm">
+          {maintenance?.enabled && (
+            <div className="mb-5 p-3.5 rounded-xl bg-amber-50/90 border border-amber-200 text-amber-950 flex items-start gap-3">
+              <div className="w-7 h-7 rounded-lg bg-amber-100 border border-amber-300/60 flex items-center justify-center text-amber-700 shrink-0 mt-0.5">
+                <Wrench size={14} className="animate-pulse" />
+              </div>
+              <div className="min-w-0 flex-1">
+                <div className="flex items-center gap-1.5 flex-wrap">
+                  <span className="text-xs font-bold text-amber-900">{maintenance.title || 'โหมดพัฒนาและปรับปรุงระบบ'}</span>
+                  <span className="text-[10px] px-1.5 py-0.5 rounded bg-amber-200 text-amber-900 font-mono font-bold">Maintenance</span>
+                </div>
+                <p className="mt-1 text-[11px] text-amber-800 leading-relaxed font-normal m-0">
+                  {maintenance.message || 'ระบบกำลังอยู่ระหว่างการปรับปรุงชั่วคราว เฉพาะผู้ดูแลระบบ (Admin) เท่านั้นที่สามารถเข้าใช้งานได้'}
+                </p>
+                {maintenance.estimated_end && (
+                  <div className="mt-1.5 text-[10px] font-semibold text-amber-800">
+                    ⏱️ คาดว่าจะเสร็จสิ้น: <span className="font-bold text-amber-950">{maintenance.estimated_end}</span>
+                  </div>
+                )}
+              </div>
+            </div>
+          )}
           <AnimatePresence mode="wait">
             {renderRightContent()}
           </AnimatePresence>

@@ -13,6 +13,8 @@ import { isAdmin } from './utils/permissions';
 import { setSentryUser, clearSentryUser } from './lib/sentry';
 import { supabase } from './lib/supabase';
 import GlobalError from './components/common/GlobalError';
+import { useMaintenanceMode } from './hooks/useMaintenanceMode';
+import MaintenanceScreen from './components/common/MaintenanceScreen';
 
 // Helper to automatically reload the page if a chunk fails to load (e.g. after a new deployment)
 const lazyWithRetry = (componentImport: () => Promise<any>) =>
@@ -58,11 +60,18 @@ const queryClient = new QueryClient({
 // Protected Route Wrapper
 const ProtectedRoute = ({ children }: { children: React.ReactNode }) => {
   const { user, logout } = useAuthStore();
+  const { data: maintenance } = useMaintenanceMode();
+  const isAdminRole = isAdmin(user?.role);
   
   if (!user) return <Navigate to="/" replace />;
   if (user.role === 'user' || user.role === 'resigned') {
     logout();
     return <Navigate to="/" replace />;
+  }
+
+  // If maintenance mode is active and user is not admin, show maintenance screen
+  if (maintenance?.enabled && !isAdminRole) {
+    return <MaintenanceScreen maintenance={maintenance} />;
   }
   
   return <>{children}</>;
@@ -80,7 +89,17 @@ const AdminRoute = ({ children }: { children: React.ReactNode }) => {
 // Portal Route Wrapper (Reactive)
 const PortalRoute = () => {
   const { user } = useAuthStore();
-  return user ? <Navigate to="/dashboard" replace /> : <Portal />;
+  const { data: maintenance } = useMaintenanceMode();
+  const isAdminRole = isAdmin(user?.role);
+
+  if (user) {
+    if (maintenance?.enabled && !isAdminRole) {
+      return <MaintenanceScreen maintenance={maintenance} />;
+    }
+    return <Navigate to="/dashboard" replace />;
+  }
+
+  return <Portal />;
 };
 
 // Leave System Wrapper

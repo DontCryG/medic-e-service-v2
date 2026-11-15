@@ -1,17 +1,20 @@
 import { useState } from 'react';
-import { Settings, Users, Shield, DollarSign, RefreshCw } from 'lucide-react';
+import { Settings, Users, Shield, DollarSign, RefreshCw, Wrench } from 'lucide-react';
 import PageHeader from '@/components/common/PageHeader';
 import { showConfirmDialog, showSuccessAlert } from '@/utils/alert';
 import { broadcastForceReload } from '@/hooks/useAppRealtime';
+import { useMaintenanceMode } from '@/hooks/useMaintenanceMode';
 
 import PositionSettings from './SystemSettings/components/PositionSettings';
 import GangFamilySettings from './SystemSettings/components/GangFamilySettings';
 import PricingSettings from './SystemSettings/components/PricingSettings';
+import MaintenanceSettings from './SystemSettings/components/MaintenanceSettings';
 
-type Tab = 'positions' | 'gangs' | 'pricing';
+type Tab = 'positions' | 'gangs' | 'pricing' | 'maintenance';
 
 export default function SystemSettings() {
   const [activeTab, setActiveTab] = useState<Tab>('positions');
+  const { data: maintenance } = useMaintenanceMode();
 
   const handleForceRefresh = async () => {
     const result = await showConfirmDialog({
@@ -33,7 +36,7 @@ export default function SystemSettings() {
     <div className="w-full max-w-[1400px] mx-auto flex flex-col gap-6 animate-in fade-in duration-200">
       <PageHeader
         title="ตั้งค่าระบบ (System Settings)"
-        subtitle="จัดการข้อมูลตำแหน่ง อัตราค่าตอบแทน รายชื่อแก๊ง/ครอบครัว และราคาการรักษา"
+        subtitle="จัดการข้อมูลตำแหน่ง อัตราค่าตอบแทน รายชื่อแก๊ง/ครอบครัว ราคาการรักษา และโหมดพัฒนา/ปรับปรุงระบบ"
         icon={<Settings size={18} />}
         iconTheme="orange"
         badge={{ label: 'ระบบจัดการ (Admin Only)', variant: 'admin' }}
@@ -56,7 +59,7 @@ export default function SystemSettings() {
           }`}
           onClick={() => setActiveTab('positions')}
         >
-          <Users size={18} />
+          <Users size={16} />
           ตำแหน่งและค่าตอบแทน
         </button>
         <button 
@@ -65,7 +68,7 @@ export default function SystemSettings() {
           }`}
           onClick={() => setActiveTab('gangs')}
         >
-          <Shield size={18} />
+          <Shield size={16} />
           กลุ่มและแฟมิลี่
         </button>
         <button 
@@ -74,8 +77,20 @@ export default function SystemSettings() {
           }`}
           onClick={() => setActiveTab('pricing')}
         >
-          <DollarSign size={18} />
+          <DollarSign size={16} />
           ตั้งค่าทั่วไปและเรทราคา
+        </button>
+        <button 
+          className={`flex items-center gap-2 px-4 py-1.5 rounded-md text-xs font-semibold cursor-pointer border-none transition-all whitespace-nowrap ${
+            activeTab === 'maintenance' ? 'bg-white text-amber-600 shadow-sm' : 'bg-transparent text-slate-500 hover:text-slate-700'
+          }`}
+          onClick={() => setActiveTab('maintenance')}
+        >
+          <Wrench size={16} className={maintenance?.enabled ? 'text-amber-500 animate-spin' : ''} />
+          <span>โหมดปรับปรุงระบบ (Maintenance)</span>
+          {maintenance?.enabled && (
+            <span className="w-2 h-2 rounded-full bg-amber-500 animate-pulse ml-0.5" />
+          )}
         </button>
       </div>
 
@@ -83,6 +98,7 @@ export default function SystemSettings() {
         {activeTab === 'positions' && <PositionSettings />}
         {activeTab === 'gangs' && <GangFamilySettings />}
         {activeTab === 'pricing' && <PricingSettings />}
+        {activeTab === 'maintenance' && <MaintenanceSettings />}
       </div>
     </div>
   );
