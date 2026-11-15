@@ -8,6 +8,7 @@ export const dutyKeys = {
   currentSession: (discordId: string) => [...dutyKeys.all, 'currentSession', discordId],
   liveUsers: () => [...dutyKeys.all, 'liveUsers'],
   history: (discordId: string, startDate: Date, endDate: Date, page: number, targetDiscordId?: string) => [...dutyKeys.all, 'history', discordId, targetDiscordId || '', startDate?.toISOString(), endDate?.toISOString(), page],
+  myWeeklyStats: (discordId: string, startDate?: Date, endDate?: Date) => [...dutyKeys.all, 'myWeeklyStats', discordId, startDate?.toISOString() || '', endDate?.toISOString() || ''],
 };
 
 // Hook: Fetch Current Session
@@ -124,6 +125,110 @@ export function useDutyHistory(
       if (error) throw error;
 
       return { data: data || [], count: count || 0 };
+    },
+    enabled: !!discordId,
+  });
+}
+
+
+export function getCurrentWeekRange(): { start: Date; end: Date } {
+  const now = new Date();
+  const day = now.getDay() === 0 ? 6 : now.getDay() - 1;
+  
+  const start = new Date(now);
+  start.setDate(start.getDate() - day);
+  start.setHours(0, 0, 0, 0);
+
+  const end = new Date(start);
+  end.setDate(end.getDate() + 6);
+  end.setHours(23, 59, 59, 999);
+
+  return { start, end };
+}
+
+export interface UserWeeklyStats {
+  totalMinutes: number;
+  totalHours: number;
+  remainingMinutes: number;
+  completedLogsCount: number;
+  normalMinutes: number;
+  mentorMinutes: number;
+  specialMinutes: number;
+  startDate: Date;
+  endDate: Date;
+}
+
+// Hook: Fetch Logged-in User's Weekly Duty Stats & Target Progress
+export function useMyWeeklyDutyStats(
+  discordId: string | undefined,
+  startDate?: Date,
+  endDate?: Date
+) {
+  const weekRange = getCurrentWeekRange();
+  const actualStart = startDate || weekRange.start;
+  const actualEnd = endDate || weekRange.end;
+
+  return useQuery({
+    queryKey: dutyKeys.myWeeklyStats(discordId!, actualStart, actualEnd),
+    queryFn: async (): Promise<UserWeeklyStats> => {
+      if (!discordId) {
+        return {
+          totalMinutes: 0,
+          totalHours: 0,
+          remainingMinutes: 0,
+          completedLogsCount: 0,
+          normalMinutes: 0,
+          mentorMinutes: 0,
+          specialMinutes: 0,
+          startDate: actualStart,
+          endDate: actualEnd,
+        };
+      }
+
+      const start = new Date(actualStart);
+      start.setHours(0, 0, 0, 0);
+      const end = new Date(actualEnd);
+      end.setHours(23, 59, 59, 999);
+
+      const { data, error } = await supabase
+        .from('duty_logs')
+        .select('id, total_duty_minutes, duty_type')
+        .eq('discord_id', discordId)
+        .eq('status', 'completed')
+        .gte('clock_in', start.toISOString())
+        .lte('clock_in', end.toISOString());
+
+      if (error) throw error;
+
+      const logs = data || [];
+      let totalMinutes = 0;
+      let normalMinutes = 0;
+      let mentorMinutes = 0;
+      let specialMinutes = 0;
+
+      for (const log of logs) {
+        const mins = Math.max(0, log.total_duty_minutes || 0);
+        totalMinutes += mins;
+        if (log.duty_type === 'mentor') {
+          mentorMinutes += mins;
+        } else if (log.duty_type === 'special') {
+          specialMinutes += mins;
+        } else {
+          normalMinutes += mins;
+        }
+      }
+
+      return {
+        totalMinutes,
+        totalHours: Math.floor(totalMinutes / 60),
+        remainingMinutes: totalMinutes % 60,
+        completedLogsCount: logs.length,
+        normalMinutes,
+        mentorMinutes,
+        specialMinutes,
+        startDate: actualStart,
+        endDate: actualEnd,
+      };
     },
     enabled: !!discordId,
   });

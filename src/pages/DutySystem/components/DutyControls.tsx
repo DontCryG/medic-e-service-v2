@@ -1,3 +1,4 @@
+import DutyWeeklyProgress from "./DutyWeeklyProgress";
 import { Play, Pause, Square, Clock, RefreshCw, Loader2, Gift } from "lucide-react";
 import { formatTime, getInitial } from "../utils/dutyUtils";
 import { useDutyTimer } from "../hooks/useDutyTimer";
@@ -205,6 +206,15 @@ export default function DutyControls({
             </button>
           )}
         </div>
+      </div>
+
+      {/* Weekly Duty Hours Progress Bar */}
+      <div className="mt-6 pt-5 border-t border-slate-100">
+        <DutyWeeklyProgress
+          profile={profile}
+          currentSession={currentSession}
+          liveDutySeconds={dutyTime}
+        />
       </div>
     </div>
   );
