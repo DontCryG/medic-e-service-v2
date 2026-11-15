@@ -92,6 +92,15 @@ export const api = {
     },
   },
 
+  admin: {
+    deleteUser: async (targetDiscordId: string) => {
+      return request('/api/admin/user/delete', {
+        method: 'POST',
+        body: JSON.stringify({ target_discord_id: targetDiscordId }),
+      });
+    },
+  },
+
   health: async () => {
     const res = await fetch(`${API_BASE_URL}/api/health`);
     return res.json();

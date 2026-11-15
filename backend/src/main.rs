@@ -18,7 +18,7 @@ use tracing::info;
 use tracing_subscriber::{layer::SubscriberExt, util::SubscriberInitExt};
 
 use crate::config::Config;
-use crate::handlers::{duty, health, queue};
+use crate::handlers::{admin, duty, health, queue};
 use crate::services::break_watchdog::start_break_watchdog;
 use crate::state::AppState;
 
@@ -55,6 +55,7 @@ async fn main() {
         .route("/api/duty/clock-out", post(duty::clock_out))
         .route("/api/queue/status", post(queue::update_status))
         .route("/api/queue/clear", post(queue::clear_queue))
+        .route("/api/admin/user/delete", post(admin::delete_user))
         .with_state(state)
         .layer(cors)
         .layer(TraceLayer::new_for_http());

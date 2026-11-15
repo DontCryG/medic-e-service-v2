@@ -1,6 +1,7 @@
 import { useState, useMemo, lazy, Suspense } from 'react';
 import { useQueryClient } from '@tanstack/react-query';
 import { supabase } from '@/lib/supabase';
+import { api } from '@/lib/api';
 import { showConfirmDialog } from '@/utils/alert';
 import toast from 'react-hot-toast';
 import { Users } from 'lucide-react';
@@ -76,7 +77,7 @@ export default function PersonnelSystem({ profile }: PersonnelSystemProps) {
   const handleDeleteUser = async (user: any) => {
     const result = await showConfirmDialog({
       title: 'ยืนยันการลบข้อมูล?',
-      html: `คุณต้องการลบข้อมูลของ <b>${user.ic_name}</b> ใช่หรือไม่?<br/><span class="text-rose-500 text-xs mt-1 block">(การกระทำนี้ไม่สามารถกู้คืนได้)</span>`,
+      html: `คุณต้องการลบข้อมูลของ <b>${user.ic_name}</b> ใช่หรือไม่?<br/><span class="text-rose-500 text-xs mt-1 block">(การกระทำนี้ไม่สามารถกู้คืนได้ ข้อมูลประวัติและบัญชีจะถูกลบออกจากระบบ)</span>`,
       icon: 'warning',
       confirmButtonColor: '#ef4444',
       confirmButtonText: 'ลบข้อมูล'
@@ -85,17 +86,22 @@ export default function PersonnelSystem({ profile }: PersonnelSystemProps) {
     if (result.isConfirmed) {
       const toastId = toast.loading('กำลังลบข้อมูล...');
       try {
-        const { error } = await supabase
+        await api.admin.deleteUser(user.discord_id);
+        toast.success('ลบข้อมูลสำเร็จ', { id: toastId });
+        queryClient.invalidateQueries({ queryKey: ['users'] });
+      } catch (error: any) {
+        // Fallback: If backend is unreachable, try direct supabase delete
+        const { error: sbErr } = await supabase
           .from('users')
           .delete()
           .eq('discord_id', user.discord_id);
 
-        if (error) throw error;
-        
-        toast.success('ลบข้อมูลสำเร็จ', { id: toastId });
-        queryClient.invalidateQueries({ queryKey: ['users'] });
-      } catch (error: any) {
-        toast.error('เกิดข้อผิดพลาด: ' + error.message, { id: toastId });
+        if (sbErr) {
+          toast.error('เกิดข้อผิดพลาด: ' + (error.message || sbErr.message), { id: toastId });
+        } else {
+          toast.success('ลบข้อมูลสำเร็จ', { id: toastId });
+          queryClient.invalidateQueries({ queryKey: ['users'] });
+        }
       }
     }
   };
