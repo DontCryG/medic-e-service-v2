@@ -48,6 +48,7 @@ export function useLiveUsers() {
           id, discord_id, status, clock_in, last_break_start, total_break_minutes,
           users (
             ic_name,
+            avatar_url,
             positions (
               name,
               rank
@@ -94,7 +95,7 @@ export function useDutyHistory(
         .from('duty_logs')
         .select(`
           id, discord_id, clock_in, clock_out, total_break_minutes, total_duty_minutes, status, duty_type, granted_by,
-          users!inner ( ic_name, role, positions (name) )
+          users!inner ( ic_name, avatar_url, role, positions (name) )
         `, { count: 'exact' })
         .eq('status', 'completed')
         .order('clock_in', { ascending: false });

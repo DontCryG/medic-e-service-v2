@@ -20,6 +20,7 @@ import {
 } from 'lucide-react';
 import { showSuccessAlert, showErrorAlert } from '@/utils/alert';
 import { getInitial } from '@/pages/PersonnelSystem/utils/personnelUtils';
+import { getDiscordAvatar } from '@/utils/discordUtils';
 
 const profileSchema = z.object({
   ic_name: z.string().trim().min(2, 'กรุณาระบุชื่อ-นามสกุล IC อย่างน้อย 2 ตัวอักษร'),
@@ -63,7 +64,7 @@ export default function UserProfileModal({ isOpen, onClose }: UserProfileModalPr
     setIsSyncingDiscord(true);
     try {
       const { data: { session } } = await supabase.auth.getSession();
-      const discordAvatar = session?.user?.user_metadata?.avatar_url;
+      const discordAvatar = getDiscordAvatar(session);
       if (discordAvatar) {
         setValue('avatar_url', discordAvatar, { shouldDirty: true, shouldValidate: true });
         showSuccessAlert('ดึงรูปสำเร็จ!', 'ดึงรูปโปรไฟล์ล่าสุดจาก Discord ของคุณเรียบร้อยแล้ว');

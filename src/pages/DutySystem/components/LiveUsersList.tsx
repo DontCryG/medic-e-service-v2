@@ -79,11 +79,17 @@ export default function LiveUsersList({
                   <td className="p-3 text-slate-700 align-middle">
                     <div className="flex items-center gap-2.5">
                       <div className="relative shrink-0">
-                        <div className="w-8 h-8 rounded-lg bg-purple-100 border border-purple-200/60 text-purple-700 flex items-center justify-center font-bold text-xs overflow-hidden shrink-0">
-                          {user.users?.avatar_url ? (
-                            <img src={user.users.avatar_url} alt="Avatar" className="w-full h-full object-cover" />
-                          ) : (
-                            getInitial(user.users?.ic_name)
+                        <div className="w-8 h-8 rounded-lg bg-purple-100 border border-purple-200/60 text-purple-700 flex items-center justify-center font-bold text-xs overflow-hidden shrink-0 relative">
+                          <span>{getInitial(user.users?.ic_name)}</span>
+                          {user.users?.avatar_url && (
+                            <img 
+                              src={user.users.avatar_url} 
+                              alt="Avatar" 
+                              className="absolute inset-0 w-full h-full object-cover" 
+                              onError={(e) => {
+                                (e.target as HTMLElement).style.display = 'none';
+                              }}
+                            />
                           )}
                         </div>
                         <span className={`absolute -bottom-0.5 -right-0.5 w-2.5 h-2.5 rounded-full border border-white ${

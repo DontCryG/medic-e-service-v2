@@ -4,6 +4,7 @@ import { useNavigate } from 'react-router-dom';
 import { enterpriseSwal, showErrorAlert } from '@/utils/alert';
 import { useAuthStore } from '../store/authStore';
 import { useMaintenanceMode } from '@/hooks/useMaintenanceMode';
+import { getDiscordAvatar } from '@/utils/discordUtils';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Shield, Activity, Users, ChevronRight, CheckCircle2, Stethoscope, Lock, Wrench } from 'lucide-react';
 
@@ -44,7 +45,7 @@ export default function Portal() {
   const checkUserInDatabase = async (session: any) => {
     try {
       const providerId = session.user.user_metadata?.provider_id || session.user.identities?.find((i: any) => i.provider === 'discord')?.id;
-      const avatar = session.user.user_metadata?.avatar_url || '';
+      const avatar = getDiscordAvatar(session);
 
       if (!providerId) {
         await supabase.auth.signOut();
@@ -80,7 +81,13 @@ export default function Portal() {
         return;
       }
 
-      if (userData.avatar_url !== avatar) {
+      // Sync avatar: only update if user currently has no avatar, or if discord avatar was updated
+      let finalAvatar = userData.avatar_url;
+      if (!finalAvatar && avatar) {
+        finalAvatar = avatar;
+        await supabase.from('users').update({ avatar_url: avatar }).eq('discord_id', providerId);
+      } else if (avatar && userData.avatar_url && userData.avatar_url.includes('cdn.discordapp.com') && userData.avatar_url !== avatar) {
+        finalAvatar = avatar;
         await supabase.from('users').update({ avatar_url: avatar }).eq('discord_id', providerId);
       }
 
@@ -88,7 +95,7 @@ export default function Portal() {
         discord_id: userData.discord_id,
         ic_name: userData.ic_name,
         ic_phone: userData.ic_phone || undefined,
-        avatar_url: avatar,
+        avatar_url: finalAvatar || undefined,
         position_id: userData.position_id,
         role: userData.role,
         position: userData.positions as any
