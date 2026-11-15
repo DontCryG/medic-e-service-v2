@@ -75,11 +75,3 @@ ALTER TABLE IF EXISTS inventory_logs
   ADD CONSTRAINT inventory_logs_discord_id_fkey 
   FOREIGN KEY (discord_id) REFERENCES users(discord_id) 
   ON DELETE CASCADE ON UPDATE CASCADE;
-
--- ------------------------------------------------------------------------------
--- ส่วนที่ 4: คืนพื้นที่ดิสก์และจัดระเบียบตาราง (VACUUM ANALYZE)
--- ------------------------------------------------------------------------------
-VACUUM ANALYZE queue_status;
-VACUUM ANALYZE duty_logs;
-VACUUM ANALYZE users;
-VACUUM ANALYZE system_settings;
