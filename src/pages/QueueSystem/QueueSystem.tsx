@@ -46,8 +46,8 @@ export function QueueSystem() {
             : { label: 'ขาดการเชื่อมต่อ (Offline)', variant: 'warning' }
         }
         actions={
-          <div className="flex flex-wrap items-center gap-3 w-full sm:w-auto">
-            <div className="flex items-center gap-2">
+          <div className="flex flex-wrap sm:flex-nowrap items-center gap-3 w-full sm:w-auto shrink-0">
+            <div className="flex items-center gap-2 shrink-0">
               <input 
                 type="text" 
                 placeholder="ระบุชื่อแพทย์อาสา..." 
@@ -59,18 +59,18 @@ export function QueueSystem() {
               <button 
                 onClick={(e) => { e.currentTarget.disabled = true; handleAddVolunteer(); }}
                 disabled={!volunteerName.trim() || isProcessing}
-                className="flex items-center gap-1.5 px-4 py-2 bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl text-sm font-bold transition-all shadow-sm hover:shadow active:scale-95 disabled:opacity-50 disabled:cursor-not-allowed border-none cursor-pointer"
+                className="flex items-center gap-1.5 px-4 py-2 bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl text-sm font-bold transition-all shadow-sm hover:shadow active:scale-95 disabled:opacity-50 disabled:cursor-not-allowed border-none cursor-pointer whitespace-nowrap shrink-0"
               >
-                <UserPlus size={16} />
-                เพิ่มแพทย์อาสา
+                <UserPlus size={16} className="shrink-0" />
+                <span>เพิ่มแพทย์อาสา</span>
               </button>
             </div>
             <button 
-              className="flex items-center gap-2 px-4 py-2 bg-white border border-slate-200/80 rounded-xl text-sm font-bold text-slate-700 cursor-pointer transition-all hover:bg-slate-50 shadow-sm" 
+              className="flex items-center gap-2 px-4 py-2 bg-white border border-slate-200/80 rounded-xl text-sm font-bold text-slate-700 cursor-pointer transition-all hover:bg-slate-50 shadow-sm whitespace-nowrap shrink-0" 
               onClick={() => setIsHistoryOpen(true)}
             >
-              <History size={16} />
-              ประวัติการจัดการ
+              <History size={16} className="shrink-0" />
+              <span>ประวัติการจัดการ</span>
             </button>
           </div>
         }
