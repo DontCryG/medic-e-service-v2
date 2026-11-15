@@ -48,27 +48,59 @@ export function useCreateLeave() {
 interface UpdateLeaveStatusParams {
   id: string;
   status: 'approved' | 'rejected';
+  approved_by?: string;
+  admin_comment?: string;
 }
 
 export function useUpdateLeaveStatus() {
   const queryClient = useQueryClient();
+  const profile = useAuthStore(state => state.user);
 
   return useMutation({
-    mutationFn: async ({ id, status }: UpdateLeaveStatusParams) => {
-      const { data: updatedLeave, error } = await supabase
+    mutationFn: async ({ id, status, approved_by, admin_comment }: UpdateLeaveStatusParams) => {
+      const approverName = approved_by || profile?.ic_name || 'ผู้ดูแลระบบ';
+      
+      const updatePayload: any = { status };
+      if (approverName) updatePayload.approved_by = approverName;
+      if (admin_comment !== undefined) updatePayload.admin_comment = admin_comment;
+
+      let { data: updatedLeave, error } = await supabase
         .from('leave_requests')
-        .update({ status })
+        .update(updatePayload)
         .eq('id', id)
         .select('*')
         .single();
       
-      if (error) throw error;
+      // Fallback if approved_by or admin_comment column doesn't exist in Supabase table yet (code 42703)
+      if (error && error.code === '42703') {
+        console.warn('leave_requests table is missing approved_by or admin_comment column. Falling back to status update.');
+        const fallbackRes = await supabase
+          .from('leave_requests')
+          .update({ status })
+          .eq('id', id)
+          .select('*')
+          .single();
+        if (fallbackRes.error) throw fallbackRes.error;
+        updatedLeave = fallbackRes.data;
+      } else if (error) {
+        throw error;
+      }
 
-      // Notify the user who requested the leave
+      if (!updatedLeave) return;
+
+      // Notify the user who requested the leave with details
+      const notifTitle = status === 'approved' 
+        ? 'ใบลาของคุณได้รับการอนุมัติแล้ว' 
+        : 'ใบลาของคุณไม่ได้รับการอนุมัติ';
+      
+      const notifMessage = status === 'approved'
+        ? `คำขอลาของคุณได้รับการอนุมัติโดย ${approverName} เรียบร้อยแล้ว`
+        : `คำขอลาของคุณถูกปฏิเสธโดย ${approverName}${admin_comment ? ` (เหตุผล: ${admin_comment})` : ''}`;
+
       await supabase.from('notifications').insert({
         discord_id: updatedLeave.discord_id,
-        title: `ใบลาของคุณถูก${status === 'approved' ? 'อนุมัติ' : 'ปฏิเสธ'}แล้ว`,
-        message: `ระบบได้ดำเนินการพิจารณาใบลาของคุณเรียบร้อยแล้ว`,
+        title: notifTitle,
+        message: notifMessage,
         type: 'leave_update',
         link: '/leave'
       });
@@ -107,11 +139,11 @@ export function useDeleteLeave() {
       if (error) throw error;
     },
     onSuccess: () => {
-      toast.success('ยกเลิกคำขอสำเร็จ');
+      toast.success('ลบคำขอลาสำเร็จ');
       queryClient.invalidateQueries({ queryKey: leaveKeys.all });
     },
     onError: (err: any) => {
-      showErrorAlert('เกิดข้อผิดพลาด', err.message || 'ไม่สามารถยกเลิกคำขอได้');
+      showErrorAlert('เกิดข้อผิดพลาด', err.message || 'ไม่สามารถลบคำขอลาได้');
     }
   });
 }

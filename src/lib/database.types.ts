@@ -222,6 +222,8 @@ export type Database = {
       }
       leave_requests: {
         Row: {
+          admin_comment: string | null
+          approved_by: string | null
           created_at: string
           discord_id: string
           end_date: string
@@ -232,6 +234,8 @@ export type Database = {
           status: string
         }
         Insert: {
+          admin_comment?: string | null
+          approved_by?: string | null
           created_at?: string
           discord_id: string
           end_date: string
@@ -242,6 +246,8 @@ export type Database = {
           status?: string
         }
         Update: {
+          admin_comment?: string | null
+          approved_by?: string | null
           created_at?: string
           discord_id?: string
           end_date?: string
