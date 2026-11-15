@@ -49,7 +49,7 @@ export default function SalarySystem({ profile: _profile }: SalarySystemProps) {
     <div className="flex flex-col gap-6 w-full max-w-7xl mx-auto animate-in fade-in duration-300">
       <PageHeader
         title="ระบบคำนวณเงินเดือน (Salary System)"
-        subtitle="สรุปชั่วโมงเวร คำนวณรายได้ IC/OC ค่าสตอรี่ และพิมพ์สลิปเงินเดือน"
+        subtitle="สรุปชั่วโมงเวร คำนวณรายได้ IC/OC และพิมพ์สลิปเงินเดือน"
         icon={<Banknote size={24} />}
         iconTheme="orange"
         badge={{ label: 'ระบบจัดการ (Admin Only)', variant: 'admin' }}

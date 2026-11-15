@@ -69,10 +69,6 @@ export function initGlobalRealtimeChannels(queryClient: QueryClient) {
         .on('postgres_changes', { event: '*', schema: 'public', table: 'queue_status' }, () => {
           invalidate(['queue_users']);
         })
-        .on('postgres_changes', { event: '*', schema: 'public', table: 'story_logs' }, () => {
-          invalidate(['queue_users']);
-          invalidate(['salary']);
-        })
         .on('postgres_changes', { event: '*', schema: 'public', table: 'queue_manager_logs' }, () => {
           invalidate(['queue_users']);
           invalidate(['salary']);

@@ -60,7 +60,7 @@ export default function SalaryTable({ data, onOpenDutyLogModal, onPrintPayslip }
       size: 150,
     }),
     columnHelper.accessor(
-      row => row.ic_salary + row.story_money + (row.mentor_money || 0),
+      row => row.ic_salary + (row.mentor_money || 0),
       {
         id: 'netTotal',
         header: 'เงิน IC สุทธิ (รวมโบนัส)',
@@ -72,12 +72,9 @@ export default function SalaryTable({ data, onOpenDutyLogModal, onPrintPayslip }
               <div className="font-bold text-green-600 text-[1.1rem]">
                 {netTotal > 0 ? netTotal.toLocaleString() : '-'}
               </div>
-              {(item.story_money > 0 || item.mentor_money > 0) && (
+              {item.mentor_money > 0 && (
                 <div className="text-xs text-emerald-500 font-medium mt-0.5">
-                  (+โบนัส 
-                  {item.story_money > 0 && item.mentor_money > 0 ? 'สตอรี่/พี่เลี้ยง' : 
-                   item.story_money > 0 ? 'สตอรี่' : 
-                   item.mentor_money > 0 ? 'พี่เลี้ยง' : ''})
+                  (+โบนัส พี่เลี้ยง)
                 </div>
               )}
             </div>

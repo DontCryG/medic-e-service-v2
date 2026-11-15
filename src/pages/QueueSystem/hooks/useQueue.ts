@@ -125,12 +125,6 @@ export function useQueue(currentUserId: string | undefined) {
             discord_id: v.id,
             status: v.status,
             manager_start_time: null,
-            story_target_time: null,
-            story_gang_1: null,
-            story_gang_2: null,
-            story_type: null,
-            story_locked: false,
-            story_premium: null,
             remark: null,
             updated_at: addedAt
           }
@@ -141,7 +135,7 @@ export function useQueue(currentUserId: string | undefined) {
 
       // Sort logic:
       // 1. หมอรันคิว ('manager') อยู่บนสุด (rank 1)
-      // 2. แพทย์ทั่วไป / พร้อมรับคิว ('queued') / เคสสตอรี่ อยู่ลำดับเดิมตามเวลาเข้าเวร (rank 2)
+      // 2. แพทย์ทั่วไป / พร้อมรับคิว ('queued') อยู่ลำดับเดิมตามเวลาเข้าเวร (rank 2)
       // 3. ไม่สะดวก ('unavailable') อยู่ล่างสุด (rank 3)
       users.sort((a, b) => {
         const getRank = (u: QueueUser) => {

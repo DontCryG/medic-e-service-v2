@@ -145,19 +145,10 @@ export default function DutySystem({ profile }: DutySystemProps) {
         .maybeSingle();
         
       if (queueData) {
-        if (queueData.status === 'story') {
-          enterpriseSwal.fire({
-            title: 'ไม่สามารถออกเวรได้',
-            text: 'คุณกำลังติดเคสสตอรี่อยู่ กรุณาจบเคสสตอรี่หรือยกเลิกก่อนกดออกเวรครับ',
-            icon: 'warning'
-          });
-          processingRef.current = false;
-          return;
-        }
         if (queueData.status === 'manager') {
           enterpriseSwal.fire({
             title: 'ไม่สามารถออกเวรได้',
-            text: 'คุณกำลังเข้าเวรในคิว หรือกำลังจัดการคิวอยู่ กรุณาออกจากการจัดการคิว หรือปิดสตอรี่ก่อนออกเวรครับ',
+            text: 'คุณกำลังเป็นผู้จัดการคิวอยู่ กรุณาออกจากสถานะผู้จัดการคิวก่อนออกเวรครับ',
             icon: 'warning'
           });
           processingRef.current = false;

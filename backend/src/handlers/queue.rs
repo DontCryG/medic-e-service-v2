@@ -125,7 +125,7 @@ pub async fn update_status(
 
     match new_status {
         None => {
-            // Nullify status while preserving story drafts and remarks
+            // Nullify status while preserving remarks
             st.db
                 .update(
                     "queue_status",

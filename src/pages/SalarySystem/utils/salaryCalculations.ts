@@ -180,21 +180,9 @@ export function calculateSalary(
     const oc_points = Math.max(0, totalHours - 27);
     const oc_money = oc_points * rates.oc_rate;
 
-    // Calculate Story Money
-    const stories = userStories[user.discord_id] || [];
-    let story_count = 0;
-    let story_money = 0;
-    
-    stories.forEach(story => {
-      story_count++;
-      if (story.story_type === 'ไฟต์ตรง (1 คน)') story_money += settings.story_fight_1 || 200000;
-      else if (story.story_type === 'ไฟต์ตรง (2 คน)') story_money += settings.story_fight_2 || 100000;
-      else if (story.story_type === 'บั๊มรถ (1 คน)') story_money += settings.story_rob_1 || 350000;
-      else if (story.story_type === 'บั๊มรถ (2 คน)') story_money += settings.story_rob_2 || 175000;
-      else if (story.story_type === 'ปะทะ') story_money += settings.story_clash || 200000;
-      else if (story.story_type === 'ปล้น') story_money += settings.story_heist || 100000;
-      else if (story.story_type === 'ตีวง') story_money += settings.story_circle || 150000;
-    });
+    // Story System Removed
+    const story_count = 0;
+    const story_money = 0;
 
     let gacha_ic = 0;
     let agency_gacha = 0;

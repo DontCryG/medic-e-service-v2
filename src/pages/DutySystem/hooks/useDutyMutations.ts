@@ -8,7 +8,7 @@ import { salaryKeys } from '../../SalarySystem/hooks/useSalaryQueries';
 import { saveManagerHistory } from '../../QueueSystem/hooks/useQueueMutations';
 
 /**
- * Clears queue status, active story, and queue manager role for a doctor.
+ * Clears queue status and queue manager role for a doctor.
  */
 export async function cleanupUserQueueAndStory(discordId: string) {
   try {
@@ -40,12 +40,6 @@ export async function cleanupUserQueueAndStory(discordId: string) {
           .update({
             status: null,
             manager_start_time: null,
-            story_target_time: null,
-            story_gang_1: null,
-            story_gang_2: null,
-            story_type: null,
-            story_locked: false,
-            story_premium: null,
             updated_at: new Date().toISOString()
           })
           .eq('discord_id', discordId);

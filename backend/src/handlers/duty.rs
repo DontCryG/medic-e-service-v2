@@ -131,10 +131,8 @@ pub async fn clock_out(
         .db
         .select("queue_status", &[("select", "status,manager_start_time".into()), ("discord_id", eq(target_id))])
         .await?;
-    match queue.first().and_then(|q| q.status.as_deref()) {
-        Some("story") => return Err(AppError::Conflict("คุณกำลังติดเคสสตอรี่อยู่ กรุณาจบเคสสตอรี่ก่อนออกเวร".into())),
-        Some("manager") => return Err(AppError::Conflict("คุณเป็นหมอรันคิวอยู่ กรุณาออกจากหมอรันคิวก่อนออกเวร".into())),
-        _ => {}
+    if let Some("manager") = queue.first().and_then(|q| q.status.as_deref()) {
+        return Err(AppError::Conflict("คุณเป็นหมอรันคิวอยู่ กรุณาออกจากหมอรันคิวก่อนออกเวร".into()));
     }
 
     // If the break already ran out, the shift ended at the 15-minute mark, not now.

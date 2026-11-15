@@ -41,7 +41,7 @@ export default function PayslipModal({ user, startDate, endDate, onClose }: Pays
     };
   }, [user.ic_name, startDate, onClose]);
 
-  const totalIncome = user.ic_salary + user.story_money + (user.mentor_money || 0) + ((user as any).bonus_cash || 0);
+  const totalIncome = user.ic_salary + (user.mentor_money || 0) + ((user as any).bonus_cash || 0);
 
   const modalContent = (
     <div className="fixed inset-0 z-[-9999] opacity-0 pointer-events-none print:opacity-100 print:z-[9999] print:bg-white print:static print:inset-auto print:block">
@@ -116,10 +116,6 @@ export default function PayslipModal({ user, startDate, endDate, onClose }: Pays
               <div className="flex justify-between py-2.5 text-slate-600 border-b border-slate-100">
                 <span>เงินเดือน (IC Salary)</span>
                 <span className="font-medium text-slate-800">{user.ic_salary > 0 ? user.ic_salary.toLocaleString() : '-'}</span>
-              </div>
-              <div className="flex justify-between py-2.5 text-slate-600 border-b border-slate-100">
-                <span>เงินค่าเคสสตอรี่ ({user.story_count} เคส)</span>
-                <span className="font-medium text-slate-800">{user.story_money > 0 ? user.story_money.toLocaleString() : '-'}</span>
               </div>
               <div className="flex justify-between py-2.5 text-slate-600">
                 <span>เงินพี่เลี้ยงหมอใหม่</span>

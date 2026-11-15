@@ -8,7 +8,7 @@ interface SalarySummaryProps {
 export default function SalarySummary({ data }: SalarySummaryProps) {
   if (!data) return null;
 
-  const totalCash = data.reduce((sum, item) => sum + item.ic_salary + item.story_money + (item.mentor_money || 0), 0);
+  const totalCash = data.reduce((sum, item) => sum + item.ic_salary + (item.mentor_money || 0), 0);
   const activeStaffCount = data.filter(item => item.total_hours > 0 || item.total_minutes > 0).length;
   const participationRate = data.length > 0 ? Math.round((activeStaffCount / data.length) * 100) : 0;
 
@@ -31,7 +31,7 @@ export default function SalarySummary({ data }: SalarySummaryProps) {
             </div>
             <div className="mt-3 flex items-center gap-1.5 text-xs text-slate-500 font-medium">
               <TrendingUp size={14} className="text-emerald-500 shrink-0" />
-              <span>รวมค่าเวรปกติ + โบนัสสตอรี่ + ค่าพี่เลี้ยง</span>
+              <span>รวมค่าเวรปกติ + ค่าพี่เลี้ยง</span>
             </div>
           </div>
           <div className="w-14 h-14 rounded-2xl bg-gradient-to-br from-purple-600 to-indigo-600 text-white flex items-center justify-center shrink-0 shadow-lg shadow-purple-500/20">
