@@ -5,8 +5,12 @@
   "type": "module",
   "scripts": {
     "dev": "vite",
+    "dev:backend": "cargo run --manifest-path backend/Cargo.toml",
+    "dev:all": "node run-all.cjs",
     "build": "tsc -b && vite build",
+    "build:backend": "cargo build --release --manifest-path backend/Cargo.toml",
     "test": "vitest",
+    "test:backend": "cargo test --manifest-path backend/Cargo.toml",
     "lint": "oxlint",
     "preview": "vite preview"
   },

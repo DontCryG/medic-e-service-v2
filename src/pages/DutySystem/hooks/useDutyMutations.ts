@@ -1,5 +1,6 @@
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { supabase } from '@/lib/supabase';
+import { api } from '@/lib/api';
 import { showErrorAlert, enterpriseSwal } from '@/utils/alert';
 import toast from 'react-hot-toast';
 import { dutyKeys } from './useDutyQueries';
@@ -163,25 +164,7 @@ export function useClockIn() {
 
   return useMutation({
     mutationFn: async (discordId: string) => {
-      const { data: existing } = await supabase
-        .from('duty_logs')
-        .select('id')
-        .eq('discord_id', discordId)
-        .in('status', ['on_duty', 'on_break'])
-        .limit(1);
-
-      if (existing && existing.length > 0) {
-        throw new Error('You already have an active duty session.');
-      }
-
-      const { error } = await supabase.from('duty_logs').insert([{
-        discord_id: discordId,
-        status: 'on_duty',
-        clock_in: new Date().toISOString(),
-        total_break_minutes: 0
-      }]);
-
-      if (error) throw error;
+      await api.duty.clockIn(discordId);
     },
     onSuccess: () => {
       toast.success('เข้าเวรสำเร็จ');
@@ -201,37 +184,8 @@ export function useToggleBreak() {
   return useMutation({
     mutationFn: async (currentSession: any) => {
       if (!currentSession) throw new Error("No active session");
-      
-      if (currentSession.status === 'on_duty') {
-        const { error } = await supabase
-          .from('duty_logs')
-          .update({ 
-            status: 'on_break',
-            last_break_start: new Date().toISOString()
-          })
-          .eq('id', currentSession.id);
-        if (error) throw error;
-
-        // Clear queue status (story, manager, queue) when pausing duty
-        await cleanupUserQueueAndStory(currentSession.discord_id);
-      } else {
-        const breakStart = new Date(currentSession.last_break_start).getTime();
-        const now = Date.now();
-        // Exact fractional minutes calculation ensures no seconds jump upon resuming duty
-        const breakMinutes = Math.max(0, (now - breakStart) / 60000);
-        const currentBreak = Number(currentSession.total_break_minutes) || 0;
-        const newTotalBreak = Number((currentBreak + breakMinutes).toFixed(4));
-        
-        const { error } = await supabase
-          .from('duty_logs')
-          .update({ 
-            status: 'on_duty',
-            total_break_minutes: newTotalBreak,
-            last_break_start: null
-          })
-          .eq('id', currentSession.id);
-        if (error) throw error;
-      }
+      const res = await api.duty.toggleBreak(currentSession.discord_id);
+      return res.data;
     },
     onSuccess: () => {
       toast.success('เปลี่ยนสถานะสำเร็จ');
@@ -279,38 +233,8 @@ export function useClockOut() {
   return useMutation({
     mutationFn: async (currentSession: any) => {
       if (!currentSession) throw new Error("No active session");
-      
-      let finalBreakMinutes = Number(currentSession.total_break_minutes) || 0;
-      const clockOutTime = new Date();
-      
-      if (currentSession.status === 'on_break' && currentSession.last_break_start) {
-        const breakStart = new Date(currentSession.last_break_start).getTime();
-        // Exact break duration capped at 15 minutes
-        const currentBreakMinutes = Math.min(15, Math.max(0, (clockOutTime.getTime() - breakStart) / 60000));
-        finalBreakMinutes = Number((finalBreakMinutes + currentBreakMinutes).toFixed(4));
-      }
-
-      const clockInTime = new Date(currentSession.clock_in).getTime();
-      const totalDutyMinutes = Math.floor(Math.max(0, (clockOutTime.getTime() - clockInTime) / 60000 - finalBreakMinutes));
-
-      if (totalDutyMinutes === 0) {
-        const { error } = await supabase.from('duty_logs').delete().eq('id', currentSession.id);
-        if (error) throw error;
-        return { deleted: true };
-      }
-
-      const { error } = await supabase
-        .from('duty_logs')
-        .update({ 
-          status: 'completed',
-          clock_out: clockOutTime.toISOString(),
-          total_break_minutes: finalBreakMinutes,
-          total_duty_minutes: totalDutyMinutes
-        })
-        .eq('id', currentSession.id);
-      
-      if (error) throw error;
-      return { deleted: false };
+      const res = await api.duty.clockOut(currentSession.discord_id);
+      return res.data;
     },
     onSuccess: (data) => {
       if (data?.deleted) {
@@ -333,35 +257,9 @@ export function useAdminToggleBreak() {
 
   return useMutation({
     mutationFn: async (session: any) => {
-      if (session.status === 'on_duty') {
-        const { error } = await supabase
-          .from('duty_logs')
-          .update({ 
-            status: 'on_break',
-            last_break_start: new Date().toISOString()
-          })
-          .eq('id', session.id);
-        if (error) throw error;
-
-        // Clear queue status (story, manager, queue) when admin pauses duty
-        await cleanupUserQueueAndStory(session.discord_id);
-      } else {
-        const breakStart = new Date(session.last_break_start).getTime();
-        const now = Date.now();
-        const breakMinutes = Math.max(0, (now - breakStart) / 60000);
-        const currentBreak = Number(session.total_break_minutes) || 0;
-        const newTotalBreak = Number((currentBreak + breakMinutes).toFixed(4));
-        
-        const { error } = await supabase
-          .from('duty_logs')
-          .update({ 
-            status: 'on_duty',
-            total_break_minutes: newTotalBreak,
-            last_break_start: null
-          })
-          .eq('id', session.id);
-        if (error) throw error;
-      }
+      if (!session) throw new Error("No session provided");
+      const res = await api.duty.toggleBreak(session.discord_id);
+      return res.data;
     },
     onSuccess: () => {
       toast.success('เปลี่ยนสถานะการพักเบรกสำเร็จ');
@@ -379,36 +277,9 @@ export function useAdminClockOut() {
 
   return useMutation({
     mutationFn: async (session: any) => {
-      let finalBreakMinutes = Number(session.total_break_minutes) || 0;
-      const clockOutTime = new Date();
-      
-      if (session.status === 'on_break' && session.last_break_start) {
-        const breakStart = new Date(session.last_break_start).getTime();
-        const currentBreakMinutes = Math.min(15, Math.max(0, (clockOutTime.getTime() - breakStart) / 60000));
-        finalBreakMinutes = Number((finalBreakMinutes + currentBreakMinutes).toFixed(4));
-      }
-
-      const clockInTime = new Date(session.clock_in).getTime();
-      const totalDutyMinutes = Math.floor(Math.max(0, (clockOutTime.getTime() - clockInTime) / 60000 - finalBreakMinutes));
-
-      if (totalDutyMinutes === 0) {
-        const { error } = await supabase.from('duty_logs').delete().eq('id', session.id);
-        if (error) throw error;
-        return { deleted: true };
-      }
-
-      const { error } = await supabase
-        .from('duty_logs')
-        .update({ 
-          status: 'completed',
-          clock_out: clockOutTime.toISOString(),
-          total_break_minutes: finalBreakMinutes,
-          total_duty_minutes: totalDutyMinutes
-        })
-        .eq('id', session.id);
-        
-      if (error) throw error;
-      return { deleted: false };
+      if (!session) throw new Error("No session provided");
+      const res = await api.duty.clockOut(session.discord_id);
+      return res.data;
     },
     onSuccess: (data) => {
       if (data?.deleted) {

@@ -1,32 +1,70 @@
-# React + TypeScript + Vite
+# Medic E-Service V2 (with Rust High-Performance Backend)
 
-This template provides a minimal setup to get React working in Vite with HMR and some Oxlint rules.
+ระบบบริหารจัดการเวรแพทย์ (Duty & Queue System) ที่ขับเคลื่อนด้วย **Rust Backend (Axum + Tokio)** ผสานกับ **React 18 + Vite** และ **Supabase**
 
-Currently, two official plugins are available:
+---
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Oxc](https://oxc.rs)
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/)
+## 🚀 คุณสมบัติและสถาปัตยกรรม (Architecture)
 
-## React Compiler
+### 1. High Performance & Concurrency (Rust Backend)
+- **Axum 0.8 + Tokio Async Runtime**: รองรับการยิง Request ระดับหมื่น Concurrent Connections โดยใช้หน่วยความจำ (RAM) ต่ำมาก
+- **24/7 Server-Side Break Watchdog**: รัน Background Thread ตรวจจับแพทย์ที่พักเบรกเกิน 15 นาที และบังคับออกเวรอัตโนมัติ แม้ผู้ใช้ทุกคนจะปิดหน้าเว็บบราวเซอร์ไปแล้ว
+- **Atomic Single-Queued Enforcement**: ระบบป้องกันแพทย์ชนกันในคิว (Single Active Doctor Rotation) รันแบบเซิร์ฟเวอร์ทรานแซกชัน
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+### 2. High Security & Anti-F12 Inspection
+- **Server-Side Token Verification**: ทุก Request ต้องแนบ Supabase Auth JWT Bearer Token — เซิร์ฟเวอร์ Rust ดึง Discord ID และ Role โดยตรง ป้องกันการปลอมแปลง Identity (Spoofing) หรือแก้ไขตัวแปรใน DevTools (F12)
+- **Protected Business Logic**: การคำนวณชั่วโมงเวร, หักเวลาพักเบรกแบบทศนิยมแม่นยำ, ตัดเวรเมื่อไม่ถึง 1 นาที, และการแจกโบนัสหมอรันคิว 2 ชั่วโมง (`queue_manager_bonus`) ประมวลผลบน Rust 100%
 
-## Expanding the Oxlint configuration
+---
 
-If you are developing a production application, we recommend enabling type-aware lint rules by installing `oxlint-tsgolint` and editing `.oxlintrc.json`:
+## 🛠️ วิธีการรันระบบ (Getting Started)
 
-```json
-{
-  "$schema": "./node_modules/oxlint/configuration_schema.json",
-  "plugins": ["react", "typescript", "oxc"],
-  "options": {
-    "typeAware": true
-  },
-  "rules": {
-    "react/rules-of-hooks": "error",
-    "react/only-export-components": ["warn", { "allowConstantExport": true }]
-  }
-}
+### 1. รัน Rust Backend (Port 3001)
+```bash
+# พัฒนา (Development)
+npm run dev:backend
+# หรือ
+cargo run --manifest-path backend/Cargo.toml
+
+# ทดสอบ Unit Tests
+npm run test:backend
+
+# บิลด์สำหรับ Production
+npm run build:backend
 ```
 
-See the [Oxlint rules documentation](https://oxc.rs/docs/guide/usage/linter/rules) for the full list of rules and categories.
+### 2. รัน Frontend (React + Vite)
+```bash
+# ติดตั้งแพ็กเกจ (ครั้งแรก)
+npm install
+
+# รันหน้าบ้าน
+npm run dev
+
+# บิลด์โปรเจกต์
+npm run build
+```
+
+---
+
+## ⚙️ Environment Variables
+
+### Backend (`backend/.env` หรือ `.env` ที่ root)
+- `PORT`: พอร์ตสำหรับรัน Backend (ค่าเริ่มต้น `3001`)
+- `SUPABASE_URL`: Supabase Project URL
+- `SUPABASE_ANON_KEY`: Supabase Anon Public Key (สำหรับยืนยัน JWT)
+- `SUPABASE_SERVICE_ROLE_KEY`: Service Role Key (แนะนำสำหรับ Production เพื่อความปลอดภัยระดับ RLS)
+- `CORS_ORIGIN`: อนุญาต Origin เช่น `http://localhost:5173` หรือ `*` ในช่วงพัฒนา
+
+### Frontend (`.env`)
+- `VITE_SUPABASE_URL`: Supabase Project URL
+- `VITE_SUPABASE_ANON_KEY`: Supabase Anon Public Key
+- `VITE_API_URL`: URL ของ Rust Backend (ค่าเริ่มต้น `http://localhost:3001`)
+
+---
+
+## 📦 สำรองข้อมูล (Backup)
+ก่อนทำการปรับปรุงโครงสร้างเป็น Rust ได้ทำการสำรองข้อมูลไว้เรียบร้อยแล้ว:
+- **Archive File**: `medic-e-service-v2-backup-20261115.tar.gz`
+- **Git Tag**: `backup-v2-pre-rust`
+- **Git Branch**: `backup/pre-rust-backend`

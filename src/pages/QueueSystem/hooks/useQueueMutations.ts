@@ -1,6 +1,7 @@
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { showErrorAlert } from '@/utils/alert';
 import { supabase } from '@/lib/supabase';
+import { api } from '@/lib/api';
 import type { QueueStatusType, QueueStatus } from '../types';
 
 export async function saveManagerHistory(discord_id: string, manager_start_time: string) {
@@ -104,52 +105,12 @@ export function useQueueMutations() {
     mutationFn: async ({ 
       discord_id, 
       newStatus, 
-      currentStatusRecord 
     }: { 
       discord_id: string; 
       newStatus: QueueStatusType;
-      currentStatusRecord: QueueStatus | null;
+      currentStatusRecord?: QueueStatus | null;
     }) => {
-      // Handle Manager Leaving: Log their time
-      if (currentStatusRecord?.status === 'manager' && newStatus !== 'manager' && currentStatusRecord.manager_start_time) {
-        await saveManagerHistory(discord_id, currentStatusRecord.manager_start_time);
-      }
-
-      if (!newStatus) {
-        // Instead of deleting, we update status to null to preserve story data
-        const response = await supabase
-          .from('queue_status')
-          .update({
-            status: null,
-            manager_start_time: null,
-            updated_at: new Date().toISOString()
-          })
-          .eq('discord_id', discord_id)
-          .select();
-        if (response.error) throw response.error;
-        if (response.data?.length === 0) {
-        }
-        return;
-      }
-
-      if (newStatus === 'queued') {
-        await clearOtherQueued(discord_id);
-      }
-
-      // Handle entering Manager
-      const manager_start_time = newStatus === 'manager' ? new Date().toISOString() : null;
-
-      // Upsert the new status
-      const { error } = await supabase
-        .from('queue_status')
-        .upsert({
-          discord_id,
-          status: newStatus,
-          manager_start_time: newStatus === 'manager' ? manager_start_time : currentStatusRecord?.manager_start_time,
-          updated_at: new Date().toISOString()
-        }, { onConflict: 'discord_id' });
-
-      if (error) throw error;
+      await api.queue.updateStatus(newStatus, discord_id);
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['queue_users'] });

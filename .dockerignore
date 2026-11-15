@@ -1,0 +1,8 @@
+node_modules
+dist
+dist-ssr
+backend/target
+.git
+.env.local
+*.log
+testsprite_tests
