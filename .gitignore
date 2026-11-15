@@ -26,3 +26,6 @@ testsprite_tests/
 backend/target/
 backend/.env
 .mcp.json
+
+# Local Backups
+.backup_*

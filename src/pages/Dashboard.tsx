@@ -2,103 +2,71 @@ import React from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuthStore } from '../store/authStore';
 import { isAdmin as checkIsAdmin } from '../utils/permissions';
-import { motion } from 'framer-motion';
 import { 
   LayoutGrid, 
   Clock, 
   CalendarDays, 
   Users, 
   Banknote, 
-  Wallet,
-  Star,
-  ExternalLink,
-  Activity,
-  ArrowRight,
-  ShieldCheck,
+  Wallet, 
+  ExternalLink, 
+  Activity, 
+  ArrowRight, 
+  ShieldCheck, 
   Radio
 } from 'lucide-react';
 import { useLiveUsers, useCurrentSession } from './DutySystem/hooks/useDutyQueries';
 
-interface MenuCardProps {
+interface ServiceCardProps {
   icon: React.ReactNode;
   title: string;
   description: string;
   path: string;
-  theme: 'purple' | 'orange';
   badge?: string;
+  theme?: 'purple' | 'amber';
 }
 
-const containerVariants: any = {
-  hidden: { opacity: 0 },
-  show: {
-    opacity: 1,
-    transition: { staggerChildren: 0.08 }
-  }
-};
-
-const itemVariants: any = {
-  hidden: { opacity: 0, y: 15 },
-  show: { opacity: 1, y: 0, transition: { type: 'spring', stiffness: 350, damping: 25 } }
-};
-
-const MenuCard = ({ icon, title, description, path, theme, badge }: MenuCardProps) => {
+const ServiceCard = ({ icon, title, description, path, badge, theme = 'purple' }: ServiceCardProps) => {
   const navigate = useNavigate();
-  
-  const themeStyles = {
-    purple: {
-      accentLine: 'bg-gradient-to-r from-purple-600 to-indigo-600',
-      iconBox: 'bg-purple-50 text-purple-700 border border-purple-200/80 group-hover:bg-purple-600 group-hover:text-white',
-      badge: 'bg-purple-50 text-purple-700 border-purple-200',
-      btn: 'bg-slate-50 text-slate-700 group-hover:bg-purple-600 group-hover:text-white border-slate-200 group-hover:border-purple-600 shadow-sm'
-    },
-    orange: {
-      accentLine: 'bg-gradient-to-r from-orange-500 to-amber-500',
-      iconBox: 'bg-orange-50 text-orange-600 border border-orange-200/80 group-hover:bg-orange-500 group-hover:text-white',
-      badge: 'bg-orange-50 text-orange-700 border-orange-200',
-      btn: 'bg-slate-50 text-slate-700 group-hover:bg-orange-500 group-hover:text-white border-slate-200 group-hover:border-orange-500 shadow-sm'
-    }
-  };
-
-  const current = themeStyles[theme];
 
   return (
-    <motion.div 
-      className="group relative flex flex-col bg-white rounded-3xl p-6 shadow-sm border border-slate-200/80 hover:shadow-xl hover:border-slate-300 transition-all duration-300 overflow-hidden cursor-pointer"
-      variants={itemVariants}
-      whileHover={{ y: -4 }}
+    <div 
       onClick={() => navigate(path)}
+      className="group relative flex flex-col justify-between bg-white rounded-xl p-5 border border-slate-200/80 hover:border-slate-300 hover:shadow-sm transition-all duration-150 cursor-pointer"
     >
-      {/* Top Accent Line */}
-      <div className={`absolute top-0 left-0 w-full h-1.5 ${current.accentLine}`}></div>
-      
-      {/* Header */}
-      <div className="flex items-start justify-between gap-4 mb-4 mt-2">
-        <div className={`w-13 h-13 rounded-2xl flex items-center justify-center shrink-0 ${current.iconBox} transition-all duration-300 shadow-sm`}>
-          {icon}
+      <div>
+        <div className="flex items-start justify-between gap-3 mb-3">
+          <div className={`w-9 h-9 rounded-lg flex items-center justify-center shrink-0 border ${
+            theme === 'purple' 
+              ? 'bg-purple-50/80 text-purple-700 border-purple-200/60' 
+              : 'bg-amber-50/80 text-amber-700 border-amber-200/60'
+          }`}>
+            {icon}
+          </div>
+          {badge && (
+            <span className={`text-[10px] font-semibold px-2 py-0.5 rounded-md border ${
+              theme === 'purple'
+                ? 'bg-purple-50 text-purple-700 border-purple-200/60'
+                : 'bg-amber-50 text-amber-700 border-amber-200/60'
+            }`}>
+              {badge}
+            </span>
+          )}
         </div>
-        {badge && (
-          <span className={`text-[0.7rem] font-bold px-2.5 py-1 rounded-full border ${current.badge}`}>
-            {badge}
-          </span>
-        )}
-      </div>
-      
-      {/* Body */}
-      <div className="flex-grow mb-5">
-        <h3 className="text-lg font-bold text-slate-900 m-0 mb-1.5 group-hover:text-purple-700 transition-colors">
+
+        <h3 className="text-sm font-bold text-slate-900 m-0 mb-1 group-hover:text-purple-700 transition-colors">
           {title}
         </h3>
-        <p className="text-xs leading-relaxed text-slate-500 m-0">
+        <p className="text-xs leading-relaxed text-slate-500 m-0 font-normal">
           {description}
         </p>
       </div>
-      
-      {/* Footer / Button */}
-      <div className={`w-full py-2.5 px-4 rounded-xl font-bold text-xs transition-all flex items-center justify-between border ${current.btn}`}>
-        <span>{theme === 'purple' ? 'เข้าสู่ระบบปฏิบัติงาน' : 'เข้าสู่ระบบจัดการ'}</span>
+
+      <div className="pt-4 mt-3 border-t border-slate-100 flex items-center justify-between text-xs font-semibold text-slate-600 group-hover:text-purple-700 transition-colors">
+        <span>เข้าใช้งานระบบ</span>
         <ArrowRight size={14} className="group-hover:translate-x-1 transition-transform" />
       </div>
-    </motion.div>
+    </div>
   );
 };
 
@@ -119,93 +87,97 @@ export default function Dashboard() {
   });
 
   return (
-    <motion.div 
-      className="flex flex-col w-full max-w-[1240px] mx-auto pt-2 pb-16 px-4 md:px-6 gap-8 animate-in fade-in duration-300"
-      initial={{ opacity: 0 }}
-      animate={{ opacity: 1 }}
-    >
-      {/* Operations Welcome Banner */}
-      <div className="relative bg-gradient-to-r from-slate-900 via-indigo-950 to-purple-950 rounded-3xl p-6 md:p-8 shadow-xl overflow-hidden text-white border border-slate-800">
-        {/* Background Decor */}
-        <div className="absolute top-0 right-0 opacity-10 pointer-events-none">
-          <Activity size={260} className="translate-x-1/4 -translate-y-1/4 text-white" />
-        </div>
-        <div className="absolute -bottom-10 -left-10 w-48 h-48 bg-purple-500 opacity-20 rounded-full blur-3xl pointer-events-none"></div>
-        
-        <div className="relative z-10 flex flex-col md:flex-row md:items-center justify-between gap-6">
-          <div>
-            <div className="flex items-center gap-2 mb-2">
-              <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-xs font-bold bg-white/10 text-purple-200 border border-white/10 backdrop-blur-sm">
-                <Radio size={12} className="text-emerald-400 animate-pulse" />
-                Medical Operations Center
-              </span>
-              <span className="text-xs text-purple-300 font-medium hidden sm:inline">• WIP TOWN COUNCIL</span>
-            </div>
-            <h1 className="text-2xl md:text-3xl font-black mb-1.5 mt-0 tracking-tight text-white flex items-center gap-2">
-              ยินดีต้อนรับ, {profile?.ic_name || 'ผู้ใช้งาน'}
-            </h1>
-            <p className="text-purple-200/90 text-sm m-0 flex items-center gap-2 font-medium">
-              <CalendarDays size={16} />
-              {today}
-            </p>
+    <div className="flex flex-col w-full max-w-[1280px] mx-auto gap-6 animate-in fade-in duration-200">
+      
+      {/* Clean Minimalist White Hospital Desk Banner */}
+      <div className="bg-white rounded-xl p-5 sm:p-6 border border-slate-200/80 shadow-2xs flex flex-col md:flex-row md:items-center justify-between gap-5">
+        <div>
+          <div className="flex items-center gap-2 mb-2 flex-wrap">
+            <span className="inline-flex items-center gap-1.5 px-2 py-0.5 rounded-md text-[11px] font-semibold bg-purple-50 text-purple-700 border border-purple-200/60">
+              <Radio size={12} className="text-purple-600 animate-pulse" />
+              ศูนย์ปฏิบัติการแพทย์ WIP TOWN
+            </span>
+            <span className="text-[11px] text-slate-400 font-medium">• ระบบบริหารจัดการและบริการแพทย์</span>
           </div>
 
-          <div className="flex items-center gap-3">
-            <div className="bg-white/10 backdrop-blur-md border border-white/15 rounded-2xl px-5 py-3 flex flex-col items-end justify-center">
-              <span className="text-purple-300 text-[0.7rem] font-bold uppercase tracking-wider">ตำแหน่ง / สิทธิ์</span>
-              <span className="text-white font-black text-sm">{profile?.position?.name || (isAdmin ? 'ผู้บริหาร' : 'แพทย์')}</span>
-              <span className="text-[0.65rem] text-emerald-400 font-semibold mt-0.5 flex items-center gap-1">
-                <ShieldCheck size={11} /> {profile?.role ? profile.role.toUpperCase() : 'VERIFIED'}
-              </span>
-            </div>
+          <h1 className="text-xl sm:text-2xl font-bold tracking-tight text-slate-900 m-0 leading-tight">
+            สวัสดี, {profile?.ic_name || 'คุณหมอ'}
+          </h1>
+          <p className="text-xs text-slate-500 m-0 mt-1 font-normal flex items-center gap-1.5">
+            <CalendarDays size={14} className="text-slate-400" />
+            วัน{today}
+          </p>
+        </div>
+
+        {/* Doctor Identity Tile */}
+        <div className="bg-slate-50/90 border border-slate-200/70 rounded-lg px-4 py-2.5 flex items-center justify-between md:justify-end gap-4 shrink-0">
+          <div className="flex flex-col md:items-end">
+            <span className="text-[10px] font-semibold text-slate-400 uppercase tracking-wider">ตำแหน่ง / หน้าที่</span>
+            <span className="text-xs font-bold text-slate-800 leading-tight mt-0.5">
+              {profile?.position?.name || (isAdmin ? 'ผู้ดูแลระบบ' : 'แพทย์')}
+            </span>
+          </div>
+          <div className="w-px h-7 bg-slate-200" />
+          <div className="flex flex-col md:items-end">
+            <span className="text-[10px] font-semibold text-slate-400 uppercase tracking-wider">สิทธิ์การใช้งาน</span>
+            <span className="text-xs font-bold text-emerald-700 flex items-center gap-1 mt-0.5">
+              <ShieldCheck size={12} />
+              {profile?.role ? profile.role.toUpperCase() : 'MEDIC'}
+            </span>
           </div>
         </div>
       </div>
 
-      {/* Operations HUD (Live Status Bar) */}
+      {/* Live Telemetry Status Cards (Row of 3 cards) */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-        {/* On Duty LIVE Counter */}
+        {/* 1. On Duty Live Counter */}
         <div 
           onClick={() => navigate('/duty')}
-          className="bg-white rounded-2xl p-5 border border-slate-200/80 shadow-sm hover:shadow-md transition-all cursor-pointer group flex items-center justify-between gap-4"
+          className="bg-white rounded-xl p-4 border border-slate-200/80 shadow-2xs hover:border-slate-300 transition-all cursor-pointer flex items-center justify-between gap-3"
         >
           <div>
-            <div className="flex items-center gap-2 mb-1">
-              <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
-              <span className="text-xs font-bold text-slate-500 uppercase tracking-wider">แพทย์เข้าเวร (LIVE)</span>
+            <div className="flex items-center gap-1.5 mb-1">
+              <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" />
+              <span className="text-[11px] font-semibold text-slate-500 uppercase tracking-wider">แพทย์เข้าเวรสด</span>
             </div>
             <div className="flex items-baseline gap-2">
-              <span className="text-2xl font-black text-slate-900">{onDutyCount}</span>
-              <span className="text-xs font-semibold text-slate-400">ท่านกำลังปฏิบัติหน้าที่</span>
+              <span className="text-2xl font-bold font-mono text-slate-900">{onDutyCount}</span>
+              <span className="text-xs text-slate-500 font-medium">ท่าน กำลังปฏิบัติหน้าที่</span>
             </div>
-            {onBreakCount > 0 && (
-              <span className="text-[0.7rem] font-semibold text-amber-600 block mt-1">
-                (พักเบรก {onBreakCount} ท่าน)
+            {onBreakCount > 0 ? (
+              <span className="text-[11px] font-medium text-amber-600 block mt-0.5">
+                (พักเบรกอยู่ {onBreakCount} ท่าน)
+              </span>
+            ) : (
+              <span className="text-[11px] font-medium text-slate-400 block mt-0.5">
+                ดูรายชื่อแพทย์เข้าเวร →
               </span>
             )}
           </div>
-          <div className="w-12 h-12 rounded-2xl bg-emerald-50 text-emerald-600 flex items-center justify-center shrink-0 group-hover:scale-105 transition-transform border border-emerald-100">
-            <Activity size={24} />
+          <div className="w-9 h-9 rounded-lg bg-emerald-50 text-emerald-600 border border-emerald-200/60 flex items-center justify-center shrink-0">
+            <Activity size={18} />
           </div>
         </div>
 
-        {/* Current User Duty Status */}
+        {/* 2. Current User Duty Status */}
         <div 
           onClick={() => navigate('/duty')}
-          className="bg-white rounded-2xl p-5 border border-slate-200/80 shadow-sm hover:shadow-md transition-all cursor-pointer group flex items-center justify-between gap-4"
+          className="bg-white rounded-xl p-4 border border-slate-200/80 shadow-2xs hover:border-slate-300 transition-all cursor-pointer flex items-center justify-between gap-3"
         >
           <div>
-            <div className="flex items-center gap-2 mb-1">
-              <span className={`w-2 h-2 rounded-full ${currentSession ? 'bg-purple-600' : 'bg-slate-300'}`} />
-              <span className="text-xs font-bold text-slate-500 uppercase tracking-wider">สถานะเวรของคุณ</span>
+            <div className="flex items-center gap-1.5 mb-1">
+              <span className={`w-1.5 h-1.5 rounded-full ${
+                currentSession?.status === 'on_duty' ? 'bg-emerald-500' : currentSession?.status === 'on_break' ? 'bg-amber-500' : 'bg-slate-300'
+              }`} />
+              <span className="text-[11px] font-semibold text-slate-500 uppercase tracking-wider">สถานะเวรของคุณ</span>
             </div>
             <div className="flex items-baseline gap-2">
-              <span className={`text-base font-black ${
+              <span className={`text-base font-bold ${
                 currentSession?.status === 'on_duty' 
-                  ? 'text-emerald-600' 
+                  ? 'text-emerald-700' 
                   : currentSession?.status === 'on_break' 
-                  ? 'text-amber-600' 
-                  : 'text-slate-500'
+                  ? 'text-amber-700' 
+                  : 'text-slate-600'
               }`}>
                 {currentSession?.status === 'on_duty' 
                   ? 'กำลังปฏิบัติหน้าที่' 
@@ -214,138 +186,123 @@ export default function Dashboard() {
                   : 'อยู่นอกเวลาเวร'}
               </span>
             </div>
-            <span className="text-[0.7rem] font-semibold text-purple-600 group-hover:underline block mt-1">
-              {currentSession ? 'คลิกเพื่อจัดการเวลาเวร →' : 'คลิกเพื่อลงเวลาเข้าเวร →'}
+            <span className="text-[11px] font-medium text-purple-700 block mt-0.5">
+              {currentSession ? 'จัดการเวลาเวรของคุณ →' : 'ลงเวลาเข้าเวรทันที →'}
             </span>
           </div>
-          <div className={`w-12 h-12 rounded-2xl flex items-center justify-center shrink-0 group-hover:scale-105 transition-transform border ${
-            currentSession ? 'bg-purple-50 text-purple-700 border-purple-200' : 'bg-slate-50 text-slate-400 border-slate-200'
+          <div className={`w-9 h-9 rounded-lg flex items-center justify-center shrink-0 border ${
+            currentSession 
+              ? 'bg-purple-50 text-purple-700 border-purple-200/60' 
+              : 'bg-slate-50 text-slate-400 border-slate-200/60'
           }`}>
-            <Clock size={24} />
+            <Clock size={18} />
           </div>
         </div>
 
-        {/* Realtime Connection Status */}
-        <div className="bg-white rounded-2xl p-5 border border-slate-200/80 shadow-sm flex items-center justify-between gap-4 sm:col-span-2 lg:col-span-1">
+        {/* 3. Realtime Connection Status */}
+        <div className="bg-white rounded-xl p-4 border border-slate-200/80 shadow-2xs flex items-center justify-between gap-3 sm:col-span-2 lg:col-span-1">
           <div>
-            <div className="flex items-center gap-2 mb-1">
-              <span className="w-2 h-2 rounded-full bg-blue-500" />
-              <span className="text-xs font-bold text-slate-500 uppercase tracking-wider">ระบบเชื่อมต่อ</span>
+            <div className="flex items-center gap-1.5 mb-1">
+              <span className="w-1.5 h-1.5 rounded-full bg-blue-500" />
+              <span className="text-[11px] font-semibold text-slate-500 uppercase tracking-wider">สถานะการเชื่อมต่อ</span>
             </div>
             <div className="flex items-baseline gap-2">
-              <span className="text-base font-black text-slate-900">Realtime Sync Active</span>
+              <span className="text-base font-bold text-slate-900">Realtime Online</span>
             </div>
-            <span className="text-[0.7rem] font-semibold text-emerald-600 block mt-1">
-              ● อัปเดตข้อมูลอัตโนมัติแบบเรียลไทม์
+            <span className="text-[11px] font-medium text-emerald-700 block mt-0.5">
+              ● ซิงค์ข้อมูลอัตโนมัติแบบสด
             </span>
           </div>
-          <div className="w-12 h-12 rounded-2xl bg-blue-50 text-blue-600 flex items-center justify-center shrink-0 border border-blue-100">
-            <Radio size={24} />
+          <div className="w-9 h-9 rounded-lg bg-blue-50 text-blue-600 border border-blue-200/60 flex items-center justify-center shrink-0">
+            <Radio size={18} />
           </div>
         </div>
       </div>
 
-      {/* Medic Services Section */}
+      {/* Medic Services Launchpad */}
       <section>
-        <div className="flex items-center gap-3 mb-5 pl-1">
-          <div className="w-2 h-6 bg-purple-600 rounded-full shadow-sm"></div>
-          <h2 className="text-xl font-bold text-slate-900 m-0 tracking-tight">ระบบปฏิบัติการแพทย์</h2>
+        <div className="flex items-center gap-2 mb-3">
+          <span className="w-1 h-3.5 bg-purple-600 rounded-full" />
+          <h2 className="text-xs font-bold text-slate-700 uppercase tracking-wider m-0">บริการแพทย์และปฏิบัติการ</h2>
         </div>
         
-        <motion.div 
-          className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5"
-          variants={containerVariants}
-          initial="hidden"
-          animate="show"
-        >
-          <MenuCard 
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+          <ServiceCard 
             theme="purple"
-            icon={<LayoutGrid size={24} strokeWidth={2.5} />}
+            icon={<LayoutGrid size={18} />}
             title="ระบบรับคิวแพทย์"
-            description="จัดการคิวผู้ป่วย จัดลำดับการเข้ารับการรักษา และบันทึกเคสสตอรี่"
+            description="จัดการคิวผู้ป่วย จัดลำดับการเข้ารับการรักษา และเรียกคิวแบบเรียลไทม์"
             path="/queue"
-            badge="REALTIME QUEUE"
+            badge="LIVE QUEUE"
           />
-          <MenuCard 
+          <ServiceCard 
             theme="purple"
-            icon={<Clock size={24} strokeWidth={2.5} />}
+            icon={<Clock size={18} />}
             title="ระบบเข้าเวรออกเวร"
-            description="ลงเวลาปฏิบัติงาน พักเบรก ตรวจสอบแพทย์เข้าเวรสด และดูประวัติย้อนหลัง"
+            description="ลงเวลาปฏิบัติงาน พักเบรก นับเวลาสะสม และติดตามหลอดเป้าหมายชั่วโมง"
             path="/duty"
-            badge={onDutyCount > 0 ? `${onDutyCount} LIVE` : undefined}
+            badge={onDutyCount > 0 ? `${onDutyCount} ท่าน` : undefined}
           />
-          <MenuCard 
+          <ServiceCard 
             theme="purple"
-            icon={<CalendarDays size={24} strokeWidth={2.5} />}
+            icon={<CalendarDays size={18} />}
             title="ระบบลางาน"
             description="ยื่นใบลาพักผ่อน ลากิจ ติดตามสถานะการอนุมัติ และบันทึกประวัติการลา"
             path="/leave"
           />
-        </motion.div>
+        </div>
       </section>
 
-      {/* Admin Services Section */}
+      {/* Admin Services Launchpad */}
       {isAdmin && (
-        <section className="mt-2">
-          <div className="flex items-center gap-3 mb-5 pl-1">
-            <div className="w-2 h-6 bg-orange-500 rounded-full shadow-sm"></div>
-            <h2 className="text-xl font-bold text-slate-900 m-0 tracking-tight">ระบบจัดการภายใน (Admin Only)</h2>
+        <section>
+          <div className="flex items-center gap-2 mb-3">
+            <span className="w-1 h-3.5 bg-amber-500 rounded-full" />
+            <h2 className="text-xs font-bold text-slate-700 uppercase tracking-wider m-0">ระบบจัดการภายใน (Admin Only)</h2>
           </div>
           
-          <motion.div 
-            className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5"
-            variants={containerVariants}
-            initial="hidden"
-            animate="show"
-          >
-            <MenuCard 
-              theme="orange"
-              icon={<Users size={24} strokeWidth={2.5} />}
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+            <ServiceCard 
+              theme="amber"
+              icon={<Users size={18} />}
               title="ระบบจัดการบุคลากร"
-              description="ทะเบียนประวัติแพทย์ ปรับตำแหน่ง กำหนดสิทธิ์ และเพิ่มเวลาเวรย้อนหลัง"
+              description="ทะเบียนประวัติแพทย์ ปรับตำแหน่งหน้าที่ กำหนดสิทธิ์ และเพิ่มเวลาเวร"
               path="/personnel"
             />
-            <MenuCard 
-              theme="orange"
-              icon={<Banknote size={24} strokeWidth={2.5} />}
+            <ServiceCard 
+              theme="amber"
+              icon={<Banknote size={18} />}
               title="ระบบคำนวณเงินเดือน"
-              description="คำนวณรายได้ สรุปค่าเวร โบนัสสตอรี่/พี่เลี้ยง และพิมพ์สลิปเงินเดือน"
+              description="ประมวลผลค่ารอบเวร โบนัสพี่เลี้ยง และจัดพิมพ์ใบสรุปสลิปเงินเดือน"
               path="/salary"
             />
-            <MenuCard 
-              theme="orange"
-              icon={<Wallet size={24} strokeWidth={2.5} />}
+            <ServiceCard 
+              theme="amber"
+              icon={<Wallet size={18} />}
               title="ระบบบัญชี & คลังสิ่งของ"
               description="บันทึกรายรับ-รายจ่ายทางการเงิน และบริหารจัดการคลังยา/เวชภัณฑ์"
               path="/accounting"
             />
-          </motion.div>
+          </div>
         </section>
       )}
 
-      {/* Guide Links */}
-      <section className="mt-2">
-        <div className="w-full bg-slate-50 border border-slate-200/80 rounded-3xl p-6 flex flex-col md:flex-row items-center justify-between gap-4 shadow-sm">
-          <div className="flex items-center gap-4">
-            <div className="w-11 h-11 bg-amber-100 rounded-2xl flex items-center justify-center shrink-0 text-amber-600">
-              <Star size={22} className="fill-amber-500" />
-            </div>
-            <div>
-              <h3 className="text-sm font-bold text-slate-800 m-0 mb-0.5">คู่มือและกฎระเบียบหน่วยงานแพทย์</h3>
-              <p className="text-xs text-slate-500 m-0">อ่านแนวทางการปฏิบัติงานและระเบียบของหน่วยงานแพทย์ WIP TOWN</p>
-            </div>
-          </div>
-          <a 
-            href="https://sites.google.com/view/wiptown/medic" 
-            target="_blank" 
-            rel="noopener noreferrer" 
-            className="flex items-center gap-2 px-5 py-2.5 bg-white border border-slate-200 text-purple-700 hover:text-purple-800 hover:border-purple-300 rounded-xl font-bold text-xs no-underline transition-all shadow-sm hover:shadow whitespace-nowrap"
-          >
-            <ExternalLink size={15} />
-            เปิดอ่านคู่มือหน่วยงาน
-          </a>
+      {/* Guide Link Minimal Bar */}
+      <div className="bg-white border border-slate-200/80 rounded-xl p-4 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 shadow-2xs">
+        <div>
+          <h3 className="text-xs font-bold text-slate-900 m-0 mb-0.5">คู่มือและกฎระเบียบหน่วยงานแพทย์</h3>
+          <p className="text-xs text-slate-500 m-0 font-normal">อ่านแนวทางการปฏิบัติงานและระเบียบของหน่วยงานแพทย์ WIP TOWN</p>
         </div>
-      </section>
-    </motion.div>
+        <a 
+          href="https://sites.google.com/view/wiptown/medic" 
+          target="_blank" 
+          rel="noopener noreferrer" 
+          className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-slate-50 hover:bg-slate-100 border border-slate-200 text-slate-700 rounded-lg font-semibold text-xs no-underline transition-colors shrink-0"
+        >
+          <ExternalLink size={13} />
+          เปิดอ่านคู่มือ
+        </a>
+      </div>
+    </div>
   );
 }

@@ -8,7 +8,7 @@ export default function MainLayout() {
   const [isSidebarCollapsed, setIsSidebarCollapsed] = useState(false);
   
   return (
-    <div className="flex h-screen bg-slate-50 overflow-hidden text-slate-800">
+    <div className="flex h-screen bg-[#fafafa] overflow-hidden text-slate-800 antialiased">
       <Sidebar 
         isMobileMenuOpen={isMobileMenuOpen}
         setIsMobileMenuOpen={setIsMobileMenuOpen}
@@ -16,7 +16,7 @@ export default function MainLayout() {
         setIsCollapsed={setIsSidebarCollapsed}
       />
 
-      <main className="flex-1 flex flex-col min-w-0 overflow-hidden relative">
+      <main className="flex-1 flex flex-col min-w-0 overflow-hidden relative bg-[#fafafa]">
         <div className="print:hidden">
           <Header 
             setIsMobileMenuOpen={setIsMobileMenuOpen}
@@ -25,10 +25,8 @@ export default function MainLayout() {
           />
         </div>
         
-        <div className="flex-1 overflow-auto p-4 md:p-6 lg:p-8 relative">
-          
-              <Outlet />
-            
+        <div className="flex-1 overflow-auto p-4 md:p-6 lg:p-7 relative">
+          <Outlet />
         </div>
       </main>
     </div>

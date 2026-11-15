@@ -14,19 +14,19 @@ interface PageHeaderProps {
   actions?: ReactNode;
 }
 
-const iconThemeMap = {
-  purple: 'from-violet-600 to-purple-600',
-  orange: 'from-orange-500 to-amber-400',
-  emerald: 'from-emerald-500 to-teal-500',
-  rose: 'from-rose-500 to-pink-500',
-  sky: 'from-sky-500 to-blue-500',
+const iconColorMap = {
+  purple: 'text-purple-700 bg-purple-50/80 border-purple-200/70',
+  orange: 'text-amber-700 bg-amber-50/80 border-amber-200/70',
+  emerald: 'text-emerald-700 bg-emerald-50/80 border-emerald-200/70',
+  rose: 'text-rose-700 bg-rose-50/80 border-rose-200/70',
+  sky: 'text-sky-700 bg-sky-50/80 border-sky-200/70',
 };
 
 const badgeMap: Record<PageHeaderBadge['variant'], string> = {
-  live: 'bg-emerald-500/15 text-emerald-600 border-emerald-500/30',
-  admin: 'bg-orange-500/15 text-orange-600 border-orange-500/30',
-  info: 'bg-blue-500/15 text-blue-600 border-blue-500/30',
-  warning: 'bg-amber-500/15 text-amber-600 border-amber-500/30',
+  live: 'bg-emerald-50 text-emerald-700 border-emerald-200/80',
+  admin: 'bg-amber-50 text-amber-700 border-amber-200/80',
+  info: 'bg-blue-50 text-blue-700 border-blue-200/80',
+  warning: 'bg-orange-50 text-orange-700 border-orange-200/80',
 };
 
 export default function PageHeader({
@@ -38,21 +38,21 @@ export default function PageHeader({
   actions,
 }: PageHeaderProps) {
   return (
-    <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-8">
-      <div className="flex items-center gap-4">
+    <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-6">
+      <div className="flex items-center gap-3">
         <div
-          className={`w-12 h-12 rounded-2xl bg-gradient-to-br ${iconThemeMap[iconTheme]} flex items-center justify-center text-white shadow-lg shrink-0`}
+          className={`w-9 h-9 rounded-lg border flex items-center justify-center shrink-0 shadow-2xs ${iconColorMap[iconTheme]}`}
         >
           {icon}
         </div>
         <div>
-          <div className="flex items-center gap-2.5 flex-wrap">
-            <h1 className="text-2xl font-black tracking-tight text-slate-900 m-0 leading-tight">
+          <div className="flex items-center gap-2 flex-wrap">
+            <h1 className="text-lg sm:text-xl font-bold tracking-tight text-slate-900 m-0 leading-tight">
               {title}
             </h1>
             {badge && (
               <span
-                className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-bold border ${badgeMap[badge.variant]}`}
+                className={`inline-flex items-center gap-1.5 px-2 py-0.5 rounded-md text-[11px] font-semibold border ${badgeMap[badge.variant]}`}
               >
                 {badge.variant === 'live' && (
                   <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" />
@@ -62,13 +62,13 @@ export default function PageHeader({
             )}
           </div>
           {subtitle && (
-            <p className="text-sm text-slate-500 m-0 mt-0.5 font-medium">{subtitle}</p>
+            <p className="text-xs text-slate-500 m-0 mt-0.5 font-normal leading-normal">{subtitle}</p>
           )}
         </div>
       </div>
 
       {actions && (
-        <div className="flex items-center gap-3 shrink-0 flex-wrap">
+        <div className="flex items-center gap-2 shrink-0 flex-wrap">
           {actions}
         </div>
       )}
