@@ -1,19 +1,15 @@
 # ==========================================
 # Stage 1: Build the Rust binary
 # ==========================================
-FROM rust:1.85-bookworm AS builder
+FROM rust:bookworm AS builder
 
 WORKDIR /usr/src/backend
 
-# Copy manifests to cache dependencies
+# Copy source code and build release binary
 COPY Cargo.toml Cargo.lock* ./
-
-# Dummy build to cache compiled crates
-RUN mkdir src && echo "fn main() {}" > src/main.rs && cargo build --release && rm -rf src
-
-# Copy source code and build final binary
 COPY src ./src
-RUN touch src/main.rs && cargo build --release
+
+RUN cargo build --release
 
 # ==========================================
 # Stage 2: Minimal runtime environment
