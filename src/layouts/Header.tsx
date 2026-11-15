@@ -14,7 +14,6 @@ import {
   CalendarDays, 
   Users, 
   Banknote, 
-  Wallet, 
   Settings,
   Radio
 } from 'lucide-react';
@@ -39,7 +38,6 @@ export default function Header({ setIsMobileMenuOpen, isSidebarCollapsed, setIsS
     { title: 'ระบบลางาน (Leave)', path: '/leave', icon: <CalendarDays size={16}/>, keywords: ['ลา', 'ลางาน', 'พักร้อน', 'leave'], requireAdmin: false },
     { title: 'ระบบจัดการบุคลากร (Personnel)', path: '/personnel', icon: <Users size={16}/>, keywords: ['หมอ', 'บุคลากร', 'แพทย์', 'personnel'], requireAdmin: true },
     { title: 'ระบบคำนวณเงินเดือน (Salary)', path: '/salary', icon: <Banknote size={16}/>, keywords: ['เงินเดือน', 'ค่ารอบ', 'salary'], requireAdmin: true },
-    { title: 'ระบบบัญชี & คลังสิ่งของ (Accounting)', path: '/accounting', icon: <Wallet size={16}/>, keywords: ['บัญชี', 'เงิน', 'เบิก', 'คลัง', 'ยา', 'accounting'], requireAdmin: true },
     { title: 'ตั้งค่าระบบ (Settings)', path: '/settings', icon: <Settings size={16}/>, keywords: ['ตั้งค่า', 'settings', 'config'], requireAdmin: true },
   ];
 

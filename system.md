@@ -26,7 +26,7 @@
 2. **Leave System (LeaveSystem/)**: ระบบการลาพักผ่อน/ลาป่วย
 3. **Salary System (SalarySystem/)**: ระบบคำนวณเงินเดือน, ออกสลิปเงินเดือน (Payslip), และดูรายงานเงินเดือนสรุป
 4. **Personnel System (PersonnelSystem/)**: จัดการบุคลากร เพิ่ม/ลด/แก้ไขตำแหน่ง
-5. **Accounting System (AccountingSystem/)**: ระบบบัญชีและการจัดการคลัง (Inventory/Finance Logs)
+5. **System Settings (SystemSettings/)**: ตั้งค่าระบบ, สลับโหมดปรับปรุงและพัฒนา (Maintenance Mode)
 6. **Request Management (RequestManagement/)**: จัดการคำร้องต่างๆ
 7. **Queue System (QueueSystem/)**: ระบบคิว (Queue Row)
 8. **System Settings (SystemSettings/)**: ตั้งค่าระบบหลังบ้าน เช่น แก๊ง/ครอบครัว, ตำแหน่ง, และราคาเบิกจ่าย

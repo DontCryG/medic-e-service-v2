@@ -6,7 +6,6 @@ import {
   CalendarDays, 
   Users, 
   Banknote, 
-  Wallet, 
   Settings, 
   LogOut
 } from 'lucide-react';
@@ -143,11 +142,6 @@ export default function Sidebar({ isMobileMenuOpen, setIsMobileMenuOpen, isColla
               <NavLink to="/salary" className={navLinkClass} onClick={handleNavClick} title="ระบบคำนวณเงินเดือน">
                 <Banknote size={17} className={isCollapsed ? '' : 'shrink-0 text-slate-500'} />
                 {!isCollapsed && <span className="truncate">คำนวณเงินเดือน</span>}
-              </NavLink>
-
-              <NavLink to="/accounting" className={navLinkClass} onClick={handleNavClick} title="ระบบบัญชี & คลังสิ่งของ">
-                <Wallet size={17} className={isCollapsed ? '' : 'shrink-0 text-slate-500'} />
-                {!isCollapsed && <span className="truncate">บัญชี & คลังสิ่งของ</span>}
               </NavLink>
             </>
           )}

@@ -43,7 +43,6 @@ const DutySystem = lazyWithRetry(() => import('./pages/DutySystem'));
 const SalarySystem = lazyWithRetry(() => import('./pages/SalarySystem'));
 const LeaveSystem = lazyWithRetry(() => import('./pages/LeaveSystem'));
 const QueueSystem = lazyWithRetry(() => import('./pages/QueueSystem/QueueSystem').then(m => ({ default: m.QueueSystem })));
-const AccountingSystem = lazyWithRetry(() => import('./pages/AccountingSystem/AccountingSystem').then(m => ({ default: m.AccountingSystem })));
 const SystemSettings = lazyWithRetry(() => import('./pages/SystemSettings'));
 
 const queryClient = new QueryClient({
@@ -167,7 +166,6 @@ const router = createBrowserRouter(
         {/* Admin Routes */}
         <Route path="/personnel" element={<PersonnelRoute />} />
         <Route path="/salary" element={<SalaryRoute />} />
-        <Route path="/accounting" element={<AdminRoute><AccountingSystem /></AdminRoute>} />
         <Route path="/settings" element={<AdminRoute><SystemSettings /></AdminRoute>} />
       </Route>
 

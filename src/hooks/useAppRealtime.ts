@@ -134,7 +134,7 @@ export function initGlobalRealtimeChannels(queryClient: QueryClient) {
     }
   }
 
-  // 3. Operations Channel (Leave & Accounting, 3 tables)
+  // 3. Operations Channel (Leave, 1 table)
   const existingOp = supabase.getChannels().find(c => c.topic === 'realtime:rt_operations');
   if (!operationsChannel || (operationsChannel.state !== 'joined' && operationsChannel.state !== 'joining')) {
     if (existingOp) {
@@ -151,12 +151,6 @@ export function initGlobalRealtimeChannels(queryClient: QueryClient) {
         .on('postgres_changes', { event: '*', schema: 'public', table: 'leave_requests' }, () => {
           invalidate(['leaves']);
           invalidate(['salary']);
-        })
-        .on('postgres_changes', { event: '*', schema: 'public', table: 'accounting_logs' }, () => {
-          invalidate(['accounting', 'finance']);
-        })
-        .on('postgres_changes', { event: '*', schema: 'public', table: 'inventory_logs' }, () => {
-          invalidate(['accounting', 'inventory']);
         })
         .subscribe();
     }

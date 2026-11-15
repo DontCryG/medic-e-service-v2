@@ -8,7 +8,6 @@ import {
   CalendarDays, 
   Users, 
   Banknote, 
-  Wallet, 
   ExternalLink, 
   Activity, 
   ArrowRight, 
@@ -261,7 +260,7 @@ export default function Dashboard() {
             <h2 className="text-xs font-bold text-slate-700 uppercase tracking-wider m-0">ระบบจัดการภายใน (Admin Only)</h2>
           </div>
           
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <ServiceCard 
               theme="amber"
               icon={<Users size={18} />}
@@ -275,13 +274,6 @@ export default function Dashboard() {
               title="ระบบคำนวณเงินเดือน"
               description="ประมวลผลค่ารอบเวร โบนัสพี่เลี้ยง และจัดพิมพ์ใบสรุปสลิปเงินเดือน"
               path="/salary"
-            />
-            <ServiceCard 
-              theme="amber"
-              icon={<Wallet size={18} />}
-              title="ระบบบัญชี & คลังสิ่งของ"
-              description="บันทึกรายรับ-รายจ่ายทางการเงิน และบริหารจัดการคลังยา/เวชภัณฑ์"
-              path="/accounting"
             />
           </div>
         </section>
