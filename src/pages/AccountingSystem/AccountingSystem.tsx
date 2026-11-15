@@ -12,30 +12,30 @@ export function AccountingSystem() {
   const [activeTab, setActiveTab] = useState<'finance' | 'item'>('finance');
 
   return (
-    <div className="p-6 md:p-8 bg-slate-50 min-h-screen text-slate-800">
+    <div className="w-full max-w-[1400px] mx-auto flex flex-col gap-6 animate-in fade-in duration-200">
       <div className="print:hidden">
         {/* Header */}
         <PageHeader
           title="ระบบบัญชี & คลังสิ่งของ"
           subtitle="จัดการรายรับ-รายจ่ายของหน่วยงาน และบริหารคลังยา/เวชภัณฑ์"
-          icon={<LineChart size={24} />}
+          icon={<LineChart size={18} />}
           iconTheme="orange"
           badge={{ label: 'ระบบจัดการ (Admin Only)', variant: 'admin' }}
         />
 
         {/* Tabs */}
-        <div className="flex flex-col sm:flex-row bg-slate-200/60 p-1.5 rounded-2xl w-full sm:w-fit overflow-x-auto shadow-inner mb-6">
+        <div className="flex flex-col sm:flex-row bg-slate-100 p-1 rounded-lg w-full sm:w-fit overflow-x-auto border border-slate-200/80 mb-4">
           <button 
-            className={`flex flex-1 sm:flex-none items-center justify-center gap-2 px-6 py-2.5 rounded-xl text-sm font-bold transition-all whitespace-nowrap border-none cursor-pointer ${activeTab === 'finance' ? 'bg-white text-emerald-600 shadow-sm' : 'text-slate-500 hover:text-slate-700 hover:bg-slate-200/50 bg-transparent'}`}
+            className={`flex flex-1 sm:flex-none items-center justify-center gap-1.5 px-4 py-1.5 rounded-md text-xs font-semibold transition-colors whitespace-nowrap border-none cursor-pointer ${activeTab === 'finance' ? 'bg-white text-emerald-700 shadow-2xs font-bold' : 'text-slate-500 hover:text-slate-700 bg-transparent'}`}
             onClick={() => setActiveTab('finance')}
           >
-            <Wallet size={18} /> ระบบบัญชี (การเงิน)
+            <Wallet size={15} /> ระบบบัญชี (การเงิน)
           </button>
           <button 
-            className={`flex flex-1 sm:flex-none items-center justify-center gap-2 px-6 py-2.5 rounded-xl text-sm font-bold transition-all whitespace-nowrap border-none cursor-pointer ${activeTab === 'item' ? 'bg-white text-sky-600 shadow-sm' : 'text-slate-500 hover:text-slate-700 hover:bg-slate-200/50 bg-transparent'}`}
+            className={`flex flex-1 sm:flex-none items-center justify-center gap-1.5 px-4 py-1.5 rounded-md text-xs font-semibold transition-colors whitespace-nowrap border-none cursor-pointer ${activeTab === 'item' ? 'bg-white text-sky-700 shadow-2xs font-bold' : 'text-slate-500 hover:text-slate-700 bg-transparent'}`}
             onClick={() => setActiveTab('item')}
           >
-            <Package size={18} /> ระบบคลังสิ่งของ
+            <Package size={15} /> ระบบคลังสิ่งของ
           </button>
         </div>
       </div>

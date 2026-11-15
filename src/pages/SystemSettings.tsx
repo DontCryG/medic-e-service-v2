@@ -30,17 +30,17 @@ export default function SystemSettings() {
   };
 
   return (
-    <div className="max-w-[1400px] mx-auto p-4 sm:p-6 lg:p-8 animate-in fade-in duration-500">
+    <div className="w-full max-w-[1400px] mx-auto flex flex-col gap-6 animate-in fade-in duration-200">
       <PageHeader
         title="ตั้งค่าระบบ (System Settings)"
         subtitle="จัดการข้อมูลตำแหน่ง อัตราค่าตอบแทน รายชื่อแก๊ง/ครอบครัว และราคาการรักษา"
-        icon={<Settings size={24} />}
+        icon={<Settings size={18} />}
         iconTheme="orange"
         badge={{ label: 'ระบบจัดการ (Admin Only)', variant: 'admin' }}
         actions={
           <button 
             onClick={handleForceRefresh}
-            className="flex items-center gap-2 px-4 py-2 rounded-xl border border-rose-300 text-rose-600 font-bold text-xs bg-rose-50 hover:bg-rose-100 transition-colors cursor-pointer shadow-sm"
+            className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg border border-rose-200 text-rose-700 font-semibold text-xs bg-rose-50 hover:bg-rose-100 transition-colors cursor-pointer shadow-2xs"
             title="ส่งคำสั่งรีเฟรชหน้าต่างของผู้ใช้ทุกคน"
           >
             <RefreshCw size={14} />
@@ -49,9 +49,9 @@ export default function SystemSettings() {
         }
       />
 
-      <div className="flex bg-slate-100 p-1.5 rounded-2xl border border-slate-200/80 w-fit mb-8 overflow-x-auto max-w-full">
+      <div className="flex bg-slate-100 p-1 rounded-lg border border-slate-200/80 w-fit mb-4 overflow-x-auto max-w-full">
         <button 
-          className={`flex items-center gap-2 px-6 py-2.5 rounded-md text-[0.95rem] font-semibold cursor-pointer border-none transition-all whitespace-nowrap ${
+          className={`flex items-center gap-2 px-4 py-1.5 rounded-md text-xs font-semibold cursor-pointer border-none transition-all whitespace-nowrap ${
             activeTab === 'positions' ? 'bg-white text-purple-600 shadow-sm' : 'bg-transparent text-slate-500 hover:text-slate-700'
           }`}
           onClick={() => setActiveTab('positions')}
@@ -60,7 +60,7 @@ export default function SystemSettings() {
           ตำแหน่งและค่าตอบแทน
         </button>
         <button 
-          className={`flex items-center gap-2 px-6 py-2.5 rounded-md text-[0.95rem] font-semibold cursor-pointer border-none transition-all whitespace-nowrap ${
+          className={`flex items-center gap-2 px-4 py-1.5 rounded-md text-xs font-semibold cursor-pointer border-none transition-all whitespace-nowrap ${
             activeTab === 'gangs' ? 'bg-white text-purple-600 shadow-sm' : 'bg-transparent text-slate-500 hover:text-slate-700'
           }`}
           onClick={() => setActiveTab('gangs')}
@@ -69,7 +69,7 @@ export default function SystemSettings() {
           กลุ่มและแฟมิลี่
         </button>
         <button 
-          className={`flex items-center gap-2 px-6 py-2.5 rounded-md text-[0.95rem] font-semibold cursor-pointer border-none transition-all whitespace-nowrap ${
+          className={`flex items-center gap-2 px-4 py-1.5 rounded-md text-xs font-semibold cursor-pointer border-none transition-all whitespace-nowrap ${
             activeTab === 'pricing' ? 'bg-white text-purple-600 shadow-sm' : 'bg-transparent text-slate-500 hover:text-slate-700'
           }`}
           onClick={() => setActiveTab('pricing')}
@@ -79,7 +79,7 @@ export default function SystemSettings() {
         </button>
       </div>
 
-      <div className="bg-white rounded-3xl p-6 sm:p-8 shadow-[0_10px_40px_-10px_rgba(0,0,0,0.05)] border border-slate-200/80 shadow-sm">
+      <div className="bg-white rounded-xl p-5 shadow-2xs border border-slate-200/80">
         {activeTab === 'positions' && <PositionSettings />}
         {activeTab === 'gangs' && <GangFamilySettings />}
         {activeTab === 'pricing' && <PricingSettings />}
