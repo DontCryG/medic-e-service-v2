@@ -1,7 +1,30 @@
+import { useEffect } from 'react';
+import { useQueryClient } from '@tanstack/react-query';
+import { supabase } from '@/lib/supabase';
+import { dutyKeys } from './useDutyQueries';
+
 /**
- * Consolidated Hook: Duty Realtime
- * Changes are now multiplexed via global `useAppRealtime` to conserve WebSocket connections.
+ * Dedicated Page-Level Duty Realtime Hook
+ * Ensures instant updates for duty logs, breaks, and shifts while on the Duty System page.
  */
 export function useDutyRealtime() {
-  // Handled globally by useAppRealtime
+  const queryClient = useQueryClient();
+
+  useEffect(() => {
+    const channel = supabase
+      .channel('duty_system_page_realtime')
+      .on(
+        'postgres_changes',
+        { event: '*', schema: 'public', table: 'duty_logs' },
+        () => {
+          queryClient.invalidateQueries({ queryKey: dutyKeys.all });
+          queryClient.invalidateQueries({ queryKey: ['queue_users'] });
+        }
+      )
+      .subscribe();
+
+    return () => {
+      supabase.removeChannel(channel);
+    };
+  }, [queryClient]);
 }

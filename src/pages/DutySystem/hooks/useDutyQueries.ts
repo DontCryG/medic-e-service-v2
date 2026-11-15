@@ -32,6 +32,7 @@ export function useCurrentSession(discordId: string | undefined) {
       return data || null;
     },
     enabled: !!discordId,
+    refetchInterval: 5000,
   });
 }
 
@@ -71,6 +72,7 @@ export function useLiveUsers() {
       }));
     },
     enabled: !!user,
+    refetchInterval: 3000,
   });
 }
 

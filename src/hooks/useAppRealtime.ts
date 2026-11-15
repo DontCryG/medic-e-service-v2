@@ -188,7 +188,7 @@ export function useAppRealtime() {
   useEffect(() => {
     initGlobalRealtimeChannels(queryClient);
 
-    // Watchdog for expired breaks every 60s
+    // Watchdog for expired breaks every 15s
     const breakSweepInterval = setInterval(() => {
       cleanupAllExpiredBreaks().then((count) => {
         if (count > 0 && activeQueryClient) {
@@ -196,7 +196,7 @@ export function useAppRealtime() {
           activeQueryClient.invalidateQueries({ queryKey: ['queue_users'] });
         }
       });
-    }, 60000);
+    }, 15000);
 
     // Reconnection watchdog on window focus or network recovery
     const handleRecheck = () => {

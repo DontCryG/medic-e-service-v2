@@ -1,3 +1,4 @@
+import { useState, useEffect } from 'react';
 import { Activity, Play, Pause, Square, Clock } from 'lucide-react';
 import TableSkeleton from '@/components/common/TableSkeleton';
 import EmptyState from '@/components/common/EmptyState';
@@ -19,6 +20,16 @@ export default function LiveUsersList({
   onAdminToggleBreak, 
   onAdminClockOut 
 }: LiveUsersListProps) {
+  // Live ticker updating every 1000ms so break countdowns and elapsed times update in real-time
+  const [now, setNow] = useState(() => Date.now());
+
+  useEffect(() => {
+    const timer = setInterval(() => {
+      setNow(Date.now());
+    }, 1000);
+    return () => clearInterval(timer);
+  }, []);
+
   const onDutyCount = liveUsers.filter(u => u.status === 'on_duty').length;
   const onBreakCount = liveUsers.filter(u => u.status === 'on_break').length;
 
@@ -110,18 +121,29 @@ export default function LiveUsersList({
                       </span>
                     ) : (
                       (() => {
-                        const elapsedMins = user.last_break_start 
-                          ? Math.floor(Math.max(0, Date.now() - new Date(user.last_break_start).getTime()) / 60000)
+                        const elapsedSeconds = user.last_break_start 
+                          ? Math.max(0, Math.floor((now - new Date(user.last_break_start).getTime()) / 1000))
                           : 0;
+                        const elapsedMins = Math.floor(elapsedSeconds / 60);
+                        const elapsedSecs = elapsedSeconds % 60;
+                        const isOverLimit = elapsedMins >= 15;
                         const isNearLimit = elapsedMins >= 12;
+
                         return (
-                          <span className={`inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-md text-[11px] font-bold border ${
-                            isNearLimit 
+                          <span className={`inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-md text-[11px] font-bold border transition-all ${
+                            isOverLimit
+                              ? 'bg-rose-100 text-rose-800 border-rose-300 animate-pulse font-extrabold'
+                              : isNearLimit 
                               ? 'bg-rose-50 text-rose-700 border-rose-200 animate-pulse' 
                               : 'bg-amber-50 text-amber-700 border-amber-200/80'
                           }`}>
-                            <span className={`w-1.5 h-1.5 rounded-full ${isNearLimit ? 'bg-rose-500' : 'bg-amber-500'}`} />
-                            พักเบรก ({elapsedMins}/15 น.)
+                            <span className={`w-1.5 h-1.5 rounded-full shrink-0 ${isOverLimit || isNearLimit ? 'bg-rose-500' : 'bg-amber-500'}`} />
+                            <span>
+                              {isOverLimit ? 'เกินกำหนด' : 'พักเบรก'}
+                            </span>
+                            <span className="font-mono tabular-nums font-bold">
+                              ({elapsedMins}:{String(elapsedSecs).padStart(2, '0')} / 15:00 น.)
+                            </span>
                           </span>
                         );
                       })()
@@ -148,7 +170,7 @@ export default function LiveUsersList({
                           onClick={() => onAdminClockOut(user)}
                           disabled={loading}
                         >
-                          <Square size={11} /> ออกเวร
+                          <Square size={12} /> ออกเวร
                         </button>
                       </div>
                     </td>
@@ -158,9 +180,9 @@ export default function LiveUsersList({
             }) : (
               <tr>
                 <td colSpan={isAdmin(profile?.role) ? 4 : 3} className="p-6">
-                  <EmptyState
-                    title="ไม่มีแพทย์เข้าเวรในขณะนี้"
-                    description="รายชื่อแพทย์ที่กำลังปฏิบัติหน้าที่หรือพักเบรกจะแสดงสดที่นี่ (LIVE)"
+                  <EmptyState 
+                    title="ไม่มีแพทย์กำลังเข้าเวร" 
+                    description="ขณะนี้ไม่มีบุคลากรทางการแพทย์กำลังปฏิบัติหน้าที่อยู่ในระบบ" 
                   />
                 </td>
               </tr>
