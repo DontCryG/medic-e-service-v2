@@ -20,7 +20,8 @@ import {
   Trash2, 
   Sparkles, 
   HelpCircle,
-  ExternalLink
+  ExternalLink,
+  X
 } from 'lucide-react';
 import { showSuccessAlert, showErrorAlert, showConfirmDialog } from '@/utils/alert';
 
@@ -217,29 +218,29 @@ export default function CategorizedSettings() {
       </div>
 
       {/* Filter Toolbar: Category Tabs + Search Bar */}
-      <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-3 pb-2 border-b border-slate-100">
+      <div className="flex flex-col gap-3 pb-3 border-b border-slate-100">
         
-        {/* Category Pills */}
+        {/* Row 1: Category Filter Pills */}
         <div className="flex items-center gap-1.5 overflow-x-auto pb-1 max-w-full">
           <button
             type="button"
             onClick={() => setActiveCategory('all')}
-            className={`px-3 py-1.5 rounded-lg text-xs font-semibold whitespace-nowrap transition-all border cursor-pointer ${
+            className={`flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-semibold whitespace-nowrap transition-all border cursor-pointer ${
               activeCategory === 'all'
-                ? 'bg-purple-600 text-white border-purple-600 shadow-2xs'
-                : 'bg-white hover:bg-slate-50 text-slate-600 border-slate-200'
+                ? 'bg-purple-600 text-white border-purple-600 shadow-2xs font-bold'
+                : 'bg-white hover:bg-slate-50 text-slate-600 border-slate-200/90'
             }`}
           >
-            📌 ทั้งหมด ({categoryCounts.all || 0})
+            <span>📌 ทั้งหมด ({categoryCounts.all || 0})</span>
           </button>
 
           <button
             type="button"
             onClick={() => setActiveCategory('org')}
-            className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold whitespace-nowrap transition-all border cursor-pointer ${
+            className={`flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-semibold whitespace-nowrap transition-all border cursor-pointer ${
               activeCategory === 'org'
-                ? 'bg-purple-600 text-white border-purple-600 shadow-2xs'
-                : 'bg-white hover:bg-slate-50 text-slate-600 border-slate-200'
+                ? 'bg-purple-600 text-white border-purple-600 shadow-2xs font-bold'
+                : 'bg-white hover:bg-slate-50 text-slate-600 border-slate-200/90'
             }`}
           >
             <Building2 size={13} />
@@ -249,10 +250,10 @@ export default function CategorizedSettings() {
           <button
             type="button"
             onClick={() => setActiveCategory('queue')}
-            className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold whitespace-nowrap transition-all border cursor-pointer ${
+            className={`flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-semibold whitespace-nowrap transition-all border cursor-pointer ${
               activeCategory === 'queue'
-                ? 'bg-purple-600 text-white border-purple-600 shadow-2xs'
-                : 'bg-white hover:bg-slate-50 text-slate-600 border-slate-200'
+                ? 'bg-purple-600 text-white border-purple-600 shadow-2xs font-bold'
+                : 'bg-white hover:bg-slate-50 text-slate-600 border-slate-200/90'
             }`}
           >
             <Clock size={13} />
@@ -262,10 +263,10 @@ export default function CategorizedSettings() {
           <button
             type="button"
             onClick={() => setActiveCategory('leave')}
-            className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold whitespace-nowrap transition-all border cursor-pointer ${
+            className={`flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-semibold whitespace-nowrap transition-all border cursor-pointer ${
               activeCategory === 'leave'
-                ? 'bg-purple-600 text-white border-purple-600 shadow-2xs'
-                : 'bg-white hover:bg-slate-50 text-slate-600 border-slate-200'
+                ? 'bg-purple-600 text-white border-purple-600 shadow-2xs font-bold'
+                : 'bg-white hover:bg-slate-50 text-slate-600 border-slate-200/90'
             }`}
           >
             <CalendarDays size={13} />
@@ -275,10 +276,10 @@ export default function CategorizedSettings() {
           <button
             type="button"
             onClick={() => setActiveCategory('pricing')}
-            className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold whitespace-nowrap transition-all border cursor-pointer ${
+            className={`flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-semibold whitespace-nowrap transition-all border cursor-pointer ${
               activeCategory === 'pricing'
-                ? 'bg-purple-600 text-white border-purple-600 shadow-2xs'
-                : 'bg-white hover:bg-slate-50 text-slate-600 border-slate-200'
+                ? 'bg-purple-600 text-white border-purple-600 shadow-2xs font-bold'
+                : 'bg-white hover:bg-slate-50 text-slate-600 border-slate-200/90'
             }`}
           >
             <DollarSign size={13} />
@@ -288,10 +289,10 @@ export default function CategorizedSettings() {
           <button
             type="button"
             onClick={() => setActiveCategory('salary')}
-            className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold whitespace-nowrap transition-all border cursor-pointer ${
+            className={`flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-semibold whitespace-nowrap transition-all border cursor-pointer ${
               activeCategory === 'salary'
-                ? 'bg-purple-600 text-white border-purple-600 shadow-2xs'
-                : 'bg-white hover:bg-slate-50 text-slate-600 border-slate-200'
+                ? 'bg-purple-600 text-white border-purple-600 shadow-2xs font-bold'
+                : 'bg-white hover:bg-slate-50 text-slate-600 border-slate-200/90'
             }`}
           >
             <Gift size={13} />
@@ -302,10 +303,10 @@ export default function CategorizedSettings() {
             <button
               type="button"
               onClick={() => setActiveCategory('custom')}
-              className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold whitespace-nowrap transition-all border cursor-pointer ${
+              className={`flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-semibold whitespace-nowrap transition-all border cursor-pointer ${
                 activeCategory === 'custom'
-                  ? 'bg-purple-600 text-white border-purple-600 shadow-2xs'
-                  : 'bg-white hover:bg-slate-50 text-slate-600 border-slate-200'
+                  ? 'bg-purple-600 text-white border-purple-600 shadow-2xs font-bold'
+                  : 'bg-white hover:bg-slate-50 text-slate-600 border-slate-200/90'
               }`}
             >
               <Settings2 size={13} />
@@ -314,28 +315,49 @@ export default function CategorizedSettings() {
           ) : null}
         </div>
 
-        {/* Search & Add Custom Button */}
-        <div className="flex items-center gap-2 shrink-0">
-          <div className="relative">
-            <Search size={14} className="absolute left-2.5 top-1/2 -translate-y-1/2 text-slate-400 pointer-events-none" />
+        {/* Row 2: Search Bar & Actions Toolbar */}
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pt-0.5">
+          {/* Spacious Modern Search Input */}
+          <div className="relative w-full sm:w-80 md:w-96">
+            <div className="absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400 pointer-events-none flex items-center justify-center">
+              <Search size={15} />
+            </div>
             <input 
               type="text"
-              placeholder="ค้นหาชื่อการตั้งค่า หรือ Key..."
+              placeholder="ค้นหาชื่อการตั้งค่า คำอธิบาย หรือ Key..."
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
-              className="pl-8 pr-3 py-1.5 bg-white border border-slate-200/90 rounded-lg text-xs outline-none focus:border-purple-600 focus:ring-1 focus:ring-purple-500/10 transition-all w-56 font-medium text-slate-800"
+              className="w-full !pl-10.5 pr-8 py-2 bg-slate-50/70 border border-slate-200/90 rounded-xl text-xs font-medium text-slate-900 outline-none focus:bg-white focus:border-purple-600 focus:ring-2 focus:ring-purple-500/15 transition-all placeholder:text-slate-400"
             />
+            {searchTerm && (
+              <button
+                type="button"
+                onClick={() => setSearchTerm('')}
+                className="absolute right-2.5 top-1/2 -translate-y-1/2 p-1 text-slate-400 hover:text-slate-600 rounded-full hover:bg-slate-200/60 transition-colors border-none bg-transparent cursor-pointer"
+                title="ล้างข้อความค้นหา"
+              >
+                <X size={13} />
+              </button>
+            )}
           </div>
 
-          <button
-            type="button"
-            onClick={() => setIsAddingCustom(true)}
-            className="flex items-center gap-1 px-3 py-1.5 bg-slate-50 hover:bg-slate-100 text-slate-700 border border-slate-200 rounded-lg text-xs font-semibold transition-colors cursor-pointer shadow-2xs"
-            title="เพิ่มการตั้งค่ากำหนดเอง"
-          >
-            <Plus size={14} />
-            <span className="hidden sm:inline">เพิ่ม Key</span>
-          </button>
+          {/* Right Action: Result count badge & Add Custom button */}
+          <div className="flex items-center gap-2 self-end sm:self-auto">
+            {searchTerm && (
+              <span className="text-[11px] font-semibold text-purple-700 bg-purple-50 border border-purple-200/70 px-2.5 py-1 rounded-lg">
+                พบ {filteredDefinitions.length} รายการ
+              </span>
+            )}
+            <button
+              type="button"
+              onClick={() => setIsAddingCustom(true)}
+              className="flex items-center gap-1.5 px-3.5 py-2 bg-slate-50 hover:bg-slate-100/90 text-slate-700 border border-slate-200/90 rounded-xl text-xs font-bold transition-all cursor-pointer shadow-2xs hover:shadow-xs active:scale-98"
+              title="เพิ่มการตั้งค่ากำหนดเอง"
+            >
+              <Plus size={14} className="text-purple-600" />
+              <span>เพิ่ม Key กำหนดเอง</span>
+            </button>
+          </div>
         </div>
 
       </div>
