@@ -67,20 +67,22 @@ export default function Sidebar({ isMobileMenuOpen, setIsMobileMenuOpen, isColla
       `}>
         
         {/* Sleek Minimal Brand Logo Header (h-[60px] to match Main Header) */}
-        <div className={`flex items-center ${isCollapsed ? 'justify-center' : 'justify-between px-4'} shrink-0 h-[60px] border-b border-slate-100`}>
-          <div className="flex items-center gap-2.5">
-            <img 
-              src="/logo.png" 
-              alt="Logo" 
-              className="${isCollapsed ? 'w-8 h-8' : 'w-7 h-7'} object-contain" 
-            />
+        <div className={`flex items-center ${isCollapsed ? 'justify-center' : 'justify-between px-4'} shrink-0 h-[60px] border-b border-slate-100 overflow-hidden`}>
+          <div className="flex items-center gap-2.5 min-w-0">
+            <div className="w-8 h-8 flex items-center justify-center shrink-0 overflow-hidden">
+              <img 
+                src="/logo.png" 
+                alt="Logo" 
+                className="w-7 h-7 max-w-7 max-h-7 object-contain shrink-0" 
+              />
+            </div>
             {!isCollapsed && (
-              <div className="flex flex-col">
+              <div className="flex flex-col min-w-0">
                 <div className="flex items-center gap-1.5">
                   <span className="text-xs font-black tracking-tight text-slate-900">MEDIC</span>
                   <span className="text-[10px] font-bold text-purple-600 bg-purple-50 px-1 py-0.2 rounded border border-purple-200/60 font-mono">V2</span>
                 </div>
-                <span className="text-[10px] font-medium text-slate-400 tracking-wider">WIP TOWN</span>
+                <span className="text-[10px] font-medium text-slate-400 tracking-wider truncate">WIP TOWN</span>
               </div>
             )}
           </div>
