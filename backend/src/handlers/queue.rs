@@ -114,8 +114,12 @@ pub async fn update_status(
         .await?;
     let existing = rows.first();
 
-    // Permission check: allow setting or unsetting "unavailable" for other doctors.
-    // Setting "queued" or "manager" for others still requires admin privilege.
+    // Permission check:
+    // 1. Any user can set/unset their own status.
+    // 2. Admin can set/unset any status for any doctor.
+    // 3. Any user can toggle "unavailable" for other doctors.
+    // 4. Active Queue Manager can toggle "queued" (พร้อมรับคิว) for other doctors.
+    // 5. Setting "manager" for other doctors still requires admin privilege.
     if target_id != user.discord_id && !user.is_admin() {
         let is_toggling_unavailable = match new_status {
             Some("unavailable") => true,
@@ -123,7 +127,38 @@ pub async fn update_status(
             _ => false,
         };
 
-        if !is_toggling_unavailable {
+        let mut is_allowed = is_toggling_unavailable;
+
+        if !is_allowed {
+            let caller_rows: Vec<QueueRow> = st
+                .db
+                .select(
+                    "queue_status",
+                    &[
+                        ("select", "status,manager_start_time".into()),
+                        ("discord_id", eq(&user.discord_id)),
+                    ],
+                )
+                .await
+                .unwrap_or_default();
+
+            let caller_is_manager = caller_rows
+                .first()
+                .and_then(|r| r.status.as_deref()) == Some("manager");
+
+            if caller_is_manager {
+                let is_toggling_queued = match new_status {
+                    Some("queued") => true,
+                    None => existing.and_then(|r| r.status.as_deref()) == Some("queued"),
+                    _ => false,
+                };
+                if is_toggling_queued {
+                    is_allowed = true;
+                }
+            }
+        }
+
+        if !is_allowed {
             return Err(AppError::Forbidden);
         }
     }
