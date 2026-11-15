@@ -4,7 +4,7 @@ import { useNavigate } from 'react-router-dom';
 import { enterpriseSwal, showErrorAlert } from '@/utils/alert';
 import { useAuthStore } from '../store/authStore';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Shield, Activity, Users, ChevronRight, CheckCircle2 } from 'lucide-react';
+import { Shield, Activity, Users, ChevronRight, CheckCircle2, Stethoscope, Lock } from 'lucide-react';
 
 export default function Portal() {
   const navigate = useNavigate();
@@ -130,7 +130,7 @@ export default function Portal() {
         ic_name: icName,
         ic_phone: icPhone,
         avatar_url: avatarUrl,
-        role: 'user' // Default role for new users
+        role: 'user'
       }]);
       if (error) throw error;
       await supabase.auth.signOut();
@@ -147,7 +147,7 @@ export default function Portal() {
   };
 
   const DiscordSVG = () => (
-    <svg className="w-6 h-6 mr-3" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 127.14 96.36" fill="currentColor">
+    <svg className="w-4 h-4 shrink-0 fill-current" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 127.14 96.36">
       <path d="M107.7,8.07A105.15,105.15,0,0,0,81.47,0a72.06,72.06,0,0,0-3.36,6.83A97.68,97.68,0,0,0,49,6.83,72.37,72.37,0,0,0,45.64,0,105.89,105.89,0,0,0,19.39,8.09C2.79,32.65-1.71,56.6.54,80.21h0A105.73,105.73,0,0,0,32.71,96.36,77.7,77.7,0,0,0,39.6,85.25a68.42,68.42,0,0,1-10.85-5.18c.91-.66,1.8-1.34,2.66-2a75.57,75.57,0,0,0,64.32,0c.87.71,1.76,1.39,2.66,2a68.68,68.68,0,0,1-10.87,5.19,77,77,0,0,0,6.89,11.1,105.25,105.25,0,0,0,32.19-16.14c2.64-27.38-4.51-51.11-18.9-80.21ZM42.56,65.36c-5.36,0-9.8-4.93-9.8-11s4.38-11,9.8-11,9.85,4.92,9.8,11-4.43,11-9.8,11Zm42.24,0c-5.36,0-9.8-4.93-9.8-11s4.38-11,9.8-11,9.85,4.92,9.8,11-4.43,11-9.8,11Z"/>
     </svg>
   );
@@ -157,12 +157,14 @@ export default function Portal() {
       return (
         <motion.div 
           key="loading"
-          initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
-          className="flex flex-col items-center justify-center h-full w-full max-w-md mx-auto text-center"
+          initial={{ opacity: 0 }} 
+          animate={{ opacity: 1 }} 
+          exit={{ opacity: 0 }}
+          className="flex flex-col items-center justify-center w-full max-w-sm mx-auto text-center py-12"
         >
-          <div className="w-16 h-16 border-4 border-slate-100 border-t-purple-600 rounded-full animate-spin mb-6"></div>
-          <h3 className="text-2xl font-bold text-slate-800 mb-2">กำลังตรวจสอบสิทธิ์...</h3>
-          <p className="text-slate-500">Authenticating your secure session</p>
+          <div className="w-10 h-10 border-2 border-slate-200 border-t-purple-600 rounded-full animate-spin mb-4" />
+          <h3 className="text-sm font-bold text-slate-800 m-0">กำลังตรวจสอบสิทธิ์การเข้าใช้งาน...</h3>
+          <p className="text-xs text-slate-400 mt-1 m-0">Authenticating secure session</p>
         </motion.div>
       );
     }
@@ -171,63 +173,80 @@ export default function Portal() {
       return (
         <motion.div 
           key="register"
-          initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -20 }}
-          className="w-full max-w-md mx-auto"
+          initial={{ opacity: 0, y: 10 }} 
+          animate={{ opacity: 1, y: 0 }} 
+          exit={{ opacity: 0, y: -10 }}
+          className="w-full max-w-[380px] mx-auto"
         >
-          <div className="flex items-center gap-4 mb-8 pb-6 border-b border-slate-100">
+          <div className="flex items-center gap-3 mb-6 pb-5 border-b border-slate-100">
             {avatarUrl ? (
-              <img src={avatarUrl} alt="Discord Avatar" className="w-16 h-16 rounded-full shadow-md object-cover" />
+              <img 
+                src={avatarUrl} 
+                alt="Avatar" 
+                className="w-12 h-12 rounded-xl border border-slate-200 object-cover shrink-0" 
+              />
             ) : (
-              <div className="w-16 h-16 rounded-full bg-slate-100 flex items-center justify-center shadow-inner">
-                <Users className="text-slate-400" size={32} />
+              <div className="w-12 h-12 rounded-xl bg-purple-50 border border-purple-200/60 flex items-center justify-center text-purple-600 shrink-0">
+                <Users size={22} />
               </div>
             )}
-            <div>
-              <h3 className="text-2xl font-bold text-slate-800 m-0">ลงทะเบียนบุคลากรใหม่</h3>
-              <p className="text-slate-500 m-0 text-sm mt-1">กรอกข้อมูลประจำตัว (IC) เพื่อส่งคำร้อง</p>
+            <div className="min-w-0">
+              <h3 className="text-base font-bold text-slate-900 m-0">ลงทะเบียนบุคลากรใหม่</h3>
+              <p className="text-xs text-slate-500 m-0 mt-0.5 truncate">Discord ID: {discordId}</p>
             </div>
           </div>
 
-          <form onSubmit={handleRegister} className="space-y-5">
+          <form onSubmit={handleRegister} className="space-y-4">
             <div>
-              <label className="block text-sm font-semibold text-slate-700 mb-1.5">ชื่อ-นามสกุล IC</label>
+              <label className="block text-xs font-bold text-slate-700 mb-1.5">
+                ชื่อ-นามสกุล IC <span className="text-rose-500">*</span>
+              </label>
               <input
                 type="text"
                 value={icName}
                 onChange={(e) => setIcName(e.target.value)}
-                placeholder="เช่น Dr. สมชาย ใจดี"
-                className="w-full px-4 py-3 rounded-xl border border-slate-200 focus:outline-none focus:ring-2 focus:ring-purple-500/10 focus:border-purple-600 transition-all bg-slate-50 focus:bg-white"
+                placeholder="เช่น นพ. ธนาวิน ศรีสุข"
+                className="w-full px-3 py-2 rounded-lg border border-slate-200/90 text-xs bg-slate-50/60 focus:bg-white text-slate-800 outline-none focus:border-purple-600 focus:ring-2 focus:ring-purple-500/10 transition-all font-medium"
                 required
               />
             </div>
+
             <div>
-              <label className="block text-sm font-semibold text-slate-700 mb-1.5">เบอร์โทรศัพท์ IC</label>
+              <label className="block text-xs font-bold text-slate-700 mb-1.5">
+                เบอร์โทรศัพท์ IC <span className="text-rose-500">*</span>
+              </label>
               <input
                 type="text"
                 value={icPhone}
                 onChange={(e) => setIcPhone(e.target.value)}
-                placeholder="เช่น 012-345-6789"
-                className="w-full px-4 py-3 rounded-xl border border-slate-200 focus:outline-none focus:ring-2 focus:ring-purple-500/10 focus:border-purple-600 transition-all bg-slate-50 focus:bg-white"
+                placeholder="เช่น 081-234-5678"
+                className="w-full px-3 py-2 rounded-lg border border-slate-200/90 text-xs bg-slate-50/60 focus:bg-white text-slate-800 outline-none focus:border-purple-600 focus:ring-2 focus:ring-purple-500/10 transition-all font-medium"
                 required
               />
             </div>
-            
-            <div className="pt-4 space-y-3">
+
+            <div className="pt-2 flex flex-col gap-2">
               <button 
                 type="submit" 
                 disabled={isSubmitting}
-                className="w-full bg-purple-600 hover:bg-purple-700 text-white py-3.5 rounded-xl font-bold transition-colors shadow-[0_4px_12px_rgba(139,92,246,0.3)] disabled:opacity-70 disabled:cursor-not-allowed flex items-center justify-center gap-2"
+                className="w-full h-10 bg-purple-600 hover:bg-purple-700 text-white rounded-lg text-xs font-semibold transition-all shadow-sm disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-1.5 cursor-pointer border-none"
               >
                 {isSubmitting ? (
-                  <><div className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin"></div> กำลังบันทึกข้อมูล...</>
+                  <>
+                    <div className="w-3.5 h-3.5 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+                    <span>กำลังบันทึกข้อมูล...</span>
+                  </>
                 ) : (
-                  <>บันทึกและส่งคำร้อง <ChevronRight size={20} /></>
+                  <>
+                    <span>บันทึกและส่งคำขอสิทธิ์</span>
+                    <ChevronRight size={14} />
+                  </>
                 )}
               </button>
-              
+
               <button
                 type="button"
-                className="w-full bg-white border border-slate-200 hover:bg-slate-50 hover:border-slate-300 text-slate-600 py-3.5 rounded-xl font-semibold transition-colors"
+                className="w-full h-9 bg-white border border-slate-200 hover:bg-slate-50 text-slate-600 rounded-lg text-xs font-semibold transition-colors cursor-pointer"
                 onClick={async () => { await supabase.auth.signOut(); setIsRegistering(false); }}
               >
                 ยกเลิก
@@ -241,32 +260,38 @@ export default function Portal() {
     return (
       <motion.div 
         key="login"
-        initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -20 }}
-        className="w-full max-w-[500px] mx-auto flex flex-col justify-center"
+        initial={{ opacity: 0, y: 8 }} 
+        animate={{ opacity: 1, y: 0 }} 
+        exit={{ opacity: 0, y: -8 }}
+        className="w-full max-w-[380px] mx-auto flex flex-col"
       >
-        <div className="mb-12 text-center md:text-left">
-          <h2 className="text-4xl xl:text-5xl font-black text-slate-800 mb-6 tracking-tight leading-[1.2]">
-            ลงชื่อเข้าใช้งาน<br />
-            <span className="text-purple-600">ระบบบุคลากรแพทย์</span>
+        <div className="mb-6 text-center sm:text-left">
+          <div className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-md bg-purple-50 text-purple-700 border border-purple-200/60 text-[10px] font-bold uppercase tracking-wider mb-3">
+            <Lock size={12} className="text-purple-600" />
+            <span>Secure Medical Gateway</span>
+          </div>
+          <h2 className="text-2xl font-black text-slate-900 tracking-tight m-0">
+            ลงชื่อเข้าใช้งานระบบ
           </h2>
-          <p className="text-slate-500 leading-relaxed text-lg xl:text-xl">
-            ระบบยืนยันตัวตนผ่าน Discord ที่มีความปลอดภัยระดับสูง<br className="hidden md:block" />
-            สำหรับเจ้าหน้าที่หน่วยงาน Medic E-Service
+          <p className="text-xs text-slate-500 mt-1.5 leading-relaxed m-0">
+            เข้าสู่ระบบปฏิบัติงานสำหรับแพทย์และบุคลากรทางการแพทย์ WIP TOWN
           </p>
         </div>
 
+        {/* Discord OAuth Action */}
         <button 
-          className="group w-full bg-[#5865F2] hover:bg-[#4752C4] text-white py-5 px-6 rounded-2xl font-bold text-xl transition-all duration-300 shadow-[0_8px_24px_rgba(88,101,242,0.25)] hover:shadow-[0_12px_32px_rgba(88,101,242,0.4)] hover:-translate-y-1 flex items-center justify-center mb-10"
           onClick={handleDiscordLogin}
+          className="w-full h-11 bg-[#5865F2] hover:bg-[#4752C4] active:scale-[0.99] text-white rounded-lg font-semibold text-xs transition-all shadow-sm flex items-center justify-center gap-2.5 cursor-pointer border-none mb-6"
         >
           <DiscordSVG />
-          เข้าสู่ระบบด้วย Discord
+          <span>เข้าสู่ระบบด้วย Discord</span>
         </button>
 
-        <div className="flex items-start gap-4 p-6 bg-slate-50 rounded-2xl border border-slate-200">
-          <Shield className="text-purple-600 shrink-0 mt-1" size={24} />
-          <p className="text-sm xl:text-base text-slate-500 m-0 leading-relaxed">
-            ระบบจะดึงข้อมูลสาธารณะจาก Discord ของท่าน (เช่น รูปโปรไฟล์ และไอดี) เพื่อใช้สำหรับการตรวจสอบสิทธิ์เท่านั้น และจะถูกเก็บรักษาเป็นความลับ
+        {/* Minimal Security Info Note */}
+        <div className="flex items-start gap-3 p-3.5 rounded-xl bg-slate-50/90 border border-slate-200/80">
+          <Shield size={16} className="text-purple-600 shrink-0 mt-0.5" />
+          <p className="text-[11px] text-slate-500 m-0 leading-relaxed font-normal">
+            ระบบจะเชื่อมต่อข้อมูลบัญชี Discord เพื่อตรวจสอบสิทธิ์และสถานะการปฏิบัติงานเท่านั้น ข้อมูลทั้งหมดถูกรักษาความปลอดภัยตามมาตรฐานของหน่วยงานแพทย์
           </p>
         </div>
       </motion.div>
@@ -274,75 +299,110 @@ export default function Portal() {
   };
 
   return (
-    <div className="min-h-screen flex w-full font-sans bg-white overflow-hidden">
+    <div className="min-h-screen flex w-full font-sans bg-[#fafafa] antialiased select-none">
       
-      {/* LEFT - Branding (Hidden on very small screens, visible on md+) */}
-      <div className="hidden md:flex flex-col w-[45%] lg:w-[40%] bg-gradient-to-br from-[#4c1d95] via-[#5b21b6] to-[#6d28d9] p-12 text-white relative overflow-hidden justify-between">
+      {/* LEFT - Minimal Clean White Clinical Hero (Visible on md+) */}
+      <div className="hidden md:flex flex-col w-[45%] lg:w-[42%] bg-white border-r border-slate-200/80 p-10 lg:p-12 justify-between relative overflow-hidden">
         
-        {/* Background Decorative Elements */}
-        <div className="absolute top-0 right-0 w-[500px] h-[500px] bg-white opacity-5 rounded-full blur-[100px] translate-x-1/2 -translate-y-1/2 pointer-events-none"></div>
-        <div className="absolute bottom-0 left-0 w-[400px] h-[400px] bg-purple-600 opacity-30 rounded-full blur-[80px] -translate-x-1/3 translate-y-1/3 pointer-events-none"></div>
-        
-        {/* Top Logo & Title */}
-        <motion.div 
-          initial={{ opacity: 0, x: -30 }} animate={{ opacity: 1, x: 0 }} transition={{ duration: 0.8, ease: "easeOut" }}
-          className="relative z-10"
-        >
-          <div className="w-20 h-20 bg-white rounded-2xl flex items-center justify-center mb-6 shadow-xl overflow-hidden p-2">
-            <img src="/logo.png" alt="MEDIC WIPTOWN" className="w-full h-full object-contain drop-shadow-md" />
-          </div>
-          <h1 className="text-5xl xl:text-6xl font-black mb-2 tracking-tight leading-[1.1] text-white">MEDIC<br/><span className="text-purple-200">E-SERVICE</span></h1>
-          <p className="text-purple-200 text-xl font-medium tracking-wide mt-2">ระบบจัดการบุคลากรแพทย์แบบครบวงจร</p>
-        </motion.div>
-
-        {/* Middle Stats / Features */}
-        <motion.div 
-          initial={{ opacity: 0, y: 30 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.8, delay: 0.2, ease: "easeOut" }}
-          className="relative z-10 flex flex-col gap-4"
-        >
-          <div className="flex items-center gap-4 bg-white/10 backdrop-blur-md border border-white/10 p-4 rounded-2xl w-fit">
-            <div className="w-12 h-12 bg-white/20 rounded-xl flex items-center justify-center shrink-0">
-              <Activity className="text-white" size={24} />
+        {/* Top: Brand Header */}
+        <div className="relative z-10">
+          <div className="flex items-center gap-3 mb-6">
+            <div 
+              className="w-10 h-10 rounded-xl bg-purple-50/70 border border-purple-200/80 flex items-center justify-center shrink-0 overflow-hidden shadow-2xs"
+              style={{ width: '40px', height: '40px', minWidth: '40px', maxWidth: '40px', overflow: 'hidden' }}
+            >
+              <img 
+                src="/logo.png" 
+                alt="Logo" 
+                width="30"
+                height="30"
+                className="w-7 h-7 object-contain shrink-0" 
+                style={{ width: '30px', height: '30px', maxWidth: '30px', maxHeight: '30px', objectFit: 'contain' }}
+              />
             </div>
             <div>
-              <div className="text-2xl font-bold">24/7</div>
-              <div className="text-purple-200 text-base font-medium">ระบบออนไลน์ตลอดเวลา</div>
+              <div className="flex items-center gap-2">
+                <span className="text-base font-black tracking-tight text-slate-900">MEDIC</span>
+                <span className="text-[10px] font-mono font-bold text-purple-600 bg-purple-50 px-1.5 py-0.5 rounded border border-purple-200/60">V2.0</span>
+              </div>
+              <span className="text-[11px] font-medium text-slate-400 tracking-wider">WIP TOWN MEDICAL SERVICE</span>
             </div>
           </div>
-          
-          <div className="flex items-center gap-4 bg-white/10 backdrop-blur-md border border-white/10 p-4 rounded-2xl w-fit">
-            <div className="w-12 h-12 bg-white/20 rounded-xl flex items-center justify-center shrink-0">
-              <CheckCircle2 className="text-white" size={24} />
-            </div>
-            <div>
-              <div className="text-2xl font-bold">V2</div>
-              <div className="text-purple-200 text-base font-medium">เวอร์ชันอัปเกรดล่าสุด</div>
-            </div>
-          </div>
-        </motion.div>
 
-        {/* Bottom Footer */}
-        <motion.div 
-          initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ duration: 1, delay: 0.5 }}
-          className="relative z-10 pt-8 border-t border-white/10"
-        >
-          <p className="text-purple-300 text-sm font-medium m-0 tracking-wide">
-            WIP TOWN • Medic Department • 2026
+          <h1 className="text-3xl font-black text-slate-900 tracking-tight leading-snug m-0">
+            ระบบบริหารจัดการ<br />
+            <span className="text-purple-700">หน่วยงานแพทย์แบบครบวงจร</span>
+          </h1>
+          <p className="text-xs text-slate-500 mt-2 leading-relaxed max-w-sm">
+            ศูนย์กลางข้อมูลการปฏิบัติงานของแพทย์ บริหารคิวผู้ป่วย บันทึกเวลาเข้า-ออกเวร คำนวณค่าตอบแทน และบริหารจัดการคลังเวชภัณฑ์
           </p>
-        </motion.div>
-      </div>
-
-      {/* RIGHT - Login / Register Form */}
-      <div className="w-full md:w-[55%] lg:w-[60%] flex items-center justify-center p-8 md:p-12 relative">
-        {/* Mobile Logo (Visible only on small screens) */}
-        <div className="md:hidden absolute top-8 left-8 flex items-center gap-3">
-          <img src="/logo.png" alt="Logo" className="w-10 h-10 object-contain drop-shadow-sm" />
-          <span className="font-bold text-slate-800 tracking-tight">MEDIC WIPTOWN</span>
         </div>
 
-        <AnimatePresence mode="wait">
-          {renderRightContent()}
-        </AnimatePresence>
+        {/* Middle: Minimal Clean Telemetry Badges */}
+        <div className="relative z-10 flex flex-col gap-2.5 my-8">
+          <div className="flex items-center gap-3 p-3 bg-slate-50/80 border border-slate-200/80 rounded-xl">
+            <div className="w-8 h-8 rounded-lg bg-emerald-50 border border-emerald-200/60 flex items-center justify-center text-emerald-600 shrink-0">
+              <Activity size={16} />
+            </div>
+            <div>
+              <div className="text-xs font-bold text-slate-800">24/7 Realtime Live Service</div>
+              <div className="text-[11px] text-slate-500 font-medium">ตรวจจับสถานะบุคลากรในเวรแบบเรียลไทม์</div>
+            </div>
+          </div>
+
+          <div className="flex items-center gap-3 p-3 bg-slate-50/80 border border-slate-200/80 rounded-xl">
+            <div className="w-8 h-8 rounded-lg bg-purple-50 border border-purple-200/60 flex items-center justify-center text-purple-600 shrink-0">
+              <Stethoscope size={16} />
+            </div>
+            <div>
+              <div className="text-xs font-bold text-slate-800">Patient Queue Automation</div>
+              <div className="text-[11px] text-slate-500 font-medium">รันคิวผู้ป่วย เรียกเคส และรายงานโบนัสรันคิว</div>
+            </div>
+          </div>
+
+          <div className="flex items-center gap-3 p-3 bg-slate-50/80 border border-slate-200/80 rounded-xl">
+            <div className="w-8 h-8 rounded-lg bg-blue-50 border border-blue-200/60 flex items-center justify-center text-blue-600 shrink-0">
+              <CheckCircle2 size={16} />
+            </div>
+            <div>
+              <div className="text-xs font-bold text-slate-800">High Precision Salary Engine</div>
+              <div className="text-[11px] text-slate-500 font-medium">คำนวณชั่วโมงเวร ค่ารอบเวร และสลิปพิมพ์มาตรฐาน</div>
+            </div>
+          </div>
+        </div>
+
+        {/* Bottom: Version & Copyright */}
+        <div className="relative z-10 pt-4 border-t border-slate-100 flex items-center justify-between text-[11px] text-slate-400 font-medium">
+          <span>WIP TOWN • Medic Division</span>
+          <span>Version 2.0</span>
+        </div>
+      </div>
+
+      {/* RIGHT - Auth Gateway Container */}
+      <div className="w-full md:w-[55%] lg:w-[58%] flex items-center justify-center p-6 sm:p-12 relative bg-[#fafafa]">
+        {/* Mobile Logo (Visible only on small screens) */}
+        <div className="md:hidden absolute top-6 left-6 flex items-center gap-2.5">
+          <div 
+            className="w-8 h-8 rounded-lg bg-white border border-slate-200 flex items-center justify-center overflow-hidden"
+            style={{ width: '32px', height: '32px', minWidth: '32px', maxWidth: '32px' }}
+          >
+            <img 
+              src="/logo.png" 
+              alt="Logo" 
+              width="24"
+              height="24"
+              className="w-6 h-6 object-contain" 
+              style={{ width: '24px', height: '24px', maxWidth: '24px', maxHeight: '24px' }}
+            />
+          </div>
+          <span className="font-bold text-xs text-slate-900 tracking-tight">MEDIC V2 • WIP TOWN</span>
+        </div>
+
+        <div className="w-full max-w-[420px] bg-white border border-slate-200/90 rounded-2xl p-6 sm:p-8 shadow-sm">
+          <AnimatePresence mode="wait">
+            {renderRightContent()}
+          </AnimatePresence>
+        </div>
       </div>
 
     </div>

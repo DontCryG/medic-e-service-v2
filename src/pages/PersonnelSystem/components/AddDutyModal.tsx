@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { X } from 'lucide-react';
+import { X, CalendarPlus, Clock } from 'lucide-react';
 import SmartDateTimePicker from '../../../components/common/SmartDateTimePicker';
 import { supabase } from '@/lib/supabase';
 import { useAuthStore } from '@/store/authStore';
@@ -97,25 +97,36 @@ export default function AddDutyModal({
   };
 
   return (
-    <div className="fixed inset-0 bg-black/40 backdrop-blur-sm flex justify-center items-center z-[9999] p-4">
-      <div className="bg-white rounded-3xl p-6 sm:p-10 w-full max-w-[500px] shadow-xl relative max-h-[90vh] overflow-y-auto">
-        <div className="flex justify-between items-center mb-6">
-          <h2 className="text-2xl font-bold text-slate-800 m-0">เพิ่มเวรย้อนหลัง</h2>
+    <div className="fixed inset-0 bg-slate-900/30 backdrop-blur-xs z-50 flex items-center justify-center p-4 animate-in fade-in duration-150" onClick={onClose}>
+      <div className="bg-white rounded-xl w-full max-w-md shadow-xl overflow-hidden border border-slate-200/90 animate-in zoom-in-98 duration-150" onClick={e => e.stopPropagation()}>
+        {/* Header */}
+        <div className="flex justify-between items-center px-5 py-4 border-b border-slate-100 bg-white">
+          <div className="flex items-center gap-2">
+            <div className="w-7 h-7 rounded-lg bg-purple-50 border border-purple-200/60 flex items-center justify-center text-purple-600">
+              <CalendarPlus size={16} />
+            </div>
+            <h2 className="text-sm font-bold text-slate-900 m-0">เพิ่มเวรย้อนหลัง</h2>
+          </div>
           <button 
-            className="bg-transparent border-none text-slate-500 cursor-pointer p-2 rounded-full hover:bg-slate-100 hover:text-slate-900 transition-colors flex items-center justify-center" 
+            type="button" 
+            className="p-1.5 text-slate-400 hover:text-slate-700 hover:bg-slate-100 rounded-lg transition-colors cursor-pointer border-none bg-transparent" 
             onClick={onClose}
           >
-            <X size={20} />
+            <X size={16} />
           </button>
         </div>
         
-        <div className="mb-6 p-4 bg-slate-50 rounded-xl text-slate-700">
-          กำลังเพิ่มเวรให้: <strong className="text-purple-600 text-lg block mt-1">{user.ic_name}</strong>
+        {/* Target Doctor Info */}
+        <div className="p-5 pb-0">
+          <div className="flex items-center justify-between p-3 bg-slate-50/80 rounded-xl border border-slate-200/80 text-xs">
+            <span className="text-slate-500 font-medium">เพิ่มเวลาเวรให้แพทย์:</span>
+            <span className="font-bold text-purple-700">{user.ic_name}</span>
+          </div>
         </div>
 
-        <form onSubmit={handleSubmit(onSubmit)}>
-          <div className="mb-5">
-            <label className="block font-semibold text-slate-700 mb-2">ประเภทเวร / หมายเหตุ</label>
+        <form onSubmit={handleSubmit(onSubmit)} className="p-5 flex flex-col gap-4">
+          <div>
+            <label className="block text-xs font-bold text-slate-700 mb-1.5">ประเภทเวร / หมายเหตุ</label>
             <Controller
               name="duty_type"
               control={control}
@@ -123,7 +134,7 @@ export default function AddDutyModal({
                 <select
                   value={field.value || 'manual_add'}
                   onChange={field.onChange}
-                  className="w-full px-4 py-3 border border-slate-200 rounded-xl text-sm outline-none focus:border-purple-600 focus:ring-2 focus:ring-purple-500/10 bg-white font-medium"
+                  className="w-full px-3 py-2 border border-slate-200/90 rounded-lg text-xs outline-none focus:border-purple-600 focus:ring-2 focus:ring-purple-500/10 bg-slate-50/60 focus:bg-white text-slate-800 font-medium"
                 >
                   <option value="manual_add">เพิ่มเวรย้อนหลัง</option>
                   <option value="mentor">พี่เลี้ยงหมอใหม่ (+1 ชม. + เงิน 500,000)</option>
@@ -135,8 +146,8 @@ export default function AddDutyModal({
             />
           </div>
 
-          <div className="mb-5">
-            <label className="block font-semibold text-slate-700 mb-2">เวลาเข้างาน</label>
+          <div>
+            <label className="block text-xs font-bold text-slate-700 mb-1.5">เวลาเข้างาน <span className="text-rose-500">*</span></label>
             <Controller
               name="clock_in"
               control={control}
@@ -149,11 +160,11 @@ export default function AddDutyModal({
                 />
               )}
             />
-            {errors.clock_in && <span className="text-red-500 text-sm mt-1 block">{errors.clock_in.message}</span>}
+            {errors.clock_in && <span className="text-rose-500 text-xs mt-1 block font-medium">{errors.clock_in.message}</span>}
           </div>
 
-          <div className="mb-5">
-            <label className="block font-semibold text-slate-700 mb-2">เวลาออกงาน</label>
+          <div>
+            <label className="block text-xs font-bold text-slate-700 mb-1.5">เวลาออกงาน <span className="text-rose-500">*</span></label>
             <Controller
               name="clock_out"
               control={control}
@@ -167,19 +178,31 @@ export default function AddDutyModal({
                 />
               )}
             />
-            {errors.clock_out && <span className="text-red-500 text-sm mt-1 block">{errors.clock_out.message}</span>}
+            {errors.clock_out && <span className="text-rose-500 text-xs mt-1 block font-medium">{errors.clock_out.message}</span>}
           </div>
 
           {duration && (
-            <div className="bg-emerald-50 text-emerald-700 p-4 rounded-xl text-center mb-6">
-              <strong>รวมเวลา:</strong> {duration.hours} ชั่วโมง {duration.minutes} นาที
+            <div className="flex items-center justify-center gap-2 bg-emerald-50/90 border border-emerald-200/70 text-emerald-700 px-3.5 py-2.5 rounded-lg text-xs font-semibold">
+              <Clock size={15} className="text-emerald-600" />
+              <span>รวมระยะเวลา: <strong>{duration.hours} ชม. {duration.minutes} นาที</strong></span>
             </div>
           )}
 
-          <div className="flex justify-end gap-4 mt-8 sticky -bottom-10 bg-white pt-6 pb-10 -mb-10 border-t border-slate-200 z-10">
-            <button type="button" className="px-6 py-3 rounded-xl font-semibold text-base cursor-pointer border-none transition-all bg-slate-100 text-slate-600 hover:bg-slate-200" onClick={onClose} disabled={isSaving}>ยกเลิก</button>
-            <button type="submit" className="px-6 py-3 rounded-xl font-semibold text-base cursor-pointer border-none transition-all bg-purple-600 text-white hover:bg-purple-700 disabled:opacity-50 disabled:cursor-not-allowed" disabled={isSaving}>
-              {isSaving ? 'กำลังบันทึก...' : 'เพิ่มเวรย้อนหลัง'}
+          <div className="flex justify-end gap-2.5 pt-4 border-t border-slate-100">
+            <button 
+              type="button" 
+              className="px-4 py-2 rounded-lg border border-slate-200 text-slate-600 text-xs font-semibold hover:bg-slate-50 transition-colors cursor-pointer bg-white" 
+              onClick={onClose} 
+              disabled={isSaving}
+            >
+              ยกเลิก
+            </button>
+            <button 
+              type="submit" 
+              className="px-4 py-2 rounded-lg border-none bg-purple-600 text-white text-xs font-semibold hover:bg-purple-700 transition-colors shadow-sm disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer" 
+              disabled={isSaving}
+            >
+              {isSaving ? 'กำลังบันทึก...' : 'บันทึกเพิ่มเวร'}
             </button>
           </div>
         </form>

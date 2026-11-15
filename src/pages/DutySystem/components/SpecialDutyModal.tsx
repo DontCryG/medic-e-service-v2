@@ -53,7 +53,6 @@ export default function SpecialDutyModal({ onClose }: SpecialDutyModalProps) {
   const onSubmit = async (data: SpecialDutyFormValues) => {
     setIsSubmitting(true);
     try {
-      const now = new Date().toISOString();
       let totalMinutes = 60;
       let dutyTypeValue: string = data.dutyType;
       let typeName = '';
@@ -97,7 +96,7 @@ export default function SpecialDutyModal({ onClose }: SpecialDutyModalProps) {
         type: 'special_duty',
         link: '/duty'
       });
-      
+
       await showSuccessAlert('สำเร็จ', `มอบหมายเวร ${typeName} เรียบร้อยแล้ว`);
       queryClient.invalidateQueries({ queryKey: ['duty'] });
       queryClient.invalidateQueries({ queryKey: ['salary'] });
@@ -111,21 +110,30 @@ export default function SpecialDutyModal({ onClose }: SpecialDutyModalProps) {
   };
 
   return (
-    <div className="fixed inset-0 bg-slate-900/50 backdrop-blur-sm z-50 flex items-center justify-center p-4 animate-in fade-in duration-200" onClick={onClose}>
-      <div className="bg-white rounded-3xl w-full max-w-md shadow-[0_10px_40px_-10px_rgba(0,0,0,0.1)] overflow-hidden animate-in zoom-in-95 duration-200 border border-slate-200/80" onClick={e => e.stopPropagation()}>
-        <div className="flex justify-between items-center px-6 py-5 border-b border-slate-100 bg-slate-50/50">
-          <h2 className="text-xl font-bold text-slate-800 m-0 flex items-center gap-2">
-            <Award size={22} className="text-purple-600" />
-            มอบหมายเวรพิเศษ
-          </h2>
-          <button type="button" className="p-2 -mr-2 text-slate-400 hover:text-slate-600 hover:bg-slate-100 rounded-full transition-colors cursor-pointer border-none bg-transparent" onClick={onClose}>
-            <X size={20} />
+    <div className="fixed inset-0 bg-slate-900/30 backdrop-blur-xs z-50 flex items-center justify-center p-4 animate-in fade-in duration-150" onClick={onClose}>
+      <div className="bg-white rounded-xl w-full max-w-md shadow-xl overflow-hidden border border-slate-200/90 animate-in zoom-in-98 duration-150" onClick={e => e.stopPropagation()}>
+        {/* Header */}
+        <div className="flex justify-between items-center px-5 py-4 border-b border-slate-100 bg-white">
+          <div className="flex items-center gap-2">
+            <div className="w-7 h-7 rounded-lg bg-purple-50 border border-purple-200/60 flex items-center justify-center text-purple-600">
+              <Award size={16} />
+            </div>
+            <h2 className="text-sm font-bold text-slate-900 m-0">
+              มอบหมายเวรพิเศษ
+            </h2>
+          </div>
+          <button 
+            type="button" 
+            className="p-1.5 text-slate-400 hover:text-slate-700 hover:bg-slate-100 rounded-lg transition-colors cursor-pointer border-none bg-transparent" 
+            onClick={onClose}
+          >
+            <X size={16} />
           </button>
         </div>
         
-        <form onSubmit={handleSubmit(onSubmit)} className="p-6">
-          <div className="mb-5">
-            <label className="block text-sm font-semibold text-slate-700 mb-2">เลือกหมอ</label>
+        <form onSubmit={handleSubmit(onSubmit)} className="p-5 flex flex-col gap-4">
+          <div>
+            <label className="block text-xs font-bold text-slate-700 mb-1.5">เลือกแพทย์ <span className="text-rose-500">*</span></label>
             <Controller
               name="selectedUserId"
               control={control}
@@ -134,16 +142,16 @@ export default function SpecialDutyModal({ onClose }: SpecialDutyModalProps) {
                   options={users.map(u => ({ value: u.discord_id, label: u.ic_name }))}
                   value={field.value}
                   onChange={field.onChange}
-                  placeholder="-- เลือกหมอ --"
+                  placeholder="-- เลือกแพทย์ผู้รับมอบหมาย --"
                   searchable={true}
                 />
               )}
             />
-            {errors.selectedUserId && <span className="text-red-500 text-sm mt-1 block">{errors.selectedUserId.message}</span>}
+            {errors.selectedUserId && <span className="text-rose-500 text-xs mt-1 block font-medium">{errors.selectedUserId.message}</span>}
           </div>
           
-          <div className="mb-5">
-            <label className="block text-sm font-semibold text-slate-700 mb-2">ประเภทงานพิเศษ</label>
+          <div>
+            <label className="block text-xs font-bold text-slate-700 mb-1.5">ประเภทงานพิเศษ</label>
             <Controller
               name="dutyType"
               control={control}
@@ -160,39 +168,48 @@ export default function SpecialDutyModal({ onClose }: SpecialDutyModalProps) {
                 />
               )}
             />
-                        {errors.dutyType && <span className="text-red-500 text-sm mt-1 block">{errors.dutyType.message}</span>}
+            {errors.dutyType && <span className="text-rose-500 text-xs mt-1 block font-medium">{errors.dutyType.message}</span>}
           </div>
           
           {watch('dutyType') === 'custom' && (
-            <div className="mb-5 p-4 bg-slate-50 rounded-xl border border-slate-200 flex flex-col gap-4">
+            <div className="p-3.5 bg-slate-50/80 rounded-xl border border-slate-200/80 flex flex-col gap-3">
               <div>
-                <label className="block text-sm font-semibold text-slate-700 mb-1">ระบุเหตุผล / ประเภท</label>
+                <label className="block text-xs font-bold text-slate-700 mb-1">ระบุเหตุผล / ประเภท</label>
                 <input 
                   type="text" 
                   {...register('customReason')}
                   placeholder="เช่น ช่วยงานอีเวนต์, มอบเวลาพิเศษ" 
-                  className="w-full px-3 py-2 border border-slate-200 rounded-lg text-sm outline-none focus:border-purple-600 focus:ring-2 focus:ring-purple-500/10"
+                  className="w-full px-3 py-2 border border-slate-200 rounded-lg text-xs outline-none focus:border-purple-600 focus:ring-2 focus:ring-purple-500/10 bg-white"
                 />
               </div>
               <div>
-                <label className="block text-sm font-semibold text-slate-700 mb-1">จำนวนเวลา (นาที)</label>
+                <label className="block text-xs font-bold text-slate-700 mb-1">จำนวนเวลา (นาที)</label>
                 <input 
                   type="number" 
                   {...register('customMinutes', { valueAsNumber: true })}
                   defaultValue={60}
                   min={1}
-                  className="w-full px-3 py-2 border border-slate-200 rounded-lg text-sm outline-none focus:border-purple-600 focus:ring-2 focus:ring-purple-500/10"
+                  className="w-full px-3 py-2 border border-slate-200 rounded-lg text-xs outline-none focus:border-purple-600 focus:ring-2 focus:ring-purple-500/10 bg-white"
                 />
               </div>
             </div>
           )}
           
-          <div className="flex gap-3 justify-end mt-8 pt-4 border-t border-slate-100">
-            <button type="button" className="px-6 py-2.5 rounded-xl border border-slate-200 text-slate-600 font-semibold hover:bg-slate-50 transition-colors cursor-pointer bg-white w-full sm:w-auto" onClick={onClose} disabled={isSubmitting}>
+          <div className="flex gap-2.5 justify-end mt-4 pt-4 border-t border-slate-100">
+            <button 
+              type="button" 
+              className="px-4 py-2 rounded-lg border border-slate-200 text-slate-600 text-xs font-semibold hover:bg-slate-50 transition-colors cursor-pointer bg-white" 
+              onClick={onClose} 
+              disabled={isSubmitting}
+            >
               ยกเลิก
             </button>
-            <button type="submit" className="px-6 py-2.5 rounded-xl border-none bg-purple-600 hover:bg-purple-700 text-white font-semibold hover:opacity-90 shadow-sm transition-all disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer w-full sm:w-auto" disabled={isSubmitting}>
-              {isSubmitting ? 'กำลังบันทึก...' : 'บันทึก'}
+            <button 
+              type="submit" 
+              className="px-4 py-2 rounded-lg border-none bg-purple-600 hover:bg-purple-700 text-white text-xs font-semibold shadow-sm transition-all disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer" 
+              disabled={isSubmitting}
+            >
+              {isSubmitting ? 'กำลังบันทึก...' : 'บันทึกมอบหมาย'}
             </button>
           </div>
         </form>

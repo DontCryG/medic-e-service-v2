@@ -154,45 +154,62 @@ export function HistoryModal({ isOpen, onClose }: HistoryModalProps) {
   if (!isOpen) return null;
 
   return (
-    <div className="fixed inset-0 bg-slate-900/40 backdrop-blur-sm flex items-center justify-center z-50 p-4" onClick={onClose}>
-      <div className="bg-white rounded-[24px] w-full max-w-5xl max-h-[90vh] flex flex-col shadow-2xl overflow-hidden" onClick={e => e.stopPropagation()}>
+    <div className="fixed inset-0 bg-slate-900/30 backdrop-blur-xs flex items-center justify-center z-50 p-4 animate-in fade-in duration-150" onClick={onClose}>
+      <div className="bg-white rounded-xl w-full max-w-4xl max-h-[88vh] flex flex-col shadow-2xl overflow-hidden border border-slate-200/90 animate-in zoom-in-98 duration-150" onClick={e => e.stopPropagation()}>
         
         {/* Header */}
-        <div className="px-6 py-5 border-b border-slate-100 flex justify-between items-center">
-          <h2 className="text-xl font-bold text-slate-800 flex items-center gap-3 m-0">
-            <div className="bg-emerald-100 text-emerald-600 p-2 rounded-xl"><History size={20} /></div>
-            ประวัติระบบคิว & รายงานผู้จัดการคิว
-          </h2>
-          <button className="p-2 text-slate-400 hover:text-slate-700 hover:bg-slate-100 rounded-full transition-colors border-none bg-transparent cursor-pointer" onClick={onClose}>
-            <X size={20} />
+        <div className="px-5 py-4 border-b border-slate-100 flex justify-between items-center bg-white shrink-0">
+          <div className="flex items-center gap-2">
+            <div className="w-7 h-7 rounded-lg bg-emerald-50 border border-emerald-200/60 flex items-center justify-center text-emerald-600">
+              <History size={16} />
+            </div>
+            <h2 className="text-sm font-bold text-slate-900 m-0">
+              ประวัติระบบคิว & รายงานผู้จัดการคิว
+            </h2>
+          </div>
+          <button 
+            className="p-1.5 text-slate-400 hover:text-slate-700 hover:bg-slate-100 rounded-lg transition-colors border-none bg-transparent cursor-pointer" 
+            onClick={onClose}
+          >
+            <X size={16} />
           </button>
         </div>
 
         {/* Tabs & Filters */}
-        <div className="bg-slate-50/50 border-b border-slate-100 p-6">
-          <div className="flex flex-col gap-4">
+        <div className="bg-slate-50/70 border-b border-slate-200/80 p-4 shrink-0">
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
             
             {/* Tabs */}
-            <div className="flex bg-slate-100 p-1 rounded-xl w-full sm:w-fit overflow-x-auto shadow-inner">
+            <div className="flex bg-slate-200/60 p-0.5 rounded-lg w-fit">
               <button 
-                className={`flex flex-1 sm:flex-none items-center justify-center gap-2 px-6 py-2.5 rounded-lg text-sm font-bold transition-all whitespace-nowrap cursor-pointer ${activeTab === "manager" ? "bg-white text-blue-600 shadow-sm border-none" : "text-slate-500 hover:text-slate-700 hover:bg-slate-200/50 border-none bg-transparent"}`}
+                className={`flex items-center gap-1.5 px-3 py-1.5 rounded-md text-xs font-semibold transition-all border-none cursor-pointer ${
+                  activeTab === "manager" 
+                    ? "bg-white text-purple-700 shadow-2xs font-bold" 
+                    : "text-slate-500 hover:text-slate-800 bg-transparent"
+                }`}
                 onClick={() => setActiveTab('manager')}
               >
-                <Users size={16} /> ประวัติผู้จัดการคิว
+                <Users size={14} /> 
+                <span>ประวัติผู้จัดการคิว</span>
               </button>
               <button 
-                className={`flex flex-1 sm:flex-none items-center justify-center gap-2 px-6 py-2.5 rounded-lg text-sm font-bold transition-all whitespace-nowrap cursor-pointer ${activeTab === "summary" ? "bg-white text-emerald-600 shadow-sm border-none" : "text-slate-500 hover:text-slate-700 hover:bg-slate-200/50 border-none bg-transparent"}`}
+                className={`flex items-center gap-1.5 px-3 py-1.5 rounded-md text-xs font-semibold transition-all border-none cursor-pointer ${
+                  activeTab === "summary" 
+                    ? "bg-white text-emerald-700 shadow-2xs font-bold" 
+                    : "text-slate-500 hover:text-slate-800 bg-transparent"
+                }`}
                 onClick={() => setActiveTab('summary')}
               >
-                <Calendar size={16} /> สรุปสถิติเวลา & โบนัส
+                <Calendar size={14} /> 
+                <span>สรุปเวลา & โบนัส</span>
               </button>
             </div>
 
             {/* Filters */}
-            <div className="flex flex-wrap items-center gap-3">
-              <div className="flex items-center gap-2 bg-white border border-slate-200 rounded-xl px-3 py-1.5 shadow-sm w-full sm:w-auto">
-                <Filter size={16} className="text-slate-400 shrink-0" />
-                <span className="text-sm font-medium text-slate-600 shrink-0 mr-1">ตั้งแต่:</span>
+            <div className="flex flex-wrap items-center gap-2">
+              <div className="flex items-center gap-1.5 bg-white border border-slate-200/90 rounded-lg px-2.5 py-1 shadow-2xs">
+                <Filter size={13} className="text-slate-400 shrink-0" />
+                <span className="text-[11px] font-medium text-slate-500">ตั้งแต่:</span>
                 <DatePicker 
                   selected={startDate} 
                   onChange={setStartDate} 
@@ -201,9 +218,9 @@ export function HistoryModal({ isOpen, onClose }: HistoryModalProps) {
                   endDate={endDate} 
                   dateFormat="dd/MM/yyyy" 
                   placeholderText="เริ่มต้น" 
-                  className="w-[80px] sm:w-[100px] outline-none text-sm font-medium text-slate-700 bg-transparent" 
+                  className="w-[75px] outline-none text-xs font-medium text-slate-800 bg-transparent" 
                 />
-                <span className="text-sm font-medium text-slate-600 shrink-0 mx-1">ถึง:</span>
+                <span className="text-[11px] font-medium text-slate-400">ถึง:</span>
                 <DatePicker 
                   selected={endDate} 
                   onChange={setEndDate} 
@@ -213,69 +230,100 @@ export function HistoryModal({ isOpen, onClose }: HistoryModalProps) {
                   minDate={startDate || undefined} 
                   dateFormat="dd/MM/yyyy" 
                   placeholderText="สิ้นสุด" 
-                  className="w-[80px] sm:w-[100px] outline-none text-sm font-medium text-slate-700 bg-transparent" 
+                  className="w-[75px] outline-none text-xs font-medium text-slate-800 bg-transparent" 
                 />
               </div>
-              <div className="flex items-center gap-2 w-full sm:w-auto">
-                <button onClick={handleTodayFilter} className="flex-1 sm:flex-none px-4 py-2 bg-blue-50 hover:bg-blue-100 text-blue-600 rounded-xl border-none text-sm font-bold transition-colors whitespace-nowrap cursor-pointer">วันนี้</button>
-                <button onClick={handleClearFilters} className="flex-1 sm:flex-none px-4 py-2 bg-white border border-slate-200 hover:bg-slate-50 text-slate-600 rounded-xl text-sm font-bold transition-colors whitespace-nowrap shadow-sm cursor-pointer">ดูทั้งหมด</button>
-              </div>
+
+              <button 
+                onClick={handleTodayFilter} 
+                className="px-2.5 py-1 bg-white hover:bg-slate-50 text-purple-700 border border-purple-200/80 rounded-lg text-xs font-semibold transition-colors cursor-pointer shadow-2xs"
+              >
+                วันนี้
+              </button>
+              <button 
+                onClick={handleClearFilters} 
+                className="px-2.5 py-1 bg-white hover:bg-slate-50 text-slate-600 border border-slate-200 rounded-lg text-xs font-medium transition-colors cursor-pointer"
+              >
+                ทั้งหมด
+              </button>
             </div>
 
           </div>
         </div>
 
         {/* Content Area */}
-        <div className="flex-1 overflow-y-auto bg-white">
+        <div className="flex-1 overflow-y-auto bg-white p-4">
           {loading ? (
-            <div className="flex flex-col items-center justify-center h-64 text-emerald-500 gap-3">
-              <div className="w-8 h-8 border-4 border-emerald-200 border-t-emerald-500 rounded-full animate-spin"></div>
-              <span className="font-bold">กำลังโหลดข้อมูล...</span>
+            <div className="flex flex-col items-center justify-center h-48 text-purple-600 gap-2">
+              <div className="w-6 h-6 border-2 border-purple-200 border-t-purple-600 rounded-full animate-spin" />
+              <span className="text-xs font-semibold text-slate-500">กำลังโหลดข้อมูล...</span>
             </div>
           ) : activeTab === 'summary' ? (
-            <table className="w-full text-left border-collapse">
-              <thead>
-                <tr>
-                  <th className="sticky top-0 bg-slate-50 p-4 text-xs font-extrabold text-slate-500 uppercase tracking-wider border-b border-slate-200 z-10">ชื่อแพทย์</th>
-                  <th className="sticky top-0 bg-slate-50 p-4 text-xs font-extrabold text-slate-500 uppercase tracking-wider border-b border-slate-200 z-10">เวลารับคิวสะสม</th>
-                  <th className="sticky top-0 bg-slate-50 p-4 text-xs font-extrabold text-slate-500 uppercase tracking-wider border-b border-slate-200 z-10">โบนัสเวลา (จำนวนวัน)</th>
-                </tr>
-              </thead>
-              <tbody>
-                {summaryData.length > 0 ? summaryData.map((data: any, idx: number) => {
-                  const hours = Math.floor(data.total_manager_mins / 60);
-                  const mins = Math.floor(data.total_manager_mins % 60);
-                  return (
-                    <tr key={idx} className="hover:bg-slate-50 transition-colors">
-                      <td className="p-4 border-b border-slate-100 text-[0.95rem] text-slate-800 font-medium">{data.ic_name}</td>
-                      <td className="p-4 border-b border-slate-100 text-[0.95rem] text-slate-600">{hours > 0 ? `${hours} ชม. ` : ''}{mins} นาที</td>
-                      <td className={`p-4 border-b border-slate-100 text-[0.95rem] font-bold ${data.bonusDays > 0 ? 'text-emerald-500' : 'text-slate-400'}`}>
-                        {data.bonusDays > 0 ? `${data.bonusDays} วัน (+${data.bonusDays * 2} ชม.)` : '-'}
+            <div className="rounded-xl border border-slate-200/80 overflow-hidden">
+              <table className="w-full text-left border-collapse text-xs">
+                <thead>
+                  <tr className="bg-slate-50/80 border-b border-slate-200/80">
+                    <th className="px-4 py-2.5 font-bold text-slate-600">ชื่อแพทย์</th>
+                    <th className="px-4 py-2.5 font-bold text-slate-600">เวลารับคิวสะสม</th>
+                    <th className="px-4 py-2.5 font-bold text-slate-600">โบนัสเวลา (จำนวนวัน)</th>
+                  </tr>
+                </thead>
+                <tbody className="divide-y divide-slate-100">
+                  {summaryData.length > 0 ? summaryData.map((data: any, idx: number) => {
+                    const hours = Math.floor(data.total_manager_mins / 60);
+                    const mins = Math.floor(data.total_manager_mins % 60);
+                    return (
+                      <tr key={idx} className="hover:bg-slate-50/60 transition-colors">
+                        <td className="px-4 py-2.5 font-medium text-slate-800">{data.ic_name}</td>
+                        <td className="px-4 py-2.5 text-slate-600">{hours > 0 ? `${hours} ชม. ` : ''}{mins} นาที</td>
+                        <td className="px-4 py-2.5">
+                          {data.bonusDays > 0 ? (
+                            <span className="inline-flex items-center px-2 py-0.5 rounded-md text-[10px] font-bold bg-emerald-50 text-emerald-700 border border-emerald-200/60">
+                              {data.bonusDays} วัน (+{data.bonusDays * 2} ชม.)
+                            </span>
+                          ) : (
+                            <span className="text-slate-400 font-medium">-</span>
+                          )}
+                        </td>
+                      </tr>
+                    );
+                  }) : (
+                    <tr>
+                      <td colSpan={3} className="px-4 py-12 text-center text-slate-400 font-medium">
+                        ไม่มีข้อมูลรายงานในช่วงเวลานี้
                       </td>
                     </tr>
-                  );
-                }) : <tr><td colSpan={3} className="p-16 text-center text-slate-400 font-medium text-lg">ไม่มีข้อมูลรายงานในช่วงเวลานี้</td></tr>}
-              </tbody>
-            </table>
+                  )}
+                </tbody>
+              </table>
+            </div>
           ) : (
-            <table className="w-full text-left border-collapse">
-              <thead>
-                <tr>
-                  <th className="sticky top-0 bg-slate-50 p-4 text-xs font-extrabold text-slate-500 uppercase tracking-wider border-b border-slate-200 z-10">วันที่</th>
-                  <th className="sticky top-0 bg-slate-50 p-4 text-xs font-extrabold text-slate-500 uppercase tracking-wider border-b border-slate-200 z-10">หมอรับคิว</th>
-                  <th className="sticky top-0 bg-slate-50 p-4 text-xs font-extrabold text-slate-500 uppercase tracking-wider border-b border-slate-200 z-10">รวมเวลา (นาที)</th>
-                </tr>
-              </thead>
-              <tbody>
-                {groupedManagerLogs.length > 0 ? groupedManagerLogs.map((log: any) => (
-                  <tr key={log.id} className="hover:bg-slate-50 transition-colors">
-                    <td className="p-4 border-b border-slate-100 text-[0.95rem] text-slate-600">{log.dateStr}</td>
-                    <td className="p-4 border-b border-slate-100 text-[0.95rem] text-slate-800 font-medium">{log.ic_name}</td>
-                    <td className="p-4 border-b border-slate-100 text-[0.95rem] text-slate-600">{Math.round(log.total_mins)}</td>
+            <div className="rounded-xl border border-slate-200/80 overflow-hidden">
+              <table className="w-full text-left border-collapse text-xs">
+                <thead>
+                  <tr className="bg-slate-50/80 border-b border-slate-200/80">
+                    <th className="px-4 py-2.5 font-bold text-slate-600">วันที่</th>
+                    <th className="px-4 py-2.5 font-bold text-slate-600">แพทย์ผู้รับคิว</th>
+                    <th className="px-4 py-2.5 font-bold text-slate-600">รวมเวลา (นาที)</th>
                   </tr>
-                )) : <tr><td colSpan={3} className="p-16 text-center text-slate-400 font-medium text-lg">ไม่มีข้อมูลหมอรับคิวในช่วงเวลานี้</td></tr>}
-              </tbody>
-            </table>
+                </thead>
+                <tbody className="divide-y divide-slate-100">
+                  {groupedManagerLogs.length > 0 ? groupedManagerLogs.map((log: any) => (
+                    <tr key={log.id} className="hover:bg-slate-50/60 transition-colors">
+                      <td className="px-4 py-2.5 text-slate-600 font-medium">{log.dateStr}</td>
+                      <td className="px-4 py-2.5 text-slate-800 font-semibold">{log.ic_name}</td>
+                      <td className="px-4 py-2.5 text-slate-700 font-mono font-medium">{Math.round(log.total_mins)} นาที</td>
+                    </tr>
+                  )) : (
+                    <tr>
+                      <td colSpan={3} className="px-4 py-12 text-center text-slate-400 font-medium">
+                        ไม่มีข้อมูลแพทย์รับคิวในช่วงเวลานี้
+                      </td>
+                    </tr>
+                  )}
+                </tbody>
+              </table>
+            </div>
           )}
         </div>
 

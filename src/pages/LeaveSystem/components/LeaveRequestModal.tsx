@@ -127,25 +127,35 @@ export default function LeaveRequestModal({ onClose, profile }: LeaveRequestModa
   };
 
   return (
-    <div className="fixed inset-0 bg-slate-900/50 backdrop-blur-sm z-50 flex items-center justify-center p-4 animate-in fade-in duration-200" onClick={onClose}>
-      <div className="bg-white rounded-3xl w-full max-w-lg shadow-xl overflow-hidden animate-in zoom-in-95 duration-200" onClick={e => e.stopPropagation()}>
-        <div className="flex justify-between items-center px-6 py-5 border-b border-slate-100 bg-slate-50/50">
-          <h2 className="text-xl font-bold text-slate-800 m-0 flex items-center gap-2">
-            <ClipboardList size={22} className={
-              leaveType === 'vacation' ? 'text-green-500' :
-              leaveType === 'resign' ? 'text-red-500' : 'text-purple-600'
-            } />
-            ยื่นใบลา
-          </h2>
-          <button type="button" className="p-2 -mr-2 text-slate-400 hover:text-slate-600 hover:bg-slate-100 rounded-full transition-colors cursor-pointer border-none bg-transparent" onClick={onClose}>
-            <X size={20} />
+    <div className="fixed inset-0 bg-slate-900/30 backdrop-blur-xs z-50 flex items-center justify-center p-4 animate-in fade-in duration-150" onClick={onClose}>
+      <div className="bg-white rounded-xl w-full max-w-md shadow-xl overflow-hidden border border-slate-200/90 animate-in zoom-in-98 duration-150" onClick={e => e.stopPropagation()}>
+        {/* Header */}
+        <div className="flex justify-between items-center px-5 py-4 border-b border-slate-100 bg-white">
+          <div className="flex items-center gap-2">
+            <div className={`w-7 h-7 rounded-lg flex items-center justify-center border ${
+              leaveType === 'vacation' ? 'bg-emerald-50 text-emerald-600 border-emerald-200/60' :
+              leaveType === 'resign' ? 'bg-rose-50 text-rose-600 border-rose-200/60' : 
+              'bg-purple-50 text-purple-600 border-purple-200/60'
+            }`}>
+              <ClipboardList size={16} />
+            </div>
+            <h2 className="text-sm font-bold text-slate-900 m-0">
+              ยื่นใบคำร้องการลา
+            </h2>
+          </div>
+          <button 
+            type="button" 
+            className="p-1.5 text-slate-400 hover:text-slate-700 hover:bg-slate-100 rounded-lg transition-colors cursor-pointer border-none bg-transparent" 
+            onClick={onClose}
+          >
+            <X size={16} />
           </button>
         </div>
 
-        <form onSubmit={handleSubmit(onSubmit)} className="p-6 flex flex-col gap-5">
+        <form onSubmit={handleSubmit(onSubmit)} className="p-5 flex flex-col gap-4">
           <div>
-            <label className="block text-sm font-semibold text-slate-700 mb-2">
-              ประเภทการลา
+            <label className="block text-xs font-bold text-slate-700 mb-1.5">
+              ประเภทการลา <span className="text-rose-500">*</span>
             </label>
             <Controller
               name="leaveType"
@@ -155,22 +165,22 @@ export default function LeaveRequestModal({ onClose, profile }: LeaveRequestModa
                   value={field.value}
                   onChange={field.onChange}
                   options={[
-                    { value: 'leave', label: 'ลากิจ' },
-                    { value: 'vacation', label: 'ลาพักร้อน' },
-                    { value: 'resign', label: 'ลาออก' }
+                    { value: 'leave', label: 'ลากิจ (Leave)' },
+                    { value: 'vacation', label: 'ลาพักร้อน (Vacation)' },
+                    { value: 'resign', label: 'ลาออก (Resign)' }
                   ]}
                 />
               )}
             />
-            {errors.leaveType && <span className="text-red-500 text-sm mt-1 block">{errors.leaveType.message}</span>}
+            {errors.leaveType && <span className="text-rose-500 text-xs mt-1 block font-medium">{errors.leaveType.message}</span>}
           </div>
 
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
             <div>
-              <label className="block text-sm font-semibold text-slate-700 mb-2">
-                วันที่เริ่มลา
+              <label className="block text-xs font-bold text-slate-700 mb-1.5">
+                วันที่เริ่มลา <span className="text-rose-500">*</span>
               </label>
-              <div className="w-full h-[42px]">
+              <div className="w-full h-[38px]">
                 <Controller
                   name="startDate"
                   control={control}
@@ -183,14 +193,15 @@ export default function LeaveRequestModal({ onClose, profile }: LeaveRequestModa
                   )}
                 />
               </div>
-              {errors.startDate && <span className="text-red-500 text-sm mt-1 block">{errors.startDate.message}</span>}
+              {errors.startDate && <span className="text-rose-500 text-xs mt-1 block font-medium">{errors.startDate.message}</span>}
             </div>
+
             {leaveType !== 'resign' && (
               <div>
-                <label className="block text-sm font-semibold text-slate-700 mb-2">
-                  วันที่สิ้นสุด
+                <label className="block text-xs font-bold text-slate-700 mb-1.5">
+                  วันที่สิ้นสุด <span className="text-rose-500">*</span>
                 </label>
-                <div className="w-full h-[42px]">
+                <div className="w-full h-[38px]">
                   <Controller
                     name="endDate"
                     control={control}
@@ -204,14 +215,14 @@ export default function LeaveRequestModal({ onClose, profile }: LeaveRequestModa
                     )}
                   />
                 </div>
-                {errors.endDate && <span className="text-red-500 text-sm mt-1 block">{errors.endDate.message}</span>}
+                {errors.endDate && <span className="text-rose-500 text-xs mt-1 block font-medium">{errors.endDate.message}</span>}
               </div>
             )}
           </div>
 
           <div>
-            <label className="block text-sm font-semibold text-slate-700 mb-2">
-              เหตุผล
+            <label className="block text-xs font-bold text-slate-700 mb-1.5">
+              เหตุผลการลา <span className="text-rose-500">*</span>
             </label>
             <Controller
               name="reason"
@@ -219,19 +230,19 @@ export default function LeaveRequestModal({ onClose, profile }: LeaveRequestModa
               render={({ field }) => (
                 <textarea
                   {...field}
-                  placeholder="ระบุเหตุผลการลา..."
-                  rows={4}
-                  className="w-full px-4 py-3 rounded-xl border border-slate-200 bg-slate-50 text-slate-800 text-sm focus:outline-none focus:ring-2 focus:ring-purple-500/10 focus:border-purple-600 transition-all resize-none"
+                  placeholder="ระบุเหตุผลการลาอย่างชัดเจน..."
+                  rows={3}
+                  className="w-full px-3 py-2 rounded-lg border border-slate-200/90 bg-slate-50/60 focus:bg-white text-slate-800 text-xs focus:outline-none focus:ring-2 focus:ring-purple-500/10 focus:border-purple-600 transition-all resize-none font-medium"
                 />
               )}
             />
-            {errors.reason && <span className="text-red-500 text-sm mt-1 block">{errors.reason.message}</span>}
+            {errors.reason && <span className="text-rose-500 text-xs mt-1 block font-medium">{errors.reason.message}</span>}
           </div>
 
-          <div className="flex gap-3 justify-end mt-4">
+          <div className="flex gap-2.5 justify-end pt-4 border-t border-slate-100">
             <button 
               type="button" 
-              className="px-6 py-2.5 rounded-xl border border-slate-200 text-slate-600 font-semibold hover:bg-slate-50 transition-colors cursor-pointer bg-white w-full sm:w-auto" 
+              className="px-4 py-2 rounded-lg border border-slate-200 text-slate-600 text-xs font-semibold hover:bg-slate-50 transition-colors cursor-pointer bg-white" 
               onClick={onClose}
               disabled={isSubmitting || createLeaveMutation.isPending}
             >
@@ -239,14 +250,14 @@ export default function LeaveRequestModal({ onClose, profile }: LeaveRequestModa
             </button>
             <button 
               type="submit" 
-              className={`px-6 py-2.5 rounded-xl border-none font-semibold text-white transition-all w-full sm:w-auto cursor-pointer ${
-                leaveType === 'vacation' ? 'bg-green-500 hover:bg-green-600 shadow-green-500/20' :
-                leaveType === 'resign' ? 'bg-red-500 hover:bg-red-600 shadow-red-500/20' :
-                'bg-purple-600 hover:bg-purple-700 hover:opacity-90 shadow-sm'
-              } shadow-md hover:shadow-lg hover:-translate-y-0.5 disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none`}
+              className={`px-4 py-2 rounded-lg border-none text-xs font-semibold text-white transition-all cursor-pointer shadow-sm ${
+                leaveType === 'vacation' ? 'bg-emerald-600 hover:bg-emerald-700' :
+                leaveType === 'resign' ? 'bg-rose-600 hover:bg-rose-700' :
+                'bg-purple-600 hover:bg-purple-700'
+              } disabled:opacity-50 disabled:cursor-not-allowed`}
               disabled={isSubmitting || createLeaveMutation.isPending}
             >
-              {(isSubmitting || createLeaveMutation.isPending) ? 'กำลังบันทึก...' : 'ยืนยันการลา'}
+              {(isSubmitting || createLeaveMutation.isPending) ? 'กำลังบันทึก...' : 'ยืนยันการส่งใบลา'}
             </button>
           </div>
         </form>

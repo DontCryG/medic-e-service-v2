@@ -69,11 +69,17 @@ export default function Sidebar({ isMobileMenuOpen, setIsMobileMenuOpen, isColla
         {/* Sleek Minimal Brand Logo Header (h-[60px] to match Main Header) */}
         <div className={`flex items-center ${isCollapsed ? 'justify-center' : 'justify-between px-4'} shrink-0 h-[60px] border-b border-slate-100 overflow-hidden`}>
           <div className="flex items-center gap-2.5 min-w-0">
-            <div className="w-8 h-8 flex items-center justify-center shrink-0 overflow-hidden">
+            <div 
+              className="w-8 h-8 flex items-center justify-center shrink-0 overflow-hidden rounded-lg bg-purple-50/50"
+              style={{ width: '32px', height: '32px', minWidth: '32px', maxWidth: '32px', overflow: 'hidden' }}
+            >
               <img 
                 src="/logo.png" 
                 alt="Logo" 
-                className="w-7 h-7 max-w-7 max-h-7 object-contain shrink-0" 
+                width="28"
+                height="28"
+                className="w-7 h-7 object-contain shrink-0" 
+                style={{ width: '28px', height: '28px', maxWidth: '28px', maxHeight: '28px', objectFit: 'contain' }}
               />
             </div>
             {!isCollapsed && (

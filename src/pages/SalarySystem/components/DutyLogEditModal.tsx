@@ -132,31 +132,41 @@ export default function DutyLogEditModal({ user, startDate, endDate, onClose }: 
   };
 
   return (
-    <div className="fixed inset-0 bg-slate-900/50 backdrop-blur-sm z-50 flex items-center justify-center p-4 animate-in fade-in duration-200" onClick={onClose}>
-      <div className="bg-white rounded-3xl w-full max-w-5xl shadow-2xl overflow-hidden animate-in zoom-in-95 duration-200 border border-slate-100 flex flex-col max-h-[85vh]" onClick={e => e.stopPropagation()}>
-        <div className="flex justify-between items-center px-6 py-5 border-b border-slate-100 bg-slate-50/50 flex-shrink-0">
-          <h2 className="text-xl font-bold text-slate-800 m-0 flex items-center gap-2">
-            <Pencil size={22} className="text-purple-600" />
-            แก้ไขประวัติเวร: {user.ic_name}
-          </h2>
-          <button className="p-2 -mr-2 text-slate-400 hover:text-slate-600 hover:bg-slate-100 rounded-full transition-colors cursor-pointer border-none bg-transparent" onClick={onClose}>
-            <X size={22} />
+    <div className="fixed inset-0 bg-slate-900/30 backdrop-blur-xs z-50 flex items-center justify-center p-4 animate-in fade-in duration-150" onClick={onClose}>
+      <div className="bg-white rounded-xl w-full max-w-5xl shadow-2xl overflow-hidden border border-slate-200/90 animate-in zoom-in-98 duration-150 flex flex-col max-h-[85vh]" onClick={e => e.stopPropagation()}>
+        {/* Header */}
+        <div className="flex justify-between items-center px-5 py-4 border-b border-slate-100 bg-white shrink-0">
+          <div className="flex items-center gap-2">
+            <div className="w-7 h-7 rounded-lg bg-purple-50 border border-purple-200/60 flex items-center justify-center text-purple-600">
+              <Pencil size={15} />
+            </div>
+            <h2 className="text-sm font-bold text-slate-900 m-0">
+              แก้ไขประวัติเวร: <span className="text-purple-700">{user.ic_name}</span>
+            </h2>
+          </div>
+          <button 
+            type="button" 
+            className="p-1.5 text-slate-400 hover:text-slate-700 hover:bg-slate-100 rounded-lg transition-colors cursor-pointer border-none bg-transparent" 
+            onClick={onClose}
+          >
+            <X size={16} />
           </button>
         </div>
 
-        <div className="p-6 overflow-y-auto flex-1">
+        {/* Content Table */}
+        <div className="p-5 overflow-y-auto flex-1">
           {isLoading ? (
             <TableSkeleton columns={5} rows={5} />
           ) : logs && logs.length > 0 ? (
-            <div className="overflow-x-auto rounded-2xl border border-slate-100">
-              <table className="w-full text-left border-collapse min-w-[950px] text-sm">
+            <div className="overflow-x-auto rounded-xl border border-slate-200/80">
+              <table className="w-full text-left border-collapse min-w-[900px] text-xs">
                 <thead>
-                  <tr className="bg-slate-50/80">
-                    <th className="p-4 text-slate-600 font-bold border-b border-slate-100 w-[24%]">วันที่เข้าเวร (Clock In)</th>
-                    <th className="p-4 text-slate-600 font-bold border-b border-slate-100 w-[24%]">เวลาออกเวร (Clock Out)</th>
-                    <th className="p-4 text-slate-600 font-bold border-b border-slate-100 w-[90px] text-center">พัก (นาที)</th>
-                    <th className="p-4 text-slate-600 font-bold border-b border-slate-100 text-center">ประเภท / ที่มา</th>
-                    <th className="p-4 text-slate-600 font-bold border-b border-slate-100 w-[170px] text-center">จัดการ</th>
+                  <tr className="bg-slate-50/80 border-b border-slate-200/80">
+                    <th className="px-4 py-3 text-slate-600 font-bold w-[24%]">เวลาเข้าเวร (Clock In)</th>
+                    <th className="px-4 py-3 text-slate-600 font-bold w-[24%]">เวลาออกเวร (Clock Out)</th>
+                    <th className="px-4 py-3 text-slate-600 font-bold w-[90px] text-center">พัก (นาที)</th>
+                    <th className="px-4 py-3 text-slate-600 font-bold text-center">ประเภท / ที่มา</th>
+                    <th className="px-4 py-3 text-slate-600 font-bold w-[160px] text-center">จัดการ</th>
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-slate-100">
@@ -164,38 +174,38 @@ export default function DutyLogEditModal({ user, startDate, endDate, onClose }: 
                     const badge = getDutyBadgeInfo(log.duty_type, log.granted_by);
                     const isEditing = editingId === log.id;
                     return (
-                      <tr key={log.id} className={isEditing ? 'bg-purple-50/30' : 'hover:bg-slate-50/60 transition-colors'}>
+                      <tr key={log.id} className={isEditing ? 'bg-purple-50/30' : 'hover:bg-slate-50/50 transition-colors'}>
                         {isEditing ? (
                           <>
-                            <td className="p-3">
+                            <td className="p-2.5">
                               <DateTimeInput 
                                 value={editForm.clock_in}
                                 onChange={(date: any) => setEditForm({...editForm, clock_in: date})}
                                 placeholder="เวลาเข้าเวร"
                               />
                             </td>
-                            <td className="p-3">
+                            <td className="p-2.5">
                               <DateTimeInput 
                                 value={editForm.clock_out}
                                 onChange={(date: any) => setEditForm({...editForm, clock_out: date})}
                                 placeholder="เวลาออกเวร"
                               />
                             </td>
-                            <td className="p-3">
+                            <td className="p-2.5">
                               <input 
                                 type="number" 
                                 min={0}
                                 value={editForm.total_break_minutes} 
                                 onChange={(e) => setEditForm({...editForm, total_break_minutes: e.target.value as any})}
-                                className="w-[75px] text-center border border-slate-200 rounded-lg p-2 outline-none focus:border-purple-500 mx-auto block bg-white"
+                                className="w-[70px] text-center border border-slate-200/90 rounded-lg p-1.5 outline-none focus:border-purple-600 mx-auto block bg-white text-xs font-medium"
                               />
                             </td>
-                            <td className="p-3 text-center">
+                            <td className="p-2.5 text-center">
                               <div className="flex flex-col gap-1.5 items-center">
                                 <select
                                   value={editForm.duty_type}
                                   onChange={(e) => setEditForm({...editForm, duty_type: e.target.value})}
-                                  className="w-full max-w-[200px] px-2.5 py-1.5 border border-slate-200 rounded-lg text-xs bg-white outline-none focus:border-purple-500 font-medium"
+                                  className="w-full max-w-[190px] px-2.5 py-1.5 border border-slate-200/90 rounded-lg text-xs bg-white outline-none focus:border-purple-600 font-medium"
                                 >
                                   <option value="normal">เวรปกติ</option>
                                   <option value="queue_manager_bonus">โบนัสรันคิว (+2 ชม.)</option>
@@ -210,61 +220,61 @@ export default function DutyLogEditModal({ user, startDate, endDate, onClose }: 
                                     value={editForm.custom_type}
                                     onChange={(e) => setEditForm({...editForm, custom_type: e.target.value})}
                                     placeholder="ระบุชื่อประเภทเวร"
-                                    className="w-full max-w-[200px] px-2.5 py-1 border border-slate-200 rounded-lg text-xs outline-none focus:border-purple-500 bg-white"
+                                    className="w-full max-w-[190px] px-2 py-1 border border-slate-200/90 rounded-lg text-xs outline-none focus:border-purple-600 bg-white"
                                   />
                                 )}
                               </div>
                             </td>
-                            <td className="p-3 text-center">
-                              <div className="flex gap-2 justify-center">
+                            <td className="p-2.5 text-center">
+                              <div className="flex gap-1.5 justify-center">
                                 <button 
                                   onClick={() => handleSaveEdit(log.id)}
                                   disabled={isUpdating}
-                                  className="flex items-center gap-1.5 bg-emerald-600 text-white hover:bg-emerald-700 px-3 py-1.5 rounded-lg border-none cursor-pointer transition-colors text-xs font-semibold disabled:opacity-50 shadow-sm"
+                                  className="flex items-center gap-1 bg-purple-600 text-white hover:bg-purple-700 px-2.5 py-1.5 rounded-lg border-none cursor-pointer transition-colors text-xs font-semibold disabled:opacity-50 shadow-2xs"
                                 >
-                                  <Save size={13} /> บันทึก
+                                  <Save size={12} /> บันทึก
                                 </button>
                                 <button 
                                   onClick={handleCancelEdit}
                                   disabled={isUpdating}
-                                  className="flex items-center gap-1.5 bg-slate-100 text-slate-600 hover:bg-slate-200 px-3 py-1.5 rounded-lg border-none cursor-pointer transition-colors text-xs font-semibold disabled:opacity-50"
+                                  className="flex items-center gap-1 bg-white text-slate-600 hover:bg-slate-50 border border-slate-200 px-2.5 py-1.5 rounded-lg cursor-pointer transition-colors text-xs font-semibold disabled:opacity-50"
                                 >
-                                  <X size={13} /> ยกเลิก
+                                  <X size={12} /> ยกเลิก
                                 </button>
                               </div>
                             </td>
                           </>
                         ) : (
                           <>
-                            <td className="p-4 text-slate-700 font-medium">{formatDate(log.clock_in)}</td>
-                            <td className="p-4 text-slate-700 font-medium">
+                            <td className="px-4 py-3 text-slate-800 font-medium">{formatDate(log.clock_in)}</td>
+                            <td className="px-4 py-3 text-slate-800 font-medium">
                               {formatDate(log.clock_out)}
-                              {!log.clock_out && <span className="text-xs ml-2 font-semibold text-rose-500 bg-rose-50 px-2 py-0.5 rounded-md">(กำลังเข้าเวร)</span>}
+                              {!log.clock_out && <span className="text-[10px] ml-1.5 font-bold text-rose-600 bg-rose-50 px-1.5 py-0.5 rounded border border-rose-200/60">(กำลังเข้าเวร)</span>}
                             </td>
-                            <td className="p-4 text-center text-slate-600 font-medium">{Math.floor(log.total_break_minutes || 0)}</td>
-                            <td className="p-4 text-center whitespace-nowrap">
+                            <td className="px-4 py-3 text-center text-slate-600 font-medium">{Math.floor(log.total_break_minutes || 0)}</td>
+                            <td className="px-4 py-3 text-center whitespace-nowrap">
                               {badge ? (
-                                <span className={`inline-flex items-center px-2.5 py-1 rounded-full text-xs font-semibold border ${badge.bgClass} ${badge.textClass} ${badge.borderClass}`}>
+                                <span className={`inline-flex items-center px-2 py-0.5 rounded-md text-[10px] font-semibold border ${badge.bgClass} ${badge.textClass} ${badge.borderClass}`}>
                                   {badge.label}
                                 </span>
                               ) : (
-                                <span className="text-xs text-slate-400 font-medium">เวรปกติ</span>
+                                <span className="text-[11px] text-slate-400 font-medium">เวรปกติ</span>
                               )}
                             </td>
-                            <td className="p-4">
-                              <div className="flex gap-2 justify-center">
+                            <td className="px-4 py-3">
+                              <div className="flex gap-1.5 justify-center">
                                 <button 
                                   onClick={() => handleEditClick(log)}
-                                  className="flex items-center gap-1 bg-purple-50 text-purple-700 hover:bg-purple-100 px-3 py-1.5 rounded-lg border border-purple-200 cursor-pointer transition-colors text-xs font-semibold"
+                                  className="flex items-center gap-1 bg-purple-50 text-purple-700 hover:bg-purple-100 px-2.5 py-1 rounded-md border border-purple-200/60 cursor-pointer transition-colors text-xs font-semibold"
                                 >
-                                  <Pencil size={13} /> แก้ไข
+                                  <Pencil size={12} /> แก้ไข
                                 </button>
                                 <button 
                                   onClick={() => handleDelete(log.id)}
                                   disabled={isDeleting}
-                                  className="flex items-center gap-1 bg-rose-50 text-rose-700 hover:bg-rose-100 px-3 py-1.5 rounded-lg border border-rose-200 cursor-pointer transition-colors text-xs font-semibold disabled:opacity-50"
+                                  className="flex items-center gap-1 bg-rose-50 text-rose-700 hover:bg-rose-100 px-2.5 py-1 rounded-md border border-rose-200/60 cursor-pointer transition-colors text-xs font-semibold disabled:opacity-50"
                                 >
-                                  <Trash2 size={13} /> ลบ
+                                  <Trash2 size={12} /> ลบ
                                 </button>
                               </div>
                             </td>
