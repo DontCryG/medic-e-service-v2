@@ -12,11 +12,8 @@ import {
   Image as ImageIcon, 
   ShieldCheck, 
   Save, 
-  RotateCcw, 
   Sparkles, 
-  AlertCircle,
-  Stethoscope,
-  Check
+  Stethoscope
 } from 'lucide-react';
 import { showSuccessAlert, showErrorAlert } from '@/utils/alert';
 import { getInitial } from '@/pages/PersonnelSystem/utils/personnelUtils';
@@ -46,7 +43,7 @@ export default function UserProfileModal({ isOpen, onClose }: UserProfileModalPr
     handleSubmit,
     setValue,
     watch,
-    formState: { errors, isDirty }
+    formState: { errors }
   } = useForm<ProfileFormValues>({
     resolver: zodResolver(profileSchema),
     defaultValues: {
@@ -119,7 +116,7 @@ export default function UserProfileModal({ isOpen, onClose }: UserProfileModalPr
 
   return (
     <div 
-      className="fixed inset-0 bg-slate-900/35 backdrop-blur-xs flex items-center justify-center z-50 p-4 sm:p-6 animate-in fade-in duration-150" 
+      className="fixed inset-0 bg-slate-900/40 backdrop-blur-xs flex items-center justify-center z-50 p-4 sm:p-6 animate-in fade-in duration-150" 
       onClick={onClose}
     >
       <div 
@@ -127,16 +124,16 @@ export default function UserProfileModal({ isOpen, onClose }: UserProfileModalPr
         onClick={e => e.stopPropagation()}
       >
         {/* Header */}
-        <div className="px-5 py-4 border-b border-slate-100 flex justify-between items-center bg-white">
+        <div className="px-6 py-4.5 border-b border-slate-100 flex justify-between items-center bg-white">
           <div className="flex items-center gap-3">
-            <div className="w-9 h-9 rounded-xl bg-purple-50 border border-purple-200/70 flex items-center justify-center text-purple-700 shrink-0 shadow-2xs">
-              <UserIcon size={18} />
+            <div className="w-10 h-10 rounded-xl bg-purple-50 border border-purple-200/80 flex items-center justify-center text-purple-700 shrink-0 shadow-2xs">
+              <UserIcon size={19} />
             </div>
             <div>
-              <h3 className="text-sm font-bold text-slate-900 m-0">
+              <h3 className="text-sm sm:text-base font-bold text-slate-900 m-0 tracking-tight">
                 แก้ไขโปรไฟล์ส่วนตัว (My Profile)
               </h3>
-              <p className="text-[11px] text-slate-400 font-medium m-0 mt-0.5">
+              <p className="text-[11px] sm:text-xs text-slate-400 font-medium m-0 mt-0.5">
                 ปรับแต่งข้อมูลประจำตัว ชื่อ-นามสกุล และเบอร์โทรศัพท์ IC
               </p>
             </div>
@@ -146,17 +143,17 @@ export default function UserProfileModal({ isOpen, onClose }: UserProfileModalPr
             className="p-1.5 text-slate-400 hover:text-slate-700 hover:bg-slate-100 rounded-lg transition-colors border-none bg-transparent cursor-pointer" 
             onClick={onClose}
           >
-            <X size={16} />
+            <X size={17} />
           </button>
         </div>
 
         {/* Form Body */}
-        <form onSubmit={handleSubmit(onSubmit)} className="p-5 flex flex-col gap-4">
+        <form onSubmit={handleSubmit(onSubmit)} className="p-6 flex flex-col gap-4.5">
           
           {/* Avatar Banner & Quick Info */}
-          <div className="p-3.5 rounded-xl bg-slate-50/80 border border-slate-200/80 flex items-center gap-4">
+          <div className="p-4 rounded-2xl bg-gradient-to-br from-slate-50/90 to-purple-50/30 border border-slate-200/80 flex items-center gap-4">
             <div className="relative group shrink-0">
-              <div className="w-16 h-16 rounded-xl bg-purple-100 border-2 border-purple-200 overflow-hidden flex items-center justify-center text-purple-700 font-extrabold text-xl shadow-2xs">
+              <div className="w-16 h-16 rounded-2xl bg-purple-100/70 border-2 border-purple-200 overflow-hidden flex items-center justify-center text-purple-700 font-black text-xl shadow-xs">
                 {currentAvatarUrl ? (
                   <img 
                     src={currentAvatarUrl} 
@@ -173,25 +170,28 @@ export default function UserProfileModal({ isOpen, onClose }: UserProfileModalPr
             </div>
 
             <div className="min-w-0 flex-1">
-              <div className="flex items-center gap-1.5 mb-1 flex-wrap">
-                <span className="text-[10px] font-bold text-slate-500 font-mono bg-white px-2 py-0.5 rounded border border-slate-200 shadow-2xs">
+              <div className="flex items-center gap-2 mb-1 flex-wrap">
+                <span className="text-[10px] font-bold text-slate-600 font-mono bg-white px-2 py-0.5 rounded-md border border-slate-200/80 shadow-2xs">
                   ID: {user.discord_id}
                 </span>
-                <span className="text-[10px] font-bold text-purple-700 bg-purple-50 px-2 py-0.5 rounded border border-purple-200/60 uppercase">
+                <span className="text-[10px] font-bold text-purple-700 bg-purple-50 px-2 py-0.5 rounded-md border border-purple-200/70 uppercase">
                   {user.role}
                 </span>
               </div>
-              <div className="text-xs font-bold text-slate-800 truncate">
+              <div className="text-sm font-bold text-slate-800 truncate">
+                {user.ic_name || 'ไม่ระบุชื่อ'}
+              </div>
+              <div className="text-xs text-slate-500 font-medium">
                 {user.position?.name || 'บุคลากรทางการแพทย์'}
               </div>
               <button 
                 type="button" 
                 onClick={handleSyncDiscordAvatar}
                 disabled={isSyncingDiscord}
-                className="mt-1.5 inline-flex items-center gap-1 px-2.5 py-1 bg-white hover:bg-purple-50 text-purple-700 border border-purple-200/80 rounded-md text-[11px] font-semibold transition-colors cursor-pointer shadow-2xs border-none"
+                className="mt-2 inline-flex items-center gap-1.5 px-3 py-1.5 bg-white hover:bg-purple-50 text-purple-700 border border-purple-200/80 rounded-lg text-xs font-semibold transition-all cursor-pointer shadow-2xs hover:shadow-xs active:scale-98"
               >
-                <Sparkles size={12} className={isSyncingDiscord ? 'animate-spin' : ''} />
-                <span>{isSyncingDiscord ? 'กำลังซิงค์...' : 'ดึงรูปจาก Discord'}</span>
+                <Sparkles size={13} className={isSyncingDiscord ? 'animate-spin text-purple-600' : 'text-purple-600'} />
+                <span>{isSyncingDiscord ? 'กำลังซิงค์รูป...' : 'ดึงรูปจาก Discord'}</span>
               </button>
             </div>
           </div>
@@ -202,12 +202,14 @@ export default function UserProfileModal({ isOpen, onClose }: UserProfileModalPr
               ชื่อ-นามสกุล IC <span className="text-rose-500">*</span>
             </label>
             <div className="relative">
-              <Stethoscope size={15} className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 pointer-events-none" />
+              <div className="absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400 pointer-events-none flex items-center justify-center">
+                <Stethoscope size={16} />
+              </div>
               <input 
                 type="text"
                 {...register('ic_name')}
                 placeholder="เช่น นพ. ธนาวิน ศรีสุข"
-                className="w-full pl-9 pr-3 py-2 bg-slate-50/70 border border-slate-200/90 rounded-lg text-xs font-semibold text-slate-900 outline-none focus:bg-white focus:border-purple-600 focus:ring-1 focus:ring-purple-500/10 transition-all"
+                className="w-full !pl-11 pr-4 py-2.5 bg-slate-50/60 border border-slate-200/90 rounded-xl text-xs font-semibold text-slate-900 outline-none focus:bg-white focus:border-purple-600 focus:ring-2 focus:ring-purple-500/15 transition-all placeholder:text-slate-400 placeholder:font-normal"
               />
             </div>
             {errors.ic_name && (
@@ -223,12 +225,14 @@ export default function UserProfileModal({ isOpen, onClose }: UserProfileModalPr
               เบอร์โทรศัพท์ IC <span className="text-rose-500">*</span>
             </label>
             <div className="relative">
-              <Phone size={15} className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 pointer-events-none" />
+              <div className="absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400 pointer-events-none flex items-center justify-center">
+                <Phone size={16} />
+              </div>
               <input 
                 type="text"
                 {...register('ic_phone')}
                 placeholder="เช่น 081-234-5678"
-                className="w-full pl-9 pr-3 py-2 bg-slate-50/70 border border-slate-200/90 rounded-lg text-xs font-semibold text-slate-900 outline-none focus:bg-white focus:border-purple-600 focus:ring-1 focus:ring-purple-500/10 transition-all font-mono"
+                className="w-full !pl-11 pr-4 py-2.5 bg-slate-50/60 border border-slate-200/90 rounded-xl text-xs font-semibold text-slate-900 font-mono outline-none focus:bg-white focus:border-purple-600 focus:ring-2 focus:ring-purple-500/15 transition-all placeholder:text-slate-400 placeholder:font-normal"
               />
             </div>
             {errors.ic_phone && (
@@ -244,34 +248,36 @@ export default function UserProfileModal({ isOpen, onClose }: UserProfileModalPr
               ลิงก์รูปภาพโปรไฟล์ (Avatar URL)
             </label>
             <div className="relative">
-              <ImageIcon size={15} className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 pointer-events-none" />
+              <div className="absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400 pointer-events-none flex items-center justify-center">
+                <ImageIcon size={16} />
+              </div>
               <input 
                 type="url"
                 {...register('avatar_url')}
                 placeholder="https://images.unsplash.com/... หรือ ลิงก์รูปภาพอื่นๆ"
-                className="w-full pl-9 pr-3 py-2 bg-slate-50/70 border border-slate-200/90 rounded-lg text-xs font-medium text-slate-900 outline-none focus:bg-white focus:border-purple-600 focus:ring-1 focus:ring-purple-500/10 transition-all font-mono"
+                className="w-full !pl-11 pr-4 py-2.5 bg-slate-50/60 border border-slate-200/90 rounded-xl text-xs font-medium text-slate-900 font-mono outline-none focus:bg-white focus:border-purple-600 focus:ring-2 focus:ring-purple-500/15 transition-all placeholder:text-slate-400"
               />
             </div>
-            <p className="text-[10px] text-slate-400 m-0 mt-1">
+            <p className="text-[11px] text-slate-400 m-0 mt-1">
               รองรับ URL รูปภาพไฟล์ .png, .jpg, .webp หรือกดปุ่ม "ดึงรูปจาก Discord" ด้านบน
             </p>
           </div>
 
           {/* Security Notice */}
-          <div className="p-3 bg-slate-50 border border-slate-200/70 rounded-lg flex items-start gap-2 text-slate-500">
-            <ShieldCheck size={14} className="text-slate-400 shrink-0 mt-0.5" />
-            <p className="text-[11px] m-0 leading-relaxed font-normal">
+          <div className="p-3.5 bg-purple-50/40 border border-purple-100 rounded-xl flex items-start gap-2.5 text-slate-600">
+            <ShieldCheck size={16} className="text-purple-600 shrink-0 mt-0.5" />
+            <p className="text-xs m-0 leading-relaxed text-slate-600 font-normal">
               ตำแหน่งหน้าที่และสิทธิ์การเข้าใช้งานระบบถูกกำหนดโดยผู้อำนวยการโรงพยาบาล หากมีการเลื่อนขั้นหรือปรับหน้าที่ กรุณาติดต่อผู้ดูแลระบบ
             </p>
           </div>
 
           {/* Action Buttons */}
-          <div className="pt-2 flex items-center justify-end gap-2 border-t border-slate-100">
+          <div className="pt-3 flex items-center justify-end gap-2.5 border-t border-slate-100">
             <button
               type="button"
               onClick={onClose}
               disabled={isSubmitting}
-              className="px-4 py-2 bg-white hover:bg-slate-50 text-slate-700 border border-slate-200 rounded-lg text-xs font-semibold cursor-pointer transition-colors"
+              className="px-4 py-2.5 bg-white hover:bg-slate-100/80 text-slate-700 border border-slate-200/90 rounded-xl text-xs font-semibold cursor-pointer transition-all active:scale-98"
             >
               ยกเลิก
             </button>
@@ -279,7 +285,7 @@ export default function UserProfileModal({ isOpen, onClose }: UserProfileModalPr
             <button
               type="submit"
               disabled={isSubmitting}
-              className="flex items-center gap-1.5 px-4 py-2 bg-purple-600 hover:bg-purple-700 text-white rounded-lg text-xs font-bold transition-all shadow-2xs cursor-pointer border-none disabled:opacity-50"
+              className="flex items-center gap-2 px-5 py-2.5 bg-purple-600 hover:bg-purple-700 active:scale-98 text-white rounded-xl text-xs font-bold transition-all shadow-xs hover:shadow-sm cursor-pointer border-none disabled:opacity-50 disabled:cursor-not-allowed"
             >
               {isSubmitting ? (
                 <>

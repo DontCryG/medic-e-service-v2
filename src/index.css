@@ -279,24 +279,24 @@ input, select, textarea, button {
   margin-bottom: 0.5rem;
 }
 
-.form-input, .form-textarea, input[type="text"], input[type="number"], input[type="password"], textarea, select, .modal-input, .modal-select {
+.form-input, .form-textarea, .modal-input, .modal-select {
   width: 100%;
-  padding: 1rem;
+  padding: 0.75rem 1rem;
   border: 1px solid var(--border-color);
   border-radius: 12px;
   font-family: inherit;
-  font-size: 1rem;
+  font-size: 0.95rem;
   outline: none;
   transition: border-color 0.2s;
   background-color: var(--surface-color);
   color: var(--text-primary);
 }
 
-.form-input:focus, .form-textarea:focus, input:focus, textarea:focus, select:focus, .modal-input:focus, .modal-select:focus {
+.form-input:focus, .form-textarea:focus, .modal-input:focus, .modal-select:focus {
   border-color: var(--primary);
 }
 
-.form-textarea, textarea {
+.form-textarea {
   min-height: 120px;
   resize: vertical;
 }
