@@ -34,7 +34,6 @@ pub async fn delete_user(
     let _ = st.db.delete("queue_status", &[("discord_id", eq(target_id))]).await;
     let _ = st.db.delete("duty_logs", &[("discord_id", eq(target_id))]).await;
     let _ = st.db.delete("queue_manager_logs", &[("discord_id", eq(target_id))]).await;
-    let _ = st.db.delete("story_logs", &[("discord_id", eq(target_id))]).await;
     let _ = st.db.delete("leave_requests", &[("discord_id", eq(target_id))]).await;
     let _ = st.db.delete("accounting_logs", &[("discord_id", eq(target_id))]).await;
     let _ = st.db.delete("inventory_logs", &[("discord_id", eq(target_id))]).await;
