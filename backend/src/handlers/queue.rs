@@ -97,7 +97,11 @@ pub async fn update_status(
     user: AuthUser,
     Json(payload): Json<UpdateStatusReq>,
 ) -> ApiResult<()> {
-    let target_id = resolve_target(&user, payload.target_discord_id.as_deref())?;
+    let target_id = payload
+        .target_discord_id
+        .as_deref()
+        .filter(|t| !t.is_empty())
+        .unwrap_or(&user.discord_id);
     let new_status = payload.status.as_deref().filter(|s| !s.is_empty());
 
     // Fetch existing queue_status
@@ -109,6 +113,20 @@ pub async fn update_status(
         )
         .await?;
     let existing = rows.first();
+
+    // Permission check: allow setting or unsetting "unavailable" for other doctors.
+    // Setting "queued" or "manager" for others still requires admin privilege.
+    if target_id != user.discord_id && !user.is_admin() {
+        let is_toggling_unavailable = match new_status {
+            Some("unavailable") => true,
+            None => existing.and_then(|r| r.status.as_deref()) == Some("unavailable"),
+            _ => false,
+        };
+
+        if !is_toggling_unavailable {
+            return Err(AppError::Forbidden);
+        }
+    }
 
     // If leaving manager, record history
     if let Some(row) = existing {
