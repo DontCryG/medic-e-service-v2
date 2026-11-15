@@ -1,5 +1,6 @@
 import { useState, useEffect, useMemo } from 'react';
 import { supabase } from '@/lib/supabase';
+import { useAppConfig } from '@/hooks/useAppConfig';
 import { 
   X, 
   Filter, 
@@ -31,6 +32,9 @@ export function HistoryModal({ isOpen, onClose }: HistoryModalProps) {
 
   const [startDate, setStartDate] = useState<Date | null>(null);
   const [endDate, setEndDate] = useState<Date | null>(null);
+  const { config } = useAppConfig();
+  const minMins = config.queue_bonus_min_minutes || 120;
+  const bonusHrs = config.queue_bonus_hours || 2;
 
   const handleSetDefaultDates = (tab: 'manager' | 'summary') => {
     if (tab === 'manager') {
@@ -120,13 +124,13 @@ export function HistoryModal({ isOpen, onClose }: HistoryModalProps) {
       let bonusDays = 0;
       if (data.daily_manager_mins) {
         Object.values(data.daily_manager_mins).forEach((mins: any) => {
-          if (mins >= 120) bonusDays++;
+          if (mins >= minMins) bonusDays++;
         });
       }
       return { 
         ...data, 
         bonusDays, 
-        bonusHours: bonusDays * 2 
+        bonusHours: bonusDays * bonusHrs 
       };
     }).sort((a, b) => b.total_manager_mins - a.total_manager_mins);
   }, [managerLogs]);
@@ -425,7 +429,7 @@ export function HistoryModal({ isOpen, onClose }: HistoryModalProps) {
                     <div className="text-[11px] font-semibold text-slate-400">โบนัสเวลาสะสมที่ได้รับ</div>
                     <div className="text-base font-extrabold text-emerald-700">
                       {totalBonusDaysAll} <span className="text-xs font-bold text-emerald-600">วัน</span>{' '}
-                      <span className="text-xs font-medium text-slate-400">(+{totalBonusDaysAll * 2} ชม.)</span>
+                      <span className="text-xs font-medium text-slate-400">(+{totalBonusDaysAll * bonusHrs} ชม.)</span>
                     </div>
                   </div>
                 </div>
@@ -436,7 +440,7 @@ export function HistoryModal({ isOpen, onClose }: HistoryModalProps) {
                 <Sparkles size={16} className="text-purple-600 shrink-0 mt-0.5" />
                 <p className="m-0 leading-relaxed text-[11px]">
                   <span className="font-bold text-purple-800">เกณฑ์การคำนวณโบนัสผู้จัดการคิว:</span>{' '}
-                  แพทย์ที่ปฏิบัติหน้าที่รับคิวสะสมในแต่ละวันครบ <span className="font-bold underline text-purple-900">120 นาที (2 ชั่วโมง)</span> ขึ้นไป จะได้รับโบนัสเวลาเวรเพิ่ม <span className="font-bold text-emerald-700">+2 ชม. ต่อวัน</span> โดยอัตโนมัติ
+                  แพทย์ที่ปฏิบัติหน้าที่รับคิวสะสมในแต่ละวันครบ <span className="font-bold underline text-purple-900">{minMins} นาที {minMins >= 60 ? `(${Math.floor(minMins/60)} ชม. ${minMins % 60 > 0 ? `${minMins % 60} น.` : ''})` : ''}</span> ขึ้นไป จะได้รับโบนัสเวลาเวรเพิ่ม <span className="font-bold text-emerald-700">+{bonusHrs} ชม. ต่อวัน</span> โดยอัตโนมัติ
                 </p>
               </div>
 
@@ -455,7 +459,7 @@ export function HistoryModal({ isOpen, onClose }: HistoryModalProps) {
                         เวลารับคิวสะสม
                       </th>
                       <th className="px-4 py-3 font-bold text-slate-500 uppercase tracking-wider text-[11px] text-center">
-                        จำนวนวันผ่านเกณฑ์ (≥120น.)
+                        จำนวนวันผ่านเกณฑ์ (≥{minMins}น.)
                       </th>
                       <th className="px-4 py-3 font-bold text-slate-500 uppercase tracking-wider text-[11px] text-right">
                         โบนัสเวลาที่ได้รับ
@@ -568,7 +572,7 @@ export function HistoryModal({ isOpen, onClose }: HistoryModalProps) {
                 </thead>
                 <tbody className="divide-y divide-slate-100">
                   {groupedManagerLogs.length > 0 ? groupedManagerLogs.map((log: any) => {
-                    const hasBonus = log.total_mins >= 120;
+                    const hasBonus = log.total_mins >= minMins;
                     return (
                       <tr key={log.id} className="hover:bg-slate-50/80 transition-colors">
                         <td className="px-4 py-3">
@@ -612,11 +616,11 @@ export function HistoryModal({ isOpen, onClose }: HistoryModalProps) {
                           {hasBonus ? (
                             <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-md text-[11px] font-bold bg-emerald-50 text-emerald-700 border border-emerald-200/70">
                               <CheckCircle2 size={12} />
-                              ผ่านเกณฑ์ (+2 ชม.)
+                              ผ่านเกณฑ์ (+{bonusHrs} ชม.)
                             </span>
                           ) : (
                             <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-md text-[10px] font-medium text-slate-500 bg-slate-50 border border-slate-200/80">
-                              ขาดอีก {120 - Math.round(log.total_mins)} น.
+                              ขาดอีก {minMins - Math.round(log.total_mins)} น.
                             </span>
                           )}
                         </td>

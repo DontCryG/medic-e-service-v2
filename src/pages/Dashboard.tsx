@@ -12,9 +12,11 @@ import {
   Activity, 
   ArrowRight, 
   ShieldCheck, 
-  Radio
+  Radio,
+  Megaphone
 } from 'lucide-react';
 import { useLiveUsers, useCurrentSession } from './DutySystem/hooks/useDutyQueries';
+import { useAppConfig } from '@/hooks/useAppConfig';
 
 interface ServiceCardProps {
   icon: React.ReactNode;
@@ -73,6 +75,7 @@ export default function Dashboard() {
   const { user: profile } = useAuthStore();
   const navigate = useNavigate();
   const isAdmin = checkIsAdmin(profile?.role);
+  const { config } = useAppConfig();
 
   // Live ops data
   const { data: liveUsers = [] } = useLiveUsers();
@@ -126,6 +129,21 @@ export default function Dashboard() {
           </div>
         </div>
       </div>
+
+      {/* Announcement Banner (If Configured) */}
+      {config.announcement_banner && (
+        <div className="bg-purple-50/70 border border-purple-200/80 rounded-xl p-3.5 flex items-center gap-3 shadow-2xs">
+          <div className="w-8 h-8 rounded-lg bg-purple-100 text-purple-700 flex items-center justify-center shrink-0">
+            <Megaphone size={16} />
+          </div>
+          <div className="min-w-0 flex-1">
+            <div className="flex items-center gap-2 flex-wrap">
+              <span className="text-[10px] font-bold text-purple-700 bg-purple-100/90 px-1.5 py-0.2 rounded border border-purple-200">ประกาศด่วน</span>
+              <span className="text-xs font-semibold text-slate-900">{config.announcement_banner}</span>
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* Live Telemetry Status Cards (Row of 3 cards) */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
@@ -283,10 +301,10 @@ export default function Dashboard() {
       <div className="bg-white border border-slate-200/80 rounded-xl p-4 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 shadow-2xs">
         <div>
           <h3 className="text-xs font-bold text-slate-900 m-0 mb-0.5">คู่มือและกฎระเบียบหน่วยงานแพทย์</h3>
-          <p className="text-xs text-slate-500 m-0 font-normal">อ่านแนวทางการปฏิบัติงานและระเบียบของหน่วยงานแพทย์ WIP TOWN</p>
+          <p className="text-xs text-slate-500 m-0 font-normal">อ่านแนวทางการปฏิบัติงานและระเบียบของหน่วยงานแพทย์ {config.org_name || 'WIP TOWN'}</p>
         </div>
         <a 
-          href="https://sites.google.com/view/wiptown/medic" 
+          href={config.guide_url || 'https://sites.google.com/view/wiptown/medic'} 
           target="_blank" 
           rel="noopener noreferrer" 
           className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-slate-50 hover:bg-slate-100 border border-slate-200 text-slate-700 rounded-lg font-semibold text-xs no-underline transition-colors shrink-0"

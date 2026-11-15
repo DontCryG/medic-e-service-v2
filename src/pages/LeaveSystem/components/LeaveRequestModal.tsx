@@ -3,6 +3,7 @@ import { X, ClipboardList, CalendarDays, Clock, AlertTriangle } from 'lucide-rea
 import SmartSelect from '../../../components/common/SmartSelect';
 import SmartDatePicker from '../../../components/common/SmartDatePicker';
 import { useCreateLeave } from '../hooks/useLeaveMutations';
+import { useAppConfig } from '@/hooks/useAppConfig';
 import { supabase } from '@/lib/supabase';
 import { showErrorAlert } from '@/utils/alert';
 import { useForm, Controller } from 'react-hook-form';
@@ -48,6 +49,8 @@ export default function LeaveRequestModal({ onClose, profile }: LeaveRequestModa
   const [dutyDaysCount, setDutyDaysCount] = useState<number | null>(null);
   const [hasUsedVacation, setHasUsedVacation] = useState<boolean | null>(null);
   const createLeaveMutation = useCreateLeave();
+  const { config } = useAppConfig();
+  const vacationMinDays = config.vacation_min_duty_days || 30;
 
   const { control, handleSubmit, watch, setValue, formState: { errors } } = useForm<LeaveFormValues>({
     resolver: zodResolver(leaveSchema),
@@ -154,8 +157,8 @@ export default function LeaveRequestModal({ onClose, profile }: LeaveRequestModa
         return `${d.getFullYear()}-${d.getMonth()}-${d.getDate()}`;
       }));
 
-      if (distinctDays.size < 30) {
-        showErrorAlert('ไม่สามารถลางานได้', `คุณต้องเข้าเวรให้ครบ 30 วันก่อนจึงจะลาพักร้อนได้ (ปัจจุบันเข้าเวรไปแล้ว ${distinctDays.size} วัน)`);
+      if (distinctDays.size < vacationMinDays) {
+        showErrorAlert('ไม่สามารถลางานได้', `คุณต้องเข้าเวรให้ครบ ${vacationMinDays} วันก่อนจึงจะลาพักร้อนได้ (ปัจจุบันเข้าเวรไปแล้ว ${distinctDays.size} วัน)`);
         return;
       }
     }
@@ -302,19 +305,19 @@ export default function LeaveRequestModal({ onClose, profile }: LeaveRequestModa
                       <span className="text-slate-400">กำลังตรวจสอบ...</span>
                     ) : (
                       <span className="font-bold">
-                        <strong className={dutyDaysCount >= 30 ? 'text-emerald-700' : 'text-amber-700'}>
+                        <strong className={dutyDaysCount >= vacationMinDays ? 'text-emerald-700' : 'text-amber-700'}>
                           {dutyDaysCount}
-                        </strong> / 30 วัน {dutyDaysCount >= 30 ? (
+                        </strong> / {vacationMinDays} วัน {dutyDaysCount >= vacationMinDays ? (
                           <span className="text-emerald-600 font-bold">(ครบเกณฑ์)</span>
                         ) : (
-                          <span className="text-amber-600 font-bold">(ยังไม่ครบ 30 วัน)</span>
+                          <span className="text-amber-600 font-bold">(ยังไม่ครบ {vacationMinDays} วัน)</span>
                         )}
                       </span>
                     )}
                   </span>
                 </div>
                 <p className="text-[10px] text-slate-500 m-0 pt-0.5 leading-tight">
-                  * หมายเหตุ: ต้องเข้าเวรสะสมครบ 30 วันขึ้นไป ได้รับค่าตอบแทนเวรปกติเมื่อได้รับการอนุมัติ
+                  * หมายเหตุ: {config.vacation_notice_detail || `ต้องเข้าเวรสะสมครบ ${vacationMinDays} วันขึ้นไป ได้รับค่าตอบแทนเวรปกติเมื่อได้รับการอนุมัติ`}
                 </p>
               </div>
             </div>
@@ -333,7 +336,7 @@ export default function LeaveRequestModal({ onClose, profile }: LeaveRequestModa
               </div>
               <div className="text-[11px] text-slate-600 space-y-0.5 pt-1.5 border-t border-purple-200/50 leading-relaxed">
                 <div>• ช่วงเวลา: <strong>{formatDateDisplay(startDate)}</strong> ถึง <strong>{formatDateDisplay(endDate)}</strong></div>
-                <div>• สำหรับลากิจส่วนตัวหรือมีธุระจำเป็น กรุณาระบุเหตุผลอย่างชัดเจนเพื่อให้ผู้บริหารพิจารณาอนุมัติ</div>
+                <div>• {config.leave_notice_detail || 'สำหรับลากิจส่วนตัวหรือมีธุระจำเป็น กรุณาระบุเหตุผลอย่างชัดเจนเพื่อให้ผู้บริหารพิจารณาอนุมัติ'}</div>
               </div>
             </div>
           )}
@@ -350,8 +353,7 @@ export default function LeaveRequestModal({ onClose, profile }: LeaveRequestModa
                 </span>
               </div>
               <div className="text-[11px] text-rose-800 space-y-0.5 pt-1.5 border-t border-rose-200/60 leading-relaxed">
-                <div>• การยื่นคำร้องนี้เป็นการแจ้งความประสงค์ขอพ้นสภาพบุคลากรทางการแพทย์</div>
-                <div>• เมื่อได้รับการอนุมัติ สถานะจะถูกปรับเป็น "Resigned" และถูกตัดสิทธิ์การเข้าใช้งานระบบทันที</div>
+                <div>• {config.resign_notice_detail || 'การยื่นคำร้องนี้เป็นการแจ้งความประสงค์ขอพ้นสภาพบุคลากรทางการแพทย์ และเมื่อได้รับการอนุมัติ สถานะจะถูกปรับเป็น "Resigned" และถูกตัดสิทธิ์การเข้าใช้งานระบบทันที'}</div>
               </div>
             </div>
           )}

@@ -135,12 +135,13 @@ export function calculateSalary(
       leave => leave.status === 'approved'
     );
     
-    // Only give the 3 hour bonus if they worked 7 days AND have no approved leaves
+    // Only give the bonus if they worked 7 days AND have no approved leaves
+    const bonus7DayHours = settings.bonus_7day_hours !== undefined ? Number(settings.bonus_7day_hours) : 3;
     if (daysWorked.size >= 7 && !hasLeaves) {
-      totalMinutes += 3 * 60; 
+      totalMinutes += bonus7DayHours * 60; 
     }
 
-    // Check for Queue Manager Bonus (2 hours for every day >= 120 mins)
+    // Check for Queue Manager Bonus
     const qmLogs = userQueueManager[user.discord_id] || [];
     const qmDailyMins: Record<string, number> = {};
     qmLogs.forEach(log => {
@@ -149,9 +150,12 @@ export function calculateSalary(
       qmDailyMins[dayKey] = (qmDailyMins[dayKey] || 0) + (log.duration_minutes || 0);
     });
 
+    const qmMinMins = settings.queue_bonus_min_minutes !== undefined ? Number(settings.queue_bonus_min_minutes) : 120;
+    const qmBonusHours = settings.queue_bonus_hours !== undefined ? Number(settings.queue_bonus_hours) : 2;
+
     Object.values(qmDailyMins).forEach(mins => {
-      if (mins >= 120) {
-        totalMinutes += 120; // +2 hours bonus
+      if (mins >= qmMinMins) {
+        totalMinutes += qmBonusHours * 60;
       }
     });
 
@@ -192,9 +196,10 @@ export function calculateSalary(
     let mentor_money = 0;
 
     // Calculate mentor money
+    const mentorRate = settings.mentor_reward_amount !== undefined ? Number(settings.mentor_reward_amount) : 500000;
     logs.forEach(log => {
       if (log.duty_type === 'mentor') {
-        mentor_money += 500000;
+        mentor_money += mentorRate;
       }
     });
 
