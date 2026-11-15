@@ -9,25 +9,25 @@
 
 .smart-datepicker-input {
   width: 100%;
-  padding: 0.75rem 1rem 0.75rem 1rem;
+  padding: 0.45rem 0.75rem;
   background-color: white;
   border: 1px solid var(--border-color, #e2e8f0);
   border-radius: 8px;
-
-  font-size: 0.95rem;
+  font-size: 0.8125rem;
   color: var(--text-color, #1e293b);
-  transition: all 0.2s ease;
+  transition: all 0.15s ease;
   outline: none;
-  min-height: 48px;
+  min-height: 38px;
+  height: 38px;
 }
 
 .smart-datepicker-input.has-icon {
-  padding-left: 2.5rem !important;
+  padding-left: 2.25rem !important;
 }
 
 .smart-datepicker-input:focus {
-  border-color: #3b82f6;
-  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+  border-color: #7e22ce;
+  box-shadow: 0 0 0 2px rgba(126, 34, 206, 0.08);
 }
 
 .smart-datepicker-input:disabled {
@@ -41,7 +41,7 @@
   left: 0.75rem;
   top: 50%;
   transform: translateY(-50%);
-  color: #64748b;
+  color: #94a3b8;
   pointer-events: none;
   z-index: 1;
 }

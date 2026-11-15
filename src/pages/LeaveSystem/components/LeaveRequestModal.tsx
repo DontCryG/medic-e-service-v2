@@ -128,16 +128,16 @@ export default function LeaveRequestModal({ onClose, profile }: LeaveRequestModa
 
   return (
     <div className="fixed inset-0 bg-slate-900/30 backdrop-blur-xs z-50 flex items-center justify-center p-4 animate-in fade-in duration-150" onClick={onClose}>
-      <div className="bg-white rounded-xl w-full max-w-md shadow-xl overflow-hidden border border-slate-200/90 animate-in zoom-in-98 duration-150" onClick={e => e.stopPropagation()}>
+      <div className="bg-white rounded-xl w-full max-w-[420px] shadow-xl overflow-hidden border border-slate-200/90 animate-in zoom-in-98 duration-150" onClick={e => e.stopPropagation()}>
         {/* Header */}
-        <div className="flex justify-between items-center px-5 py-4 border-b border-slate-100 bg-white">
+        <div className="flex justify-between items-center px-5 py-3.5 border-b border-slate-100 bg-white">
           <div className="flex items-center gap-2">
             <div className={`w-7 h-7 rounded-lg flex items-center justify-center border ${
               leaveType === 'vacation' ? 'bg-emerald-50 text-emerald-600 border-emerald-200/60' :
               leaveType === 'resign' ? 'bg-rose-50 text-rose-600 border-rose-200/60' : 
-              'bg-purple-50 text-purple-600 border-purple-200/60'
+              'bg-purple-50 text-[#7e22ce] border-purple-200/60'
             }`}>
-              <ClipboardList size={16} />
+              <ClipboardList size={15} />
             </div>
             <h2 className="text-sm font-bold text-slate-900 m-0">
               ยื่นใบคำร้องการลา
@@ -145,16 +145,16 @@ export default function LeaveRequestModal({ onClose, profile }: LeaveRequestModa
           </div>
           <button 
             type="button" 
-            className="p-1.5 text-slate-400 hover:text-slate-700 hover:bg-slate-100 rounded-lg transition-colors cursor-pointer border-none bg-transparent" 
+            className="p-1 text-slate-400 hover:text-slate-700 hover:bg-slate-100 rounded-md transition-colors cursor-pointer border-none bg-transparent" 
             onClick={onClose}
           >
             <X size={16} />
           </button>
         </div>
 
-        <form onSubmit={handleSubmit(onSubmit)} className="p-5 flex flex-col gap-4">
+        <form onSubmit={handleSubmit(onSubmit)} className="p-5 flex flex-col gap-3.5">
           <div>
-            <label className="block text-xs font-bold text-slate-700 mb-1.5">
+            <label className="block text-xs font-semibold text-slate-700 mb-1">
               ประเภทการลา <span className="text-rose-500">*</span>
             </label>
             <Controller
@@ -177,51 +177,47 @@ export default function LeaveRequestModal({ onClose, profile }: LeaveRequestModa
 
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
             <div>
-              <label className="block text-xs font-bold text-slate-700 mb-1.5">
+              <label className="block text-xs font-semibold text-slate-700 mb-1">
                 วันที่เริ่มลา <span className="text-rose-500">*</span>
               </label>
-              <div className="w-full h-[38px]">
-                <Controller
-                  name="startDate"
-                  control={control}
-                  render={({ field }) => (
-                    <SmartDatePicker
-                      selected={field.value}
-                      onChange={field.onChange}
-                      placeholderText="เลือกวันที่เริ่มลา"
-                    />
-                  )}
-                />
-              </div>
+              <Controller
+                name="startDate"
+                control={control}
+                render={({ field }) => (
+                  <SmartDatePicker
+                    selected={field.value}
+                    onChange={field.onChange}
+                    placeholderText="เลือกวันที่เริ่มลา"
+                  />
+                )}
+              />
               {errors.startDate && <span className="text-rose-500 text-xs mt-1 block font-medium">{errors.startDate.message}</span>}
             </div>
 
             {leaveType !== 'resign' && (
               <div>
-                <label className="block text-xs font-bold text-slate-700 mb-1.5">
+                <label className="block text-xs font-semibold text-slate-700 mb-1">
                   วันที่สิ้นสุด <span className="text-rose-500">*</span>
                 </label>
-                <div className="w-full h-[38px]">
-                  <Controller
-                    name="endDate"
-                    control={control}
-                    render={({ field }) => (
-                      <SmartDatePicker
-                        selected={field.value}
-                        onChange={field.onChange}
-                        minDate={startDate || undefined}
-                        placeholderText="เลือกวันที่สิ้นสุด"
-                      />
-                    )}
-                  />
-                </div>
+                <Controller
+                  name="endDate"
+                  control={control}
+                  render={({ field }) => (
+                    <SmartDatePicker
+                      selected={field.value}
+                      onChange={field.onChange}
+                      minDate={startDate || undefined}
+                      placeholderText="เลือกวันที่สิ้นสุด"
+                    />
+                  )}
+                />
                 {errors.endDate && <span className="text-rose-500 text-xs mt-1 block font-medium">{errors.endDate.message}</span>}
               </div>
             )}
           </div>
 
           <div>
-            <label className="block text-xs font-bold text-slate-700 mb-1.5">
+            <label className="block text-xs font-semibold text-slate-700 mb-1">
               เหตุผลการลา <span className="text-rose-500">*</span>
             </label>
             <Controller
@@ -232,17 +228,17 @@ export default function LeaveRequestModal({ onClose, profile }: LeaveRequestModa
                   {...field}
                   placeholder="ระบุเหตุผลการลาอย่างชัดเจน..."
                   rows={3}
-                  className="w-full px-3 py-2 rounded-lg border border-slate-200/90 bg-slate-50/60 focus:bg-white text-slate-800 text-xs focus:outline-none focus:ring-2 focus:ring-purple-500/10 focus:border-purple-600 transition-all resize-none font-medium"
+                  className="w-full px-3 py-2 rounded-lg border border-slate-200/90 bg-slate-50/50 focus:bg-white text-slate-800 text-xs focus:outline-none focus:ring-2 focus:ring-purple-500/10 focus:border-[#7e22ce] transition-all resize-none font-medium"
                 />
               )}
             />
             {errors.reason && <span className="text-rose-500 text-xs mt-1 block font-medium">{errors.reason.message}</span>}
           </div>
 
-          <div className="flex gap-2.5 justify-end pt-4 border-t border-slate-100">
+          <div className="flex gap-2 justify-end pt-3 border-t border-slate-100 mt-1">
             <button 
               type="button" 
-              className="px-4 py-2 rounded-lg border border-slate-200 text-slate-600 text-xs font-semibold hover:bg-slate-50 transition-colors cursor-pointer bg-white" 
+              className="px-3.5 py-1.5 rounded-lg border border-slate-200 text-slate-600 text-xs font-semibold hover:bg-slate-50 transition-colors cursor-pointer bg-white" 
               onClick={onClose}
               disabled={isSubmitting || createLeaveMutation.isPending}
             >
@@ -250,10 +246,10 @@ export default function LeaveRequestModal({ onClose, profile }: LeaveRequestModa
             </button>
             <button 
               type="submit" 
-              className={`px-4 py-2 rounded-lg border-none text-xs font-semibold text-white transition-all cursor-pointer shadow-sm ${
+              className={`px-4 py-1.5 rounded-lg border-none text-xs font-semibold text-white transition-all cursor-pointer shadow-2xs ${
                 leaveType === 'vacation' ? 'bg-emerald-600 hover:bg-emerald-700' :
                 leaveType === 'resign' ? 'bg-rose-600 hover:bg-rose-700' :
-                'bg-purple-600 hover:bg-purple-700'
+                'bg-[#7e22ce] hover:bg-[#6b21a8]'
               } disabled:opacity-50 disabled:cursor-not-allowed`}
               disabled={isSubmitting || createLeaveMutation.isPending}
             >
