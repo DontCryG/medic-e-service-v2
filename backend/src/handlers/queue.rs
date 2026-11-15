@@ -4,7 +4,7 @@ use axum::Json;
 use chrono::Utc;
 use serde::Deserialize;
 use serde_json::{json, Value};
-use tracing::warn;
+use tracing::{info, warn};
 
 use crate::auth::AuthUser;
 use crate::db::{eq, neq};
@@ -186,6 +186,7 @@ pub async fn update_status(
         }
     }
 
+    info!("📋 [Queue] Doctor {target_id} updated status to {new_status:?}");
     Ok(ok("อัปเดตสถานะคิวสำเร็จ"))
 }
 
@@ -196,5 +197,6 @@ pub async fn clear_queue(
 ) -> ApiResult<()> {
     let target_id = resolve_target(&user, payload.as_ref().and_then(|p| p.target_discord_id.as_deref()))?;
     manager::clear_queue_for(&st.db, target_id).await?;
+    info!("📋 [Queue] Doctor {target_id} cleared queue status");
     Ok(ok("เคลียร์สถานะคิวเรียบร้อย"))
 }

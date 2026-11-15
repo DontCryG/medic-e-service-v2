@@ -4,6 +4,7 @@ use axum::Json;
 use chrono::Utc;
 use serde::Deserialize;
 use serde_json::{json, Value};
+use tracing::info;
 use crate::auth::AuthUser;
 use crate::db::eq;
 use crate::duty_logic::{minutes, round4, ts};
@@ -51,6 +52,7 @@ pub async fn clock_in(
             &json!({ "discord_id": target_id, "status": "on_duty", "clock_in": ts(Utc::now()), "total_break_minutes": 0 }),
         )
         .await?;
+    info!("🩺 [Clock-In] Doctor {target_id} clocked in successfully");
     discord::notify_clock_in(Arc::clone(&st), target_id.to_string());
     Ok(ok("เข้าเวรสำเร็จ"))
 }
@@ -80,6 +82,7 @@ pub async fn toggle_break(
         }
         // Doctors on break leave the queue.
         manager::clear_queue_for(&st.db, target_id).await?;
+        info!("☕ [Break Start] Doctor {target_id} started break");
         discord::notify_break(Arc::clone(&st), target_id.to_string(), true);
         return Ok(ok_with("เริ่มพักเบรก", json!({ "status": "on_break" })));
     }
@@ -88,6 +91,7 @@ pub async fn toggle_break(
     if let Some(deadline) = s.break_deadline().filter(|d| *d <= now) {
         duty::close_session(&st.db, &s, deadline, "eq.on_break").await?.ok_or_else(changed_elsewhere)?;
         let _ = manager::clear_queue_for(&st.db, target_id).await;
+        info!("🚨 [Auto Clock-Out] Doctor {target_id} exceeded 15m break limit");
         discord::notify_auto_clock_out(Arc::clone(&st), target_id.to_string());
         return Ok(ok_with(
             "พักเบรกเกิน 15 นาที ระบบออกเวรให้อัตโนมัติแล้ว",
@@ -108,6 +112,7 @@ pub async fn toggle_break(
     if n == 0 {
         return Err(changed_elsewhere());
     }
+    info!("🩺 [Break End] Doctor {target_id} resumed duty (total break: {total_break:.2} mins)");
     discord::notify_break(Arc::clone(&st), target_id.to_string(), false);
     Ok(ok_with("กลับเข้าเวรสำเร็จ", json!({ "status": "on_duty" })))
 }
@@ -140,6 +145,7 @@ pub async fn clock_out(
         .ok_or_else(changed_elsewhere)?;
 
     let _ = manager::clear_queue_for(&st.db, target_id).await;
+    info!("🚪 [Clock-Out] Doctor {target_id} clocked out: {} mins (deleted: {})", closed.duty_minutes, closed.deleted);
     discord::notify_clock_out(Arc::clone(&st), target_id.to_string(), closed.duty_minutes, closed.deleted);
 
     let message = if closed.deleted { "ยกเลิกการเข้าเวรเนื่องจากเวลาไม่ถึง 1 นาที" } else { "ออกเวรสำเร็จ" };
