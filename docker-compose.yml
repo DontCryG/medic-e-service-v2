@@ -5,6 +5,11 @@ services:
       dockerfile: Dockerfile
     container_name: medic_backend
     restart: unless-stopped
+    env_file:
+      - path: .env
+        required: false
+      - path: ./backend/.env
+        required: false
     environment:
       - PORT=3001
       - SUPABASE_URL=${SUPABASE_URL:-https://phxsdgkergzxhljhnteu.supabase.co}
