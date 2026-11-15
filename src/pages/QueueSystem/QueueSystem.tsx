@@ -8,7 +8,6 @@ import { useQueue } from './hooks/useQueue';
 import { useQueueMutations } from './hooks/useQueueMutations';
 import { QueueRow } from './components/QueueRow';
 import { HistoryModal } from './components/HistoryModal';
-import { isAdmin as checkIsAdmin } from '@/utils/permissions';
 
 export function QueueSystem() {
   const { user } = useAuthStore();
@@ -34,11 +33,11 @@ export function QueueSystem() {
   };
 
   return (
-    <div className="p-4 md:p-6 lg:p-8 bg-slate-50 min-h-full text-slate-800">
+    <div className="w-full max-w-[1400px] mx-auto flex flex-col gap-6 animate-in fade-in duration-200">
       <PageHeader
         title="ระบบจัดการคิว (Queue System)"
-        subtitle="แสดงสถานะแพทย์ที่กำลังเข้าเวร และจัดลำดับการเรียกคิว"
-        icon={<LayoutGrid size={24} />}
+        subtitle="แสดงสถานะแพทย์ที่กำลังเข้าเวร และจัดลำดับการเรียกคิวแบบเรียลไทม์"
+        icon={<LayoutGrid size={18} />}
         iconTheme="purple"
         badge={
           realtimeConnected
@@ -46,7 +45,7 @@ export function QueueSystem() {
             : { label: 'ขาดการเชื่อมต่อ (Offline)', variant: 'warning' }
         }
         actions={
-          <div className="flex flex-wrap sm:flex-nowrap items-center gap-3 w-full sm:w-auto shrink-0">
+          <div className="flex flex-wrap sm:flex-nowrap items-center gap-2.5 w-full sm:w-auto shrink-0">
             <div className="flex items-center gap-2 shrink-0">
               <input 
                 type="text" 
@@ -54,41 +53,41 @@ export function QueueSystem() {
                 value={volunteerName}
                 onChange={(e) => setVolunteerName(e.target.value)}
                 onKeyDown={(e) => e.key === 'Enter' && handleAddVolunteer()}
-                className="px-3.5 py-2 text-sm bg-white border border-slate-200 rounded-xl outline-none focus:border-purple-600 focus:ring-2 focus:ring-purple-500/10 w-44 transition-all placeholder:text-slate-400"
+                className="px-3 py-1.5 text-xs bg-white border border-slate-200/80 rounded-lg outline-none focus:border-purple-600 focus:ring-1 focus:ring-purple-500/20 w-44 transition-all placeholder:text-slate-400 font-medium"
               />
               <button 
                 onClick={(e) => { e.currentTarget.disabled = true; handleAddVolunteer(); }}
                 disabled={!volunteerName.trim() || isProcessing}
-                className="flex items-center gap-1.5 px-4 py-2 bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl text-sm font-bold transition-all shadow-sm hover:shadow active:scale-95 disabled:opacity-50 disabled:cursor-not-allowed border-none cursor-pointer whitespace-nowrap shrink-0"
+                className="flex items-center gap-1.5 px-3 py-1.5 bg-emerald-600 hover:bg-emerald-700 active:scale-98 text-white rounded-lg text-xs font-bold transition-all shadow-2xs disabled:opacity-50 disabled:cursor-not-allowed border-none cursor-pointer whitespace-nowrap shrink-0"
               >
-                <UserPlus size={16} className="shrink-0" />
+                <UserPlus size={14} className="shrink-0" />
                 <span>เพิ่มแพทย์อาสา</span>
               </button>
             </div>
             <button 
-              className="flex items-center gap-2 px-4 py-2 bg-white border border-slate-200/80 rounded-xl text-sm font-bold text-slate-700 cursor-pointer transition-all hover:bg-slate-50 shadow-sm whitespace-nowrap shrink-0" 
+              className="flex items-center gap-1.5 px-3 py-1.5 bg-white border border-slate-200/80 rounded-lg text-xs font-semibold text-slate-700 cursor-pointer transition-colors hover:bg-slate-50 shadow-2xs whitespace-nowrap shrink-0" 
               onClick={() => setIsHistoryOpen(true)}
             >
-              <History size={16} className="shrink-0" />
+              <History size={14} className="shrink-0 text-slate-500" />
               <span>ประวัติการจัดการ</span>
             </button>
           </div>
         }
       />
 
-      <div className="bg-white rounded-2xl shadow-sm border border-slate-200 overflow-visible mb-8">
+      <div className="bg-white rounded-xl shadow-2xs border border-slate-200/80 overflow-visible mb-6">
         <div className="w-full overflow-x-auto pb-[120px] -mb-[120px]">
-          <table className="w-full min-w-[760px] text-left border-collapse">
+          <table className="w-full min-w-[760px] text-left border-collapse text-xs">
             <thead>
-              <tr>
-                <th className="p-4 text-xs font-bold text-slate-500 uppercase tracking-wider border-b border-slate-200 bg-slate-50 w-[30%]">รายชื่อแพทย์</th>
-                <th className="p-4 text-xs font-bold text-slate-500 uppercase tracking-wider border-b border-slate-200 bg-slate-50 text-center w-[12%]">ไม่สะดวก</th>
-                <th className="p-4 text-xs font-bold text-slate-500 uppercase tracking-wider border-b border-slate-200 bg-slate-50 text-center w-[12%]">พร้อมรับคิว</th>
-                <th className="p-4 text-xs font-bold text-slate-500 uppercase tracking-wider border-b border-slate-200 bg-slate-50 text-center w-[12%]">ผู้จัดการคิว</th>
-                <th className="p-4 text-xs font-bold text-slate-500 uppercase tracking-wider border-b border-slate-200 bg-slate-50 w-[34%]">หมายเหตุ</th>
+              <tr className="bg-slate-50/80">
+                <th className="p-3.5 text-[11px] font-semibold text-slate-500 uppercase tracking-wider border-b border-slate-200/70 w-[30%]">รายชื่อแพทย์</th>
+                <th className="p-3.5 text-[11px] font-semibold text-slate-500 uppercase tracking-wider border-b border-slate-200/70 text-center w-[12%]">ไม่สะดวก</th>
+                <th className="p-3.5 text-[11px] font-semibold text-slate-500 uppercase tracking-wider border-b border-slate-200/70 text-center w-[12%]">พร้อมรับคิว</th>
+                <th className="p-3.5 text-[11px] font-semibold text-slate-500 uppercase tracking-wider border-b border-slate-200/70 text-center w-[12%]">ผู้จัดการคิว</th>
+                <th className="p-3.5 text-[11px] font-semibold text-slate-500 uppercase tracking-wider border-b border-slate-200/70 w-[34%]">หมายเหตุ</th>
               </tr>
             </thead>
-            <tbody>
+            <tbody className="divide-y divide-slate-100">
               {isLoading ? (
                 <tr>
                   <td colSpan={5} className="p-6">
@@ -107,7 +106,7 @@ export function QueueSystem() {
                 ))
               ) : (
                 <tr>
-                  <td colSpan={5} className="p-4">
+                  <td colSpan={5} className="p-6">
                     <EmptyState
                       title="ไม่มีบุคลากรในคิวปฏิบัติการ"
                       description="รายชื่อแพทย์ที่เข้าเวรจะปรากฏที่นี่โดยอัตโนมัติ"
@@ -123,8 +122,9 @@ export function QueueSystem() {
       <HistoryModal 
         isOpen={isHistoryOpen} 
         onClose={() => setIsHistoryOpen(false)} 
-        isAdmin={checkIsAdmin(user?.role)}
       />
     </div>
   );
 }
+
+export default QueueSystem;
