@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { X, ClipboardList } from 'lucide-react';
+import { X, ClipboardList, CalendarDays, Clock, AlertTriangle } from 'lucide-react';
 import SmartSelect from '../../../components/common/SmartSelect';
 import SmartDatePicker from '../../../components/common/SmartDatePicker';
 import { useCreateLeave } from '../hooks/useLeaveMutations';
@@ -45,6 +45,8 @@ interface LeaveRequestModalProps {
 
 export default function LeaveRequestModal({ onClose, profile }: LeaveRequestModalProps) {
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [dutyDaysCount, setDutyDaysCount] = useState<number | null>(null);
+  const [hasUsedVacation, setHasUsedVacation] = useState<boolean | null>(null);
   const createLeaveMutation = useCreateLeave();
 
   const { control, handleSubmit, watch, setValue, formState: { errors } } = useForm<LeaveFormValues>({
@@ -62,6 +64,39 @@ export default function LeaveRequestModal({ onClose, profile }: LeaveRequestModa
   const endDate = watch('endDate');
 
   useEffect(() => {
+    if (!profile?.discord_id) return;
+    
+    // Check vacation usage
+    supabase
+      .from('leave_requests')
+      .select('id')
+      .eq('discord_id', profile.discord_id)
+      .eq('leave_type', 'vacation')
+      .in('status', ['pending', 'approved'])
+      .then(({ data }) => {
+        setHasUsedVacation(!!(data && data.length > 0));
+      });
+
+    // Check duty days
+    supabase
+      .from('duty_logs')
+      .select('clock_in')
+      .eq('discord_id', profile.discord_id)
+      .eq('status', 'completed')
+      .then(({ data }) => {
+        if (data) {
+          const days = new Set(data.map(log => {
+            const d = new Date(log.clock_in);
+            return `${d.getFullYear()}-${d.getMonth()}-${d.getDate()}`;
+          }));
+          setDutyDaysCount(days.size);
+        } else {
+          setDutyDaysCount(0);
+        }
+      });
+  }, [profile?.discord_id]);
+
+  useEffect(() => {
     if (startDate && endDate && leaveType !== 'resign') {
       const start = new Date(startDate);
       start.setHours(0,0,0,0);
@@ -72,6 +107,23 @@ export default function LeaveRequestModal({ onClose, profile }: LeaveRequestModa
       }
     }
   }, [startDate, leaveType, setValue]); 
+
+  const calculateTotalDays = (start: Date | null | undefined, end: Date | null | undefined) => {
+    if (!start) return 0;
+    if (!end) return 1;
+    const s = new Date(start);
+    s.setHours(0, 0, 0, 0);
+    const e = new Date(end);
+    e.setHours(0, 0, 0, 0);
+    const diff = e.getTime() - s.getTime();
+    if (diff < 0) return 0;
+    return Math.floor(diff / (1000 * 60 * 60 * 24)) + 1;
+  };
+
+  const formatDateDisplay = (date: Date | null | undefined) => {
+    if (!date) return '-';
+    return date.toLocaleDateString('th-TH', { day: 'numeric', month: 'short', year: 'numeric' });
+  };
 
   const onSubmit = async (data: LeaveFormValues) => {
     if (!profile?.discord_id) return;
@@ -128,7 +180,7 @@ export default function LeaveRequestModal({ onClose, profile }: LeaveRequestModa
 
   return (
     <div className="fixed inset-0 bg-slate-900/30 backdrop-blur-xs z-50 flex items-center justify-center p-4 animate-in fade-in duration-150" onClick={onClose}>
-      <div className="bg-white rounded-xl w-full max-w-[420px] shadow-xl overflow-hidden border border-slate-200/90 animate-in zoom-in-98 duration-150" onClick={e => e.stopPropagation()}>
+      <div className="bg-white rounded-xl w-full max-w-[430px] shadow-xl overflow-hidden border border-slate-200/90 animate-in zoom-in-98 duration-150" onClick={e => e.stopPropagation()}>
         {/* Header */}
         <div className="flex justify-between items-center px-5 py-3.5 border-b border-slate-100 bg-white">
           <div className="flex items-center gap-2">
@@ -153,6 +205,7 @@ export default function LeaveRequestModal({ onClose, profile }: LeaveRequestModa
         </div>
 
         <form onSubmit={handleSubmit(onSubmit)} className="p-5 flex flex-col gap-3.5">
+          {/* Leave Type Select */}
           <div>
             <label className="block text-xs font-semibold text-slate-700 mb-1">
               ประเภทการลา <span className="text-rose-500">*</span>
@@ -175,10 +228,11 @@ export default function LeaveRequestModal({ onClose, profile }: LeaveRequestModa
             {errors.leaveType && <span className="text-rose-500 text-xs mt-1 block font-medium">{errors.leaveType.message}</span>}
           </div>
 
+          {/* Date Pickers */}
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
             <div>
               <label className="block text-xs font-semibold text-slate-700 mb-1">
-                วันที่เริ่มลา <span className="text-rose-500">*</span>
+                {leaveType === 'resign' ? 'วันที่มีผลลาออก' : 'วันที่เริ่มลา'} <span className="text-rose-500">*</span>
               </label>
               <Controller
                 name="startDate"
@@ -216,6 +270,93 @@ export default function LeaveRequestModal({ onClose, profile }: LeaveRequestModa
             )}
           </div>
 
+          {/* Dynamic Information & Rules Banner */}
+          {leaveType === 'vacation' && (
+            <div className="p-3 bg-emerald-50/80 border border-emerald-200/80 rounded-lg text-xs space-y-1.5 animate-in fade-in duration-150">
+              <div className="flex items-center justify-between">
+                <span className="font-bold text-emerald-900 flex items-center gap-1.5">
+                  <CalendarDays size={14} className="text-emerald-600" />
+                  สรุปวันลาพักร้อน:
+                </span>
+                <span className="font-bold text-emerald-700 bg-white px-2 py-0.5 rounded border border-emerald-200 shadow-2xs font-mono">
+                  รวม {calculateTotalDays(startDate, endDate)} วัน
+                </span>
+              </div>
+              <div className="text-[11px] text-emerald-800 space-y-1 pt-1.5 border-t border-emerald-200/60">
+                <div className="flex justify-between items-center">
+                  <span className="text-slate-600">• สิทธิ์การลาประจำปี:</span>
+                  <span>
+                    {hasUsedVacation === null ? (
+                      <span className="text-slate-400">กำลังตรวจสอบ...</span>
+                    ) : hasUsedVacation ? (
+                      <span className="text-rose-600 font-bold bg-rose-50 px-1.5 py-0.2 rounded border border-rose-200/60">ใช้สิทธิ์ไปแล้ว (1 ครั้ง/ปี)</span>
+                    ) : (
+                      <span className="text-emerald-700 font-bold bg-white px-1.5 py-0.2 rounded border border-emerald-200/60">ยังไม่เคยใช้สิทธิ์ (มีสิทธิ์ลาได้)</span>
+                    )}
+                  </span>
+                </div>
+                <div className="flex justify-between items-center">
+                  <span className="text-slate-600">• ประวัติเข้าเวรสะสม:</span>
+                  <span>
+                    {dutyDaysCount === null ? (
+                      <span className="text-slate-400">กำลังตรวจสอบ...</span>
+                    ) : (
+                      <span className="font-bold">
+                        <strong className={dutyDaysCount >= 30 ? 'text-emerald-700' : 'text-amber-700'}>
+                          {dutyDaysCount}
+                        </strong> / 30 วัน {dutyDaysCount >= 30 ? (
+                          <span className="text-emerald-600 font-bold">(ครบเกณฑ์)</span>
+                        ) : (
+                          <span className="text-amber-600 font-bold">(ยังไม่ครบ 30 วัน)</span>
+                        )}
+                      </span>
+                    )}
+                  </span>
+                </div>
+                <p className="text-[10px] text-slate-500 m-0 pt-0.5 leading-tight">
+                  * หมายเหตุ: ต้องเข้าเวรสะสมครบ 30 วันขึ้นไป ได้รับค่าตอบแทนเวรปกติเมื่อได้รับการอนุมัติ
+                </p>
+              </div>
+            </div>
+          )}
+
+          {leaveType === 'leave' && (
+            <div className="p-3 bg-purple-50/60 border border-purple-200/70 rounded-lg text-xs space-y-1.5 animate-in fade-in duration-150">
+              <div className="flex items-center justify-between">
+                <span className="font-bold text-slate-800 flex items-center gap-1.5">
+                  <Clock size={14} className="text-[#7e22ce]" />
+                  สรุปวันลากิจ:
+                </span>
+                <span className="font-bold text-[#7e22ce] bg-white px-2 py-0.5 rounded border border-purple-200 shadow-2xs font-mono">
+                  รวม {calculateTotalDays(startDate, endDate)} วัน
+                </span>
+              </div>
+              <div className="text-[11px] text-slate-600 space-y-0.5 pt-1.5 border-t border-purple-200/50 leading-relaxed">
+                <div>• ช่วงเวลา: <strong>{formatDateDisplay(startDate)}</strong> ถึง <strong>{formatDateDisplay(endDate)}</strong></div>
+                <div>• สำหรับลากิจส่วนตัวหรือมีธุระจำเป็น กรุณาระบุเหตุผลอย่างชัดเจนเพื่อให้ผู้บริหารพิจารณาอนุมัติ</div>
+              </div>
+            </div>
+          )}
+
+          {leaveType === 'resign' && (
+            <div className="p-3 bg-rose-50/80 border border-rose-200/80 rounded-lg text-xs space-y-1.5 animate-in fade-in duration-150">
+              <div className="flex items-center justify-between">
+                <span className="font-bold text-rose-900 flex items-center gap-1.5">
+                  <AlertTriangle size={14} className="text-rose-600" />
+                  ข้อควรทราบการลาออก:
+                </span>
+                <span className="font-bold text-rose-700 bg-white px-2 py-0.5 rounded border border-rose-200 shadow-2xs">
+                  มีผล {formatDateDisplay(startDate)}
+                </span>
+              </div>
+              <div className="text-[11px] text-rose-800 space-y-0.5 pt-1.5 border-t border-rose-200/60 leading-relaxed">
+                <div>• การยื่นคำร้องนี้เป็นการแจ้งความประสงค์ขอพ้นสภาพบุคลากรทางการแพทย์</div>
+                <div>• เมื่อได้รับการอนุมัติ สถานะจะถูกปรับเป็น "Resigned" และถูกตัดสิทธิ์การเข้าใช้งานระบบทันที</div>
+              </div>
+            </div>
+          )}
+
+          {/* Reason Textarea */}
           <div>
             <label className="block text-xs font-semibold text-slate-700 mb-1">
               เหตุผลการลา <span className="text-rose-500">*</span>
@@ -226,7 +367,13 @@ export default function LeaveRequestModal({ onClose, profile }: LeaveRequestModa
               render={({ field }) => (
                 <textarea
                   {...field}
-                  placeholder="ระบุเหตุผลการลาอย่างชัดเจน..."
+                  placeholder={
+                    leaveType === 'resign' 
+                      ? 'ระบุเหตุผลความจำเป็นในการลาออก...' 
+                      : leaveType === 'vacation' 
+                      ? 'ระบุรายละเอียดการลาพักร้อน...' 
+                      : 'ระบุเหตุผลการลาอย่างชัดเจน...'
+                  }
                   rows={3}
                   className="w-full px-3 py-2 rounded-lg border border-slate-200/90 bg-slate-50/50 focus:bg-white text-slate-800 text-xs focus:outline-none focus:ring-2 focus:ring-purple-500/10 focus:border-[#7e22ce] transition-all resize-none font-medium"
                 />
@@ -235,6 +382,7 @@ export default function LeaveRequestModal({ onClose, profile }: LeaveRequestModa
             {errors.reason && <span className="text-rose-500 text-xs mt-1 block font-medium">{errors.reason.message}</span>}
           </div>
 
+          {/* Action Buttons */}
           <div className="flex gap-2 justify-end pt-3 border-t border-slate-100 mt-1">
             <button 
               type="button" 
