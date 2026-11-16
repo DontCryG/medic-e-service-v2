@@ -14,7 +14,8 @@ import {
   ShieldCheck, 
   Radio,
   Megaphone,
-  UserCog
+  UserCog,
+  TrendingUp
 } from 'lucide-react';
 import { useLiveUsers, useCurrentSession } from './DutySystem/hooks/useDutyQueries';
 import { useAppConfig } from '@/hooks/useAppConfig';
@@ -304,6 +305,14 @@ export default function Dashboard() {
               title="ระบบคำนวณเงินเดือน"
               description="ประมวลผลค่ารอบเวร โบนัสพี่เลี้ยง และจัดพิมพ์ใบสรุปสลิปเงินเดือน"
               path="/salary"
+            />
+            <ServiceCard 
+              theme="purple"
+              icon={<TrendingUp size={18} />}
+              title="สถิติและภาพรวมองค์กร (BI)"
+              description="วิเคราะห์ความหนาแน่นการเข้าเวร (Heatmap) การเติบโต และงบประมาณค่าตอบแทน"
+              path="/analytics"
+              badge="EXECUTIVE"
             />
           </div>
         </section>

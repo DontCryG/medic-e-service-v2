@@ -43,6 +43,7 @@ const DutySystem = lazyWithRetry(() => import('./pages/DutySystem'));
 const SalarySystem = lazyWithRetry(() => import('./pages/SalarySystem'));
 const LeaveSystem = lazyWithRetry(() => import('./pages/LeaveSystem'));
 const QueueSystem = lazyWithRetry(() => import('./pages/QueueSystem/QueueSystem').then(m => ({ default: m.QueueSystem })));
+const AnalyticsSystem = lazyWithRetry(() => import('./pages/AnalyticsSystem'));
 const SystemSettings = lazyWithRetry(() => import('./pages/SystemSettings'));
 
 const queryClient = new QueryClient({
@@ -137,6 +138,15 @@ const SalaryRoute = () => {
   );
 };
 
+// Analytics System Wrapper
+const AnalyticsRoute = () => {
+  return (
+    <AdminRoute>
+      <AnalyticsSystem />
+    </AdminRoute>
+  );
+};
+
 // Component to run hooks that need QueryClient context
 function AppEffects() {
   useAppRealtime();
@@ -166,6 +176,7 @@ const router = createBrowserRouter(
         {/* Admin Routes */}
         <Route path="/personnel" element={<PersonnelRoute />} />
         <Route path="/salary" element={<SalaryRoute />} />
+        <Route path="/analytics" element={<AnalyticsRoute />} />
         <Route path="/settings" element={<AdminRoute><SystemSettings /></AdminRoute>} />
       </Route>
 

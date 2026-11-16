@@ -9,7 +9,8 @@ import {
   Banknote, 
   Settings, 
   LogOut,
-  UserCog
+  UserCog,
+  TrendingUp
 } from 'lucide-react';
 import { useAuthStore } from '../store/authStore';
 import { isAdmin } from '../utils/permissions';
@@ -146,6 +147,11 @@ export default function Sidebar({ isMobileMenuOpen, setIsMobileMenuOpen, isColla
               <NavLink to="/salary" className={navLinkClass} onClick={handleNavClick} title="ระบบคำนวณเงินเดือน">
                 <Banknote size={17} className={isCollapsed ? '' : 'shrink-0 text-slate-500'} />
                 {!isCollapsed && <span className="truncate">คำนวณเงินเดือน</span>}
+              </NavLink>
+
+              <NavLink to="/analytics" className={navLinkClass} onClick={handleNavClick} title="สถิติและภาพรวมองค์กร (BI Analytics)">
+                <TrendingUp size={17} className={isCollapsed ? '' : 'shrink-0 text-slate-500'} />
+                {!isCollapsed && <span className="truncate">สถิติและภาพรวม (BI)</span>}
               </NavLink>
             </>
           )}
