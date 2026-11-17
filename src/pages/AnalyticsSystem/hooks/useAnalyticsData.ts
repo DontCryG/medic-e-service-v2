@@ -1,5 +1,6 @@
 import { useQuery } from '@tanstack/react-query';
 import { supabase } from '@/lib/supabase';
+import { api } from '@/lib/api';
 import { fetchAllRows } from '@/utils/supabasePagination';
 import { useAuthStore } from '@/store/authStore';
 import { calculateSalary } from '@/pages/SalarySystem/utils/salaryCalculations';
@@ -31,7 +32,24 @@ export function useAnalyticsData(
     queryKey: analyticsKeys.summary(preset, current.start.toISOString(), current.end.toISOString()),
     staleTime: 60 * 1000, // 1 minute fresh cache
     queryFn: async (): Promise<AnalyticsSummary> => {
-      // 1. Fetch Users & Positions
+      // 1. Try High-Performance Rust Backend first
+      try {
+        const data = await api.analytics.summary(current.start.toISOString(), current.end.toISOString());
+        if (data) {
+          return {
+            ...data,
+            dateRange: {
+              startDate: new Date(data.dateRange.startDate),
+              endDate: new Date(data.dateRange.endDate),
+              daysCount: data.dateRange.daysCount,
+            }
+          };
+        }
+      } catch (err) {
+        console.warn('Rust backend analytics failed, using client-side fallback:', err);
+      }
+
+      // 2. Client-side fallback for resilience
       const usersQuery = supabase
         .from('users')
         .select(`

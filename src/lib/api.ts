@@ -101,6 +101,56 @@ export const api = {
     },
   },
 
+  salary: {
+    calculate: async (startDate: string, endDate: string) => {
+      const res = await request('/api/salary/calculate', {
+        method: 'POST',
+        body: JSON.stringify({ start_date: startDate, end_date: endDate }),
+      });
+      return res.data;
+    },
+  },
+
+  analytics: {
+    summary: async (startDate: string, endDate: string) => {
+      const res = await request('/api/analytics/summary', {
+        method: 'POST',
+        body: JSON.stringify({ start_date: startDate, end_date: endDate }),
+      });
+      return res.data;
+    },
+  },
+
+  leave: {
+    request: async (params: { leave_type: string; start_date: string; end_date: string; reason: string }) => {
+      return request('/api/leave/request', {
+        method: 'POST',
+        body: JSON.stringify(params),
+      });
+    },
+    review: async (params: { id: string; status: 'approved' | 'rejected'; admin_comment?: string }) => {
+      return request('/api/leave/review', {
+        method: 'POST',
+        body: JSON.stringify(params),
+      });
+    },
+    delete: async (id: string) => {
+      return request('/api/leave/delete', {
+        method: 'POST',
+        body: JSON.stringify({ id }),
+      });
+    },
+  },
+
+  audit: {
+    getLogs: async (limit = 50, offset = 0) => {
+      const res = await request(`/api/admin/audit-logs?limit=${limit}&offset=${offset}`, {
+        method: 'GET',
+      });
+      return res.data;
+    },
+  },
+
   health: async () => {
     const res = await fetch(`${API_BASE_URL}/api/health`);
     return res.json();

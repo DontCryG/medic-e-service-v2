@@ -13,6 +13,7 @@ use crate::state::AppState;
 pub struct AuthUser {
     pub discord_id: String,
     pub role: String,
+    pub ic_name: String,
 }
 
 impl AuthUser {
@@ -24,6 +25,7 @@ impl AuthUser {
 #[derive(Deserialize)]
 struct RoleRow {
     role: Option<String>,
+    ic_name: Option<String>,
 }
 
 impl FromRequestParts<Arc<AppState>> for AuthUser {
@@ -53,12 +55,14 @@ impl FromRequestParts<Arc<AppState>> for AuthUser {
 
         let rows: Vec<RoleRow> = state
             .db
-            .select("users", &[("select", "role".into()), ("discord_id", eq(&discord_id))])
+            .select("users", &[("select", "role,ic_name".into()), ("discord_id", eq(&discord_id))])
             .await?;
-        let role = rows.into_iter().next().and_then(|r| r.role).unwrap_or_default();
+        let row = rows.into_iter().next();
+        let role = row.as_ref().and_then(|r| r.role.clone()).unwrap_or_default();
+        let ic_name = row.and_then(|r| r.ic_name).unwrap_or_else(|| discord_id.clone());
         match role.as_str() {
             "" | "user" | "resigned" => Err(AppError::Forbidden),
-            _ => Ok(Self { discord_id, role }),
+            _ => Ok(Self { discord_id, role, ic_name }),
         }
     }
 }

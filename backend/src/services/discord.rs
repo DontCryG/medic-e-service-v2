@@ -139,3 +139,27 @@ pub fn notify_auto_clock_out(st: Arc<AppState>, discord_id: String) {
         }
     });
 }
+
+pub fn notify_leave_event(st: Arc<AppState>, title: String, description: String, color: u32) {
+    let webhook = match st.discord_webhook_url.clone() {
+        Some(w) if !w.trim().is_empty() => w,
+        _ => return,
+    };
+
+    tokio::spawn(async move {
+        let payload = json!({
+            "username": "Medic Hospital System",
+            "avatar_url": "https://cdn-icons-png.flaticon.com/512/3063/3063176.png",
+            "embeds": [{
+                "title": title,
+                "description": description,
+                "color": color,
+                "timestamp": Utc::now().to_rfc3339()
+            }]
+        });
+
+        if let Err(e) = st.http.post(&webhook).json(&payload).send().await {
+            warn!("Failed to send Discord leave notification: {e:?}");
+        }
+    });
+}

@@ -1,5 +1,6 @@
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { supabase } from '@/lib/supabase';
+import { api } from '@/lib/api';
 import { showErrorAlert } from '@/utils/alert';
 import toast from 'react-hot-toast';
 import { leaveKeys } from './useLeaveQueries';
@@ -19,6 +20,18 @@ export function useCreateLeave() {
 
   return useMutation({
     mutationFn: async (params: CreateLeaveParams) => {
+      // 1. Try Rust Backend validation & creation
+      try {
+        await api.leave.request(params);
+        return;
+      } catch (err: any) {
+        if (err.statusCode && err.statusCode < 500) {
+          throw err;
+        }
+        console.warn('Rust backend leave request failed, falling back to direct supabase:', err);
+      }
+
+      // 2. Direct Supabase Fallback
       const { error } = await supabase
         .from('leave_requests')
         .insert([params]);
@@ -58,6 +71,18 @@ export function useUpdateLeaveStatus() {
 
   return useMutation({
     mutationFn: async ({ id, status, approved_by, admin_comment }: UpdateLeaveStatusParams) => {
+      // 1. Try Rust Backend review
+      try {
+        await api.leave.review({ id, status, admin_comment });
+        return;
+      } catch (err: any) {
+        if (err.statusCode && err.statusCode < 500) {
+          throw err;
+        }
+        console.warn('Rust backend leave review failed, falling back to direct supabase:', err);
+      }
+
+      // 2. Direct Supabase Fallback
       const approverName = approved_by || profile?.ic_name || 'ผู้ดูแลระบบ';
       
       const updatePayload: any = { status };
@@ -71,9 +96,7 @@ export function useUpdateLeaveStatus() {
         .select('*')
         .single();
       
-      // Fallback if approved_by or admin_comment column doesn't exist in Supabase table yet (code 42703)
       if (error && error.code === '42703') {
-        console.warn('leave_requests table is missing approved_by or admin_comment column. Falling back to status update.');
         const fallbackRes = await supabase
           .from('leave_requests')
           .update({ status })
@@ -88,7 +111,6 @@ export function useUpdateLeaveStatus() {
 
       if (!updatedLeave) return;
 
-      // Notify the user who requested the leave with details
       const notifTitle = status === 'approved' 
         ? 'ใบลาของคุณได้รับการอนุมัติแล้ว' 
         : 'ใบลาของคุณไม่ได้รับการอนุมัติ';
@@ -105,7 +127,6 @@ export function useUpdateLeaveStatus() {
         link: '/leave'
       });
 
-      // If approved and it is a resign request, update user role to 'resigned' and position_id to null
       if (status === 'approved' && updatedLeave.leave_type === 'resign') {
         const { error: userError } = await supabase
           .from('users')
@@ -131,6 +152,18 @@ export function useDeleteLeave() {
 
   return useMutation({
     mutationFn: async (id: string) => {
+      // 1. Try Rust Backend delete
+      try {
+        await api.leave.delete(id);
+        return;
+      } catch (err: any) {
+        if (err.statusCode && err.statusCode < 500) {
+          throw err;
+        }
+        console.warn('Rust backend leave delete failed, falling back to direct supabase:', err);
+      }
+
+      // 2. Direct Supabase Fallback
       const { error } = await supabase
         .from('leave_requests')
         .delete()

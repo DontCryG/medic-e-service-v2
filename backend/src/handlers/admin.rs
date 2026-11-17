@@ -42,6 +42,17 @@ pub async fn delete_user(
     // 2. Delete user record from users table
     st.db.delete("users", &[("discord_id", eq(target_id))]).await?;
 
+    crate::services::audit::log_action(
+        &st.db,
+        &user.discord_id,
+        Some(&user.ic_name),
+        "USER_DELETE",
+        "user",
+        Some(target_id),
+        None,
+    )
+    .await;
+
     info!("🗑️ [Admin] Personnel {target_id} deleted successfully by admin {}", user.discord_id);
     Ok(ok("ลบข้อมูลบุคลากรสำเร็จ"))
 }

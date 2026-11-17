@@ -1,4 +1,9 @@
 pub mod admin;
+pub mod analytics;
+pub mod audit;
+pub mod discord_bot;
 pub mod duty;
 pub mod health;
+pub mod leave;
 pub mod queue;
+pub mod salary;

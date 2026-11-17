@@ -11,6 +11,9 @@ pub struct Config {
     pub db_key: String,
     pub cors_origin: String,
     pub discord_webhook_url: Option<String>,
+    pub discord_bot_token: Option<String>,
+    pub discord_application_id: Option<String>,
+    pub discord_public_key: Option<String>,
 }
 
 fn var(names: &[&str]) -> Option<String> {
@@ -43,6 +46,9 @@ impl Config {
             db_key,
             cors_origin: var(&["CORS_ORIGIN"]).unwrap_or_else(|| "*".to_string()),
             discord_webhook_url: var(&["DISCORD_WEBHOOK_URL"]),
+            discord_bot_token: var(&["DISCORD_BOT_TOKEN"]),
+            discord_application_id: var(&["DISCORD_APPLICATION_ID"]),
+            discord_public_key: var(&["DISCORD_PUBLIC_KEY"]),
         }
     }
 }

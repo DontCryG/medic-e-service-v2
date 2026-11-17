@@ -18,8 +18,9 @@ use tracing::info;
 use tracing_subscriber::{layer::SubscriberExt, util::SubscriberInitExt};
 
 use crate::config::Config;
-use crate::handlers::{admin, duty, health, queue};
+use crate::handlers::{admin, analytics, audit, discord_bot, duty, health, leave, queue, salary};
 use crate::services::break_watchdog::start_break_watchdog;
+use crate::services::discord_bot::register_slash_commands_if_configured;
 use crate::state::AppState;
 
 #[tokio::main]
@@ -36,6 +37,11 @@ async fn main() {
     let state = Arc::new(AppState::new(&config));
 
     start_break_watchdog(Arc::clone(&state));
+
+    let bot_state = Arc::clone(&state);
+    tokio::spawn(async move {
+        register_slash_commands_if_configured(&bot_state).await;
+    });
 
     // Login uses a Bearer token (not cookies), so "*" is safe for development.
     // Set CORS_ORIGIN to the real site URL in production.
@@ -56,6 +62,13 @@ async fn main() {
         .route("/api/queue/status", post(queue::update_status))
         .route("/api/queue/clear", post(queue::clear_queue))
         .route("/api/admin/user/delete", post(admin::delete_user))
+        .route("/api/admin/audit-logs", get(audit::get_audit_logs))
+        .route("/api/leave/request", post(leave::request_leave))
+        .route("/api/leave/review", post(leave::review_leave_status))
+        .route("/api/leave/delete", post(leave::delete_leave_item))
+        .route("/api/salary/calculate", post(salary::calculate_salary))
+        .route("/api/analytics/summary", post(analytics::get_analytics_summary))
+        .route("/api/discord/interactions", post(discord_bot::discord_interactions_endpoint))
         .with_state(state)
         .layer(cors)
         .layer(TraceLayer::new_for_http());

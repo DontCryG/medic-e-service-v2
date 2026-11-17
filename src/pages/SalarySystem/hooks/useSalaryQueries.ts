@@ -1,5 +1,6 @@
 ﻿import { useQuery } from '@tanstack/react-query';
 import { supabase } from '@/lib/supabase';
+import { api } from '@/lib/api';
 import { fetchAllRows } from '@/utils/supabasePagination';
 import { useAuthStore } from '@/store/authStore';
 import { calculateSalary, type SalaryResult } from '../utils/salaryCalculations';
@@ -14,8 +15,18 @@ export function useSalaryData(startDate: Date, endDate: Date) {
   return useQuery({
     enabled: !!user && !!startDate && !!endDate,
     queryKey: salaryKeys.summary(startDate, endDate),
-    queryFn: async () => {
-      // 1. Fetch all users with positions
+    queryFn: async (): Promise<SalaryResult[]> => {
+      // 1. Try High-Performance Rust Backend first
+      try {
+        const data = await api.salary.calculate(startDate.toISOString(), endDate.toISOString());
+        if (data?.results) {
+          return data.results;
+        }
+      } catch (err) {
+        console.warn('Rust backend salary calculation failed, using fallback:', err);
+      }
+
+      // 2. Client-side fallback for resilience
       const usersQuery = supabase
         .from('users')
         .select(`
@@ -31,7 +42,6 @@ export function useSalaryData(startDate: Date, endDate: Date) {
         .not('role', 'in', '("user","resigned")');
       const users = await fetchAllRows(usersQuery);
 
-      // 2. Fetch all duty logs within date range
       const logsQuery = supabase
         .from('duty_logs')
         .select('*')
@@ -40,7 +50,6 @@ export function useSalaryData(startDate: Date, endDate: Date) {
         .eq('status', 'completed');
       const logs = await fetchAllRows(logsQuery);
 
-      // 3. Fetch all leave logs within date range
       const leaveQuery = supabase
         .from('leave_requests')
         .select('*')
@@ -48,7 +57,6 @@ export function useSalaryData(startDate: Date, endDate: Date) {
         .lte('start_date', endDate.toISOString());
       const leaveLogs = await fetchAllRows(leaveQuery);
 
-      // 4. Fetch queue manager logs within date range
       const queueQuery = supabase
         .from('queue_manager_logs')
         .select('*')
@@ -56,7 +64,6 @@ export function useSalaryData(startDate: Date, endDate: Date) {
         .lte('start_time', endDate.toISOString());
       const queueLogs = await fetchAllRows(queueQuery);
 
-      // 5. Fetch system settings
       const settingsQuery = supabase
         .from('system_settings')
         .select('*');
@@ -67,14 +74,12 @@ export function useSalaryData(startDate: Date, endDate: Date) {
         return acc;
       }, {});
 
-      // Ensure proper typing for calculateSalary
       const typedUsers = users.map(u => ({
         ...u,
         positions: Array.isArray(u.positions) ? u.positions[0] : u.positions
       }));
 
-      // Calculate the results
-      const results = calculateSalary(
+      return calculateSalary(
         typedUsers as any,
         logs || [],
         leaveLogs || [],
@@ -82,7 +87,6 @@ export function useSalaryData(startDate: Date, endDate: Date) {
         queueLogs || [],
         settingsMap
       );
-      return results;
     },
     staleTime: 60 * 1000,
   });

@@ -20,6 +20,28 @@ pub fn neq(v: &str) -> String {
     format!("neq.{v}")
 }
 
+pub fn gte(v: &str) -> String {
+    format!("gte.{v}")
+}
+
+pub fn lte(v: &str) -> String {
+    format!("lte.{v}")
+}
+
+#[allow(dead_code)]
+pub fn gt(v: &str) -> String {
+    format!("gt.{v}")
+}
+
+#[allow(dead_code)]
+pub fn lt(v: &str) -> String {
+    format!("lt.{v}")
+}
+
+pub fn not_in(v: &str) -> String {
+    format!("not.in.({v})")
+}
+
 impl Db {
     pub fn new(http: Client, supabase_url: &str, key: String) -> Self {
         Self { http, rest_url: format!("{supabase_url}/rest/v1"), key }
@@ -50,6 +72,32 @@ impl Db {
     pub async fn select<T: DeserializeOwned>(&self, table: &str, query: &[(&str, String)]) -> Result<Vec<T>, AppError> {
         let v = Self::send(self.req(Method::GET, table, query)).await?;
         serde_json::from_value(v).map_err(|e| AppError::Upstream(format!("bad rows from {table}: {e}")))
+    }
+
+    /// Fetches all rows across multiple pages (handles PostgREST 1000-row limit)
+    pub async fn select_all<T: DeserializeOwned>(&self, table: &str, query: &[(&str, String)]) -> Result<Vec<T>, AppError> {
+        let page_size = 1000;
+        let mut offset = 0;
+        let mut all_rows = Vec::new();
+
+        loop {
+            let mut page_query: Vec<(&str, String)> = query.to_vec();
+            let limit_str = page_size.to_string();
+            let offset_str = offset.to_string();
+            page_query.push(("limit", limit_str));
+            page_query.push(("offset", offset_str));
+
+            let page: Vec<T> = self.select(table, &page_query).await?;
+            let len = page.len();
+            all_rows.extend(page);
+
+            if len < page_size {
+                break;
+            }
+            offset += page_size;
+        }
+
+        Ok(all_rows)
     }
 
     pub async fn insert(&self, table: &str, body: &Value) -> Result<(), AppError> {
