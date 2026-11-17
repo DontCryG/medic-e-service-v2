@@ -47,9 +47,15 @@ async fn main() {
 
     // Login uses a Bearer token (not cookies), so "*" is safe for development.
     // Set CORS_ORIGIN to the real site URL in production.
-    let origin = match config.cors_origin.as_str() {
+    let origin = match config.cors_origin.trim() {
         "*" => AllowOrigin::any(),
-        o => AllowOrigin::exact(HeaderValue::from_str(o).expect("CORS_ORIGIN is not a valid origin")),
+        o => match HeaderValue::from_str(o) {
+            Ok(hv) => AllowOrigin::exact(hv),
+            Err(e) => {
+                tracing::warn!("Invalid CORS_ORIGIN '{o}': {e}. Falling back to AllowOrigin::any()");
+                AllowOrigin::any()
+            }
+        },
     };
     let cors = CorsLayer::new()
         .allow_origin(origin)

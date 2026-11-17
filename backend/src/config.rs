@@ -29,11 +29,18 @@ impl Config {
         let _ = dotenvy::from_path("../.env");
 
         let supabase_url = var(&["SUPABASE_URL", "VITE_SUPABASE_URL"])
-            .expect("SUPABASE_URL is not set")
+            .unwrap_or_else(|| {
+                warn!("SUPABASE_URL not found in env, using default");
+                "https://phxsdgkergzxhljhnteu.supabase.co".to_string()
+            })
             .trim_end_matches('/')
             .to_string();
+
         let anon_key = var(&["SUPABASE_ANON_KEY", "VITE_SUPABASE_ANON_KEY"])
-            .expect("SUPABASE_ANON_KEY is not set");
+            .unwrap_or_else(|| {
+                warn!("SUPABASE_ANON_KEY not found in env, using default");
+                "sb_publishable_V6ZWzZMSbrnN9ZCP_bEoYA_yaXC07B-".to_string()
+            });
         let db_key = var(&["SUPABASE_SERVICE_ROLE_KEY"]).unwrap_or_else(|| {
             warn!("SUPABASE_SERVICE_ROLE_KEY is not set: using the anon key, so database rules (RLS) still decide what is allowed");
             anon_key.clone()
