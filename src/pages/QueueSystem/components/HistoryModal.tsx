@@ -3,7 +3,6 @@ import { supabase } from '@/lib/supabase';
 import { useAppConfig } from '@/hooks/useAppConfig';
 import { 
   X, 
-  Filter, 
   Calendar, 
   Users, 
   History, 
@@ -11,10 +10,7 @@ import {
   Clock, 
   CheckCircle2, 
   Sparkles, 
-  Trophy, 
-  ArrowRight,
-  TrendingUp,
-  Stethoscope
+  Trophy
 } from 'lucide-react';
 import DatePicker from 'react-datepicker';
 import "react-datepicker/dist/react-datepicker.css";
@@ -133,7 +129,7 @@ export function HistoryModal({ isOpen, onClose }: HistoryModalProps) {
         bonusHours: bonusDays * bonusHrs 
       };
     }).sort((a, b) => b.total_manager_mins - a.total_manager_mins);
-  }, [managerLogs]);
+  }, [managerLogs, bonusHrs, minMins]);
 
   const groupedManagerLogs = useMemo(() => {
     const groups: Record<string, any> = {};

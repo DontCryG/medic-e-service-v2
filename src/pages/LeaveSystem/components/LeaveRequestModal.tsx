@@ -109,7 +109,7 @@ export default function LeaveRequestModal({ onClose, profile }: LeaveRequestModa
         setValue('endDate', startDate, { shouldValidate: true });
       }
     }
-  }, [startDate, leaveType, setValue]); 
+  }, [startDate, endDate, leaveType, setValue]); 
 
   const calculateTotalDays = (start: Date | null | undefined, end: Date | null | undefined) => {
     if (!start) return 0;

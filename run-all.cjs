@@ -8,10 +8,10 @@ const isWindows = process.platform === 'win32';
 if (isWindows) {
   try {
     execSync('for /f "tokens=5" %a in (\'netstat -aon ^| findstr ":3001 "\') do taskkill /f /pid %a', { stdio: 'ignore' });
-  } catch (e) {}
+  } catch {}
   try {
     execSync('for /f "tokens=5" %a in (\'netstat -aon ^| findstr ":5173 "\') do taskkill /f /pid %a', { stdio: 'ignore' });
-  } catch (e) {}
+  } catch {}
 }
 
 // 1. Spawn Rust Backend
@@ -62,7 +62,7 @@ function cleanup() {
       rust.kill('SIGTERM');
       vite.kill('SIGTERM');
     }
-  } catch (e) {}
+  } catch {}
   process.exit(0);
 }
 

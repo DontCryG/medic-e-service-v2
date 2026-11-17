@@ -100,13 +100,6 @@ export function calculateSalary(
     return acc;
   }, {} as Record<string, LeaveRequest[]>);
 
-  // Group story logs by discord_id
-  const userStories = storyLogs.reduce((acc, story) => {
-    if (!acc[story.discord_id]) acc[story.discord_id] = [];
-    acc[story.discord_id].push(story);
-    return acc;
-  }, {} as Record<string, StoryLog[]>);
-
   // Group queue manager logs by discord_id
   const userQueueManager = queueManagerLogs.reduce((acc, log) => {
     if (!acc[log.discord_id]) acc[log.discord_id] = [];

@@ -20,7 +20,6 @@ import {
   Trash2, 
   Sparkles, 
   HelpCircle,
-  ExternalLink,
   X
 } from 'lucide-react';
 import { showSuccessAlert, showErrorAlert, showConfirmDialog } from '@/utils/alert';
@@ -28,7 +27,7 @@ import { showSuccessAlert, showErrorAlert, showConfirmDialog } from '@/utils/ale
 type CategoryFilter = 'all' | 'org' | 'queue' | 'leave' | 'pricing' | 'salary' | 'custom';
 
 export default function CategorizedSettings() {
-  const { config, rawSettings, isLoading, refetch } = useAppConfig();
+  const { rawSettings } = useAppConfig();
   const saveMutation = useSaveSystemSetting();
   const deleteMutation = useDeleteSystemSetting();
 

@@ -75,5 +75,4 @@ export const getDutyBadgeInfo = (
     textClass: 'text-indigo-700',
     borderClass: 'border-indigo-200'
   };
-  return null;
 };

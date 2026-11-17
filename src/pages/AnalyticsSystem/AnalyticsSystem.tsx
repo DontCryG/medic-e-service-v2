@@ -5,7 +5,6 @@ import {
   Printer, 
   Calendar, 
   Clock, 
-  Sparkles,
   AlertCircle
 } from 'lucide-react';
 import PageHeader from '@/components/common/PageHeader';

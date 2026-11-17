@@ -17,6 +17,8 @@ export function useDutyTimer(
   const [dutyTime, setDutyTime] = useState(0);
   const [breakElapsedSeconds, setBreakElapsedSeconds] = useState(0);
   const timeoutTriggeredRef = useRef(false);
+  const onBreakTimeoutRef = useRef(options?.onBreakTimeout);
+  onBreakTimeoutRef.current = options?.onBreakTimeout;
 
   useEffect(() => {
     timeoutTriggeredRef.current = false;
@@ -54,9 +56,7 @@ export function useDutyTimer(
 
         if (elapsed >= MAX_BREAK_SECONDS && !timeoutTriggeredRef.current) {
           timeoutTriggeredRef.current = true;
-          if (options?.onBreakTimeout) {
-            options.onBreakTimeout();
-          }
+          onBreakTimeoutRef.current?.();
         }
       };
 
@@ -70,7 +70,7 @@ export function useDutyTimer(
     return () => {
       if (interval) clearInterval(interval);
     };
-  }, [currentSession, options?.onBreakTimeout]);
+  }, [currentSession]);
 
   const breakRemainingSeconds = Math.max(0, MAX_BREAK_SECONDS - breakElapsedSeconds);
   const isBreakExpired = breakElapsedSeconds >= MAX_BREAK_SECONDS;

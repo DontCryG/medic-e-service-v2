@@ -163,6 +163,4 @@ export default function PayslipModal({ user, startDate, endDate, onClose }: Pays
   );
 
   return createPortal(modalContent, document.body);
-
-  return createPortal(modalContent, document.body);
 }

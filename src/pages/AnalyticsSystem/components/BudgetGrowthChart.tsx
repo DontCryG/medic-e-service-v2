@@ -26,12 +26,6 @@ export function BudgetGrowthChart({
   const maxBudget = Math.max(...trendData.map(d => d.budget), 1000);
   const maxHours = Math.max(...trendData.map(d => d.hours), 10);
 
-  // SVG Chart dimensions
-  const chartHeight = 220;
-  const paddingBottom = 40;
-  const paddingTop = 20;
-  const innerHeight = chartHeight - paddingBottom - paddingTop;
-
   return (
     <div className="bg-white rounded-xl p-5 border border-slate-200/80 shadow-2xs flex flex-col gap-4">
       {/* Header & View Switcher */}

@@ -7,10 +7,8 @@ import {
   Trash2, 
   RotateCcw, 
   ShieldCheck, 
-  AlertCircle, 
   Save, 
   CheckCircle2, 
-  Calendar,
   Zap,
   Activity,
   Layers
@@ -57,7 +55,7 @@ const DEFAULT_CONFIG: CleanupConfig = {
 export default function DatabaseSettings() {
   const queryClient = useQueryClient();
 
-  const { data: statusData, isLoading, refetch } = useQuery<CleanupStatusResponse>({
+  const { data: statusData, isLoading } = useQuery<CleanupStatusResponse>({
     queryKey: ['db_cleanup_status'],
     queryFn: async () => {
       return await api.database.getCleanupStatus();

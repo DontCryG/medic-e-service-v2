@@ -46,7 +46,7 @@ export function useMaintenanceMode() {
           ...DEFAULT_MAINTENANCE,
           ...parsed
         };
-      } catch (err) {
+      } catch {
         return {
           ...DEFAULT_MAINTENANCE,
           enabled: data.value === 'true'

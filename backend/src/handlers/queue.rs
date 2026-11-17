@@ -65,11 +65,11 @@ pub async fn clear_other_queued(st: &AppState, exclude_discord_id: &str) -> Resu
             if let Ok(mut volunteers) = serde_json::from_str::<Vec<Value>>(val_str) {
                 let mut changed = false;
                 for v in &mut volunteers {
-                    if v.get("status").and_then(|s| s.as_str()) == Some("queued") {
-                        if v.get("id").and_then(|i| i.as_str()) != Some(exclude_discord_id) {
-                            v["status"] = Value::Null;
-                            changed = true;
-                        }
+                    if v.get("status").and_then(|s| s.as_str()) == Some("queued")
+                        && v.get("id").and_then(|i| i.as_str()) != Some(exclude_discord_id)
+                    {
+                        v["status"] = Value::Null;
+                        changed = true;
                     }
                 }
                 if changed {

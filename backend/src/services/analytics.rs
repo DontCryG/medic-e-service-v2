@@ -178,17 +178,17 @@ fn build_heatmap_and_insights(
         .collect();
 
     // Count day occurrences
-    let mut day_occurrences = vec![0i64; 7];
+    let mut day_occurrences = [0i64; 7];
     let mut cursor = start_dt;
     while cursor <= end_dt {
         // Monday = 0, Sunday = 6
         let day_idx = (cursor.weekday().num_days_from_monday()) as usize;
         day_occurrences[day_idx] += 1;
-        cursor = cursor + Duration::days(1);
+        cursor += Duration::days(1);
     }
-    for d in 0..7 {
-        if day_occurrences[d] == 0 {
-            day_occurrences[d] = 1;
+    for d in &mut day_occurrences {
+        if *d == 0 {
+            *d = 1;
         }
     }
 
@@ -248,8 +248,8 @@ fn build_heatmap_and_insights(
     let mut max_avg = f64::MIN;
     let mut _min_slot = (0, 0);
     let mut max_slot = (0, 0);
-    let mut hour_total_hours = vec![0.0f64; 24];
-    let mut day_total_hours = vec![0.0f64; 7];
+    let mut hour_total_hours = [0.0f64; 24];
+    let mut day_total_hours = [0.0f64; 7];
 
     for d in 0..7 {
         let mut row = Vec::with_capacity(24);
@@ -304,8 +304,8 @@ fn build_heatmap_and_insights(
     // Critical shortage analysis
     let total_occ_sum: i64 = day_occurrences.iter().sum();
     let mut low_hours = Vec::new();
-    for h in 0..24 {
-        let avg = hour_total_hours[h] / (total_occ_sum.max(1) as f64);
+    for (h, &total_h) in hour_total_hours.iter().enumerate() {
+        let avg = total_h / (total_occ_sum.max(1) as f64);
         if avg < 1.0 {
             low_hours.push(h);
         }
@@ -447,7 +447,7 @@ fn build_trend_points(
                 formatted_date: Some(cursor.format("%d/%m").to_string()),
             });
 
-            cursor = cursor + Duration::days(1);
+            cursor += Duration::days(1);
         }
     } else {
         let mut week_idx = 1;
@@ -496,7 +496,7 @@ fn build_trend_points(
                 formatted_date: None,
             });
 
-            cursor = cursor + Duration::days(7);
+            cursor += Duration::days(7);
             week_idx += 1;
         }
     }

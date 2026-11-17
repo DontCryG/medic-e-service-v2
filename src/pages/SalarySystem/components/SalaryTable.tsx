@@ -18,6 +18,8 @@ interface SalaryTableProps {
   onPrintPayslip: (user: SalaryResult) => void;
 }
 
+const columnHelper = createColumnHelper<SalaryResult>();
+
 export default function SalaryTable({ data, onOpenDutyLogModal, onPrintPayslip }: SalaryTableProps) {
   const filteredData = useMemo(
     () => data.filter(item => item.total_hours > 0 || item.total_minutes > 0),
@@ -26,8 +28,6 @@ export default function SalaryTable({ data, onOpenDutyLogModal, onPrintPayslip }
 
   const [sorting, setSorting] = useState<SortingState>([]);
   const tableContainerRef = useRef<HTMLDivElement>(null);
-
-  const columnHelper = createColumnHelper<SalaryResult>();
 
   const columns = useMemo(() => [
     columnHelper.accessor('ic_name', {

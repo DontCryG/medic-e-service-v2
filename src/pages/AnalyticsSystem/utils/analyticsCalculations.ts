@@ -166,7 +166,6 @@ export function computeHeatmapMatrix(
   const matrix: HeatmapCell[][] = [];
   let minAvg = Infinity;
   let maxAvg = -Infinity;
-  let minSlot = { day: 0, hour: 0 };
   let maxSlot = { day: 0, hour: 0 };
 
   const dayTotalHours: number[] = Array(7).fill(0);
@@ -187,7 +186,6 @@ export function computeHeatmapMatrix(
 
       if (avgDoctors < minAvg) {
         minAvg = avgDoctors;
-        minSlot = { day: d, hour: h };
       }
       if (avgDoctors > maxAvg) {
         maxAvg = avgDoctors;

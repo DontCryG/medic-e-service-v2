@@ -1,5 +1,5 @@
 import DutyWeeklyProgress from "./DutyWeeklyProgress";
-import { Play, Pause, Square, Clock, RefreshCw, Loader2, Gift, Coffee } from "lucide-react";
+import { Play, Square, Clock, RefreshCw, Loader2, Gift, Coffee } from "lucide-react";
 import { formatTime, getInitial } from "../utils/dutyUtils";
 import { useDutyTimer, MAX_BREAK_SECONDS } from "../hooks/useDutyTimer";
 import { isAdmin } from "@/utils/permissions";
