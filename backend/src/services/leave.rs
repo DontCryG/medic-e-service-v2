@@ -1,10 +1,10 @@
 use std::sync::Arc;
-use chrono::{DateTime, Utc};
+use chrono::Utc;
 use serde::{Deserialize, Serialize};
 use serde_json::json;
 
 use crate::db;
-use crate::duty_logic::ts;
+use crate::duty_logic::{parse_date_or_datetime, ts};
 use crate::error::AppError;
 use crate::services::audit::log_action;
 use crate::services::discord::notify_leave_event;
@@ -15,13 +15,13 @@ pub struct LeaveRecord {
     pub id: String,
     pub discord_id: String,
     pub leave_type: String,
-    pub start_date: DateTime<Utc>,
-    pub end_date: DateTime<Utc>,
+    pub start_date: String,
+    pub end_date: String,
     pub reason: String,
     pub status: Option<String>,
     pub approved_by: Option<String>,
     pub admin_comment: Option<String>,
-    pub created_at: Option<DateTime<Utc>>,
+    pub created_at: Option<String>,
 }
 
 pub async fn submit_leave(
@@ -33,12 +33,10 @@ pub async fn submit_leave(
     end_str: &str,
     reason: &str,
 ) -> Result<(), AppError> {
-    let start_dt = start_str
-        .parse::<DateTime<Utc>>()
-        .map_err(|_| AppError::BadRequest("รูปแบบ start_date ไม่ถูกต้อง".into()))?;
-    let end_dt = end_str
-        .parse::<DateTime<Utc>>()
-        .map_err(|_| AppError::BadRequest("รูปแบบ end_date ไม่ถูกต้อง".into()))?;
+    let start_dt = parse_date_or_datetime(start_str)
+        .ok_or_else(|| AppError::BadRequest("รูปแบบ start_date ไม่ถูกต้อง".into()))?;
+    let end_dt = parse_date_or_datetime(end_str)
+        .ok_or_else(|| AppError::BadRequest("รูปแบบ end_date ไม่ถูกต้อง".into()))?;
 
     if start_dt > end_dt {
         return Err(AppError::BadRequest("วันเริ่มต้นต้องมาก่อนวันสิ้นสุด".into()));

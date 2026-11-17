@@ -12,6 +12,18 @@ pub fn ts(t: DateTime<Utc>) -> String {
     t.to_rfc3339_opts(SecondsFormat::Millis, true)
 }
 
+/// Parses either a full ISO timestamp ("2026-11-17T00:00:00Z") or date-only string ("2026-11-17").
+pub fn parse_date_or_datetime(s: &str) -> Option<DateTime<Utc>> {
+    let s = s.trim();
+    if let Ok(dt) = s.parse::<DateTime<Utc>>() {
+        return Some(dt);
+    }
+    if let Ok(d) = chrono::NaiveDate::parse_from_str(s, "%Y-%m-%d") {
+        return d.and_hms_opt(0, 0, 0).map(|ndt| DateTime::<Utc>::from_naive_utc_and_offset(ndt, Utc));
+    }
+    None
+}
+
 pub fn round4(x: f64) -> f64 {
     (x * 10000.0).round() / 10000.0
 }

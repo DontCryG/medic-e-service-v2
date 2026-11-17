@@ -3,6 +3,7 @@ use chrono::{DateTime, Datelike, Duration, Timelike, Utc};
 use serde::{Deserialize, Serialize};
 
 use crate::db::{self, Db};
+use crate::duty_logic::parse_date_or_datetime;
 use crate::error::AppError;
 use crate::services::salary::{calculate_payroll, DutyLogRow, SalaryResult};
 
@@ -101,12 +102,10 @@ pub async fn compute_analytics_summary(
     start_str: &str,
     end_str: &str,
 ) -> Result<AnalyticsSummary, AppError> {
-    let start_dt = start_str
-        .parse::<DateTime<Utc>>()
-        .map_err(|_| AppError::BadRequest("รูปแบบ start_date ไม่ถูกต้อง".into()))?;
-    let end_dt = end_str
-        .parse::<DateTime<Utc>>()
-        .map_err(|_| AppError::BadRequest("รูปแบบ end_date ไม่ถูกต้อง".into()))?;
+    let start_dt = parse_date_or_datetime(start_str)
+        .ok_or_else(|| AppError::BadRequest("รูปแบบ start_date ไม่ถูกต้อง".into()))?;
+    let end_dt = parse_date_or_datetime(end_str)
+        .ok_or_else(|| AppError::BadRequest("รูปแบบ end_date ไม่ถูกต้อง".into()))?;
 
     let duration = end_dt.signed_duration_since(start_dt);
     let days_count = duration.num_days().max(1);

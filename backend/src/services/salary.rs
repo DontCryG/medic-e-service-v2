@@ -37,10 +37,10 @@ pub struct DutyLogRow {
 #[allow(dead_code)]
 #[derive(Debug, Clone, Deserialize)]
 pub struct LeaveRow {
-    pub id: String,
+    pub id: Option<String>,
     pub discord_id: String,
-    pub start_date: DateTime<Utc>,
-    pub end_date: DateTime<Utc>,
+    pub start_date: Option<String>,
+    pub end_date: Option<String>,
     pub status: Option<String>,
 }
 
@@ -144,17 +144,18 @@ pub async fn calculate_payroll(
         )
         .await?;
 
-    // 4. Fetch Leave Requests
+    // 4. Fetch Leave Requests (tolerant to schema/formats)
     let leave_logs: Vec<LeaveRow> = db
         .select_all(
             "leave_requests",
             &[
-                ("select", "*".into()),
+                ("select", "id,discord_id,start_date,end_date,status".into()),
                 ("start_date", db::gte(start_date)),
                 ("start_date", db::lte(end_date)),
             ],
         )
-        .await?;
+        .await
+        .unwrap_or_default();
 
     // 5. Fetch Queue Manager Logs
     let qm_logs: Vec<QueueManagerRow> = db
