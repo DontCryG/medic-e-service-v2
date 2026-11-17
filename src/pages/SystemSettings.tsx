@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Settings, Users, Shield, Sliders, RefreshCw, Wrench } from 'lucide-react';
+import { Settings, Users, Shield, Sliders, RefreshCw, Wrench, Database } from 'lucide-react';
 import PageHeader from '@/components/common/PageHeader';
 import { showConfirmDialog, showSuccessAlert } from '@/utils/alert';
 import { broadcastForceReload } from '@/hooks/useAppRealtime';
@@ -9,8 +9,9 @@ import PositionSettings from './SystemSettings/components/PositionSettings';
 import GangFamilySettings from './SystemSettings/components/GangFamilySettings';
 import CategorizedSettings from './SystemSettings/components/CategorizedSettings';
 import MaintenanceSettings from './SystemSettings/components/MaintenanceSettings';
+import DatabaseSettings from './SystemSettings/components/DatabaseSettings';
 
-type Tab = 'system' | 'positions' | 'gangs' | 'maintenance';
+type Tab = 'system' | 'positions' | 'gangs' | 'maintenance' | 'database';
 
 export default function SystemSettings() {
   const [activeTab, setActiveTab] = useState<Tab>('system');
@@ -92,6 +93,15 @@ export default function SystemSettings() {
             <span className="w-2 h-2 rounded-full bg-amber-500 animate-pulse ml-0.5" />
           )}
         </button>
+        <button 
+          className={`flex items-center gap-2 px-4 py-1.5 rounded-md text-xs font-semibold cursor-pointer border-none transition-all whitespace-nowrap ${
+            activeTab === 'database' ? 'bg-white text-purple-600 shadow-sm font-bold' : 'bg-transparent text-slate-500 hover:text-slate-700'
+          }`}
+          onClick={() => setActiveTab('database')}
+        >
+          <Database size={15} />
+          <span>จัดการฐานข้อมูล (Database)</span>
+        </button>
       </div>
 
       <div className="bg-white rounded-xl p-5 shadow-2xs border border-slate-200/80">
@@ -99,6 +109,7 @@ export default function SystemSettings() {
         {activeTab === 'positions' && <PositionSettings />}
         {activeTab === 'gangs' && <GangFamilySettings />}
         {activeTab === 'maintenance' && <MaintenanceSettings />}
+        {activeTab === 'database' && <DatabaseSettings />}
       </div>
     </div>
   );

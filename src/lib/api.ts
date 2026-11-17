@@ -151,6 +151,37 @@ export const api = {
     },
   },
 
+  database: {
+    getCleanupStatus: async () => {
+      const res = await request('/api/admin/db/cleanup-status', {
+        method: 'GET',
+      });
+      return res.data;
+    },
+    saveCleanupConfig: async (config: {
+      autoEnabled: boolean;
+      staleShiftEnabled: boolean;
+      staleShiftHours: number;
+      queueResetEnabled: boolean;
+      dutyRetentionDays: number;
+      leaveRetentionDays: number;
+      auditRetentionDays: number;
+    }) => {
+      const res = await request('/api/admin/db/cleanup-config', {
+        method: 'POST',
+        body: JSON.stringify(config),
+      });
+      return res.data;
+    },
+    cleanNow: async (resetQueue = false) => {
+      const res = await request('/api/admin/db/clean-now', {
+        method: 'POST',
+        body: JSON.stringify({ resetQueue }),
+      });
+      return res.data;
+    },
+  },
+
   health: async () => {
     const res = await fetch(`${API_BASE_URL}/api/health`);
     return res.json();

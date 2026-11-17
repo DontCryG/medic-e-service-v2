@@ -1,6 +1,7 @@
 pub mod admin;
 pub mod analytics;
 pub mod audit;
+pub mod db_cleaner;
 pub mod discord_bot;
 pub mod duty;
 pub mod health;

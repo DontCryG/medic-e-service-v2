@@ -1,6 +1,7 @@
 pub mod analytics;
 pub mod audit;
 pub mod break_watchdog;
+pub mod db_cleaner;
 pub mod discord;
 pub mod discord_bot;
 pub mod duty;
