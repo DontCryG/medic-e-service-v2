@@ -44,8 +44,18 @@ export default function Portal() {
 
   const checkUserInDatabase = async (session: any) => {
     try {
-      const providerId = session.user.user_metadata?.provider_id || session.user.identities?.find((i: any) => i.provider === 'discord')?.id;
-      const avatar = getDiscordAvatar(session);
+      const meta = session?.user?.user_metadata || {};
+      const identity = session?.user?.identities?.find((i: any) => i.provider === 'discord');
+      const idData = identity?.identity_data || {};
+
+      const providerId = 
+        meta.provider_id || 
+        meta.sub || 
+        idData.provider_id || 
+        idData.sub || 
+        (identity?.id && !identity.id.includes('-') ? identity.id : undefined);
+
+      const avatar = getDiscordAvatar(session, providerId);
 
       if (!providerId) {
         await supabase.auth.signOut();

@@ -43,3 +43,11 @@ export const showErrorAlert = (title: string, text?: string) => {
     text
   });
 };
+
+export const showInfoAlert = (title: string, text?: string) => {
+  return enterpriseSwal.fire({
+    icon: 'info',
+    title,
+    text
+  });
+};

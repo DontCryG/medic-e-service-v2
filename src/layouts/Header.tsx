@@ -214,11 +214,17 @@ export default function Header({ setIsMobileMenuOpen, isSidebarCollapsed, setIsS
           className="flex items-center gap-2.5 p-1 pr-3 rounded-lg hover:bg-slate-50 transition-colors cursor-pointer border border-transparent hover:border-slate-200/60 group"
           title="คลิกเพื่อแก้ไขโปรไฟล์ส่วนตัว"
         >
-          <div className="w-8 h-8 rounded-lg bg-purple-100 border border-purple-200/60 flex items-center justify-center text-purple-700 font-black text-xs overflow-hidden shrink-0 group-hover:scale-105 transition-transform">
-            {user?.avatar_url ? (
-              <img src={user.avatar_url} alt="Profile" className="w-full h-full object-cover" />
-            ) : (
-              getInitial(user?.ic_name)
+          <div className="w-8 h-8 rounded-lg bg-purple-100 border border-purple-200/60 flex items-center justify-center text-purple-700 font-black text-xs overflow-hidden shrink-0 group-hover:scale-105 transition-transform relative">
+            <span className="select-none">{getInitial(user?.ic_name)}</span>
+            {user?.avatar_url && (
+              <img 
+                src={user.avatar_url} 
+                alt="Profile" 
+                className="absolute inset-0 w-full h-full object-cover" 
+                onError={(e) => {
+                  (e.target as HTMLElement).style.display = 'none';
+                }}
+              />
             )}
           </div>
           <div className="hidden sm:flex flex-col items-start justify-center">

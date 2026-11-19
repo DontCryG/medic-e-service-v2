@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useAuthStore } from '@/store/authStore';
 import { supabase } from '@/lib/supabase';
 import { useQueryClient } from '@tanstack/react-query';
@@ -15,7 +15,7 @@ import {
   Sparkles, 
   Stethoscope
 } from 'lucide-react';
-import { showSuccessAlert, showErrorAlert } from '@/utils/alert';
+import { showSuccessAlert, showErrorAlert, showInfoAlert } from '@/utils/alert';
 import { getInitial } from '@/pages/PersonnelSystem/utils/personnelUtils';
 import { getDiscordAvatar } from '@/utils/discordUtils';
 
@@ -37,6 +37,7 @@ export default function UserProfileModal({ isOpen, onClose }: UserProfileModalPr
   const queryClient = useQueryClient();
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isSyncingDiscord, setIsSyncingDiscord] = useState(false);
+  const [imageError, setImageError] = useState(false);
 
   const {
     register,
@@ -55,18 +56,75 @@ export default function UserProfileModal({ isOpen, onClose }: UserProfileModalPr
 
   const currentAvatarUrl = watch('avatar_url');
 
+  useEffect(() => {
+    setImageError(false);
+  }, [currentAvatarUrl]);
+
   if (!isOpen || !user) return null;
+
+  const testImageLoad = (url: string, timeoutMs = 3500): Promise<boolean> => {
+    return new Promise((resolve) => {
+      if (!url) return resolve(false);
+      const img = new Image();
+      let timer: any = null;
+      img.onload = () => {
+        if (timer) clearTimeout(timer);
+        resolve(true);
+      };
+      img.onerror = () => {
+        if (timer) clearTimeout(timer);
+        resolve(false);
+      };
+      timer = setTimeout(() => {
+        img.src = '';
+        resolve(false);
+      }, timeoutMs);
+      img.src = url;
+    });
+  };
 
   const handleSyncDiscordAvatar = async () => {
     setIsSyncingDiscord(true);
     try {
       const { data: { session } } = await supabase.auth.getSession();
-      const discordAvatar = getDiscordAvatar(session);
-      if (discordAvatar) {
+      const discordAvatar = getDiscordAvatar(session, user.discord_id);
+      
+      if (!discordAvatar) {
+        showErrorAlert('ไม่พบรูปภาพ', 'ไม่พบรูปภาพโปรไฟล์จากบัญชี Discord ที่เชื่อมต่อไว้');
+        return;
+      }
+
+      // Check if avatar URL is reachable and returns an actual image
+      const canLoad = await testImageLoad(discordAvatar);
+      if (canLoad) {
         setValue('avatar_url', discordAvatar, { shouldDirty: true, shouldValidate: true });
+        setImageError(false);
         showSuccessAlert('ดึงรูปสำเร็จ!', 'ดึงรูปโปรไฟล์ล่าสุดจาก Discord ของคุณเรียบร้อยแล้ว');
       } else {
-        showErrorAlert('ไม่พบรูปภาพ', 'ไม่พบรูปภาพโปรไฟล์จากบัญชี Discord ที่เชื่อมต่อไว้');
+        // Custom avatar hash expired on Discord CDN -> Fallback to official Discord embed default avatar
+        let fallbackUrl = '';
+        if (user.discord_id) {
+          try {
+            const idx = Number((BigInt(user.discord_id) >> 22n) % 6n);
+            fallbackUrl = `https://cdn.discordapp.com/embed/avatars/${idx}.png`;
+          } catch {
+            fallbackUrl = 'https://cdn.discordapp.com/embed/avatars/0.png';
+          }
+        }
+
+        if (fallbackUrl && (await testImageLoad(fallbackUrl))) {
+          setValue('avatar_url', fallbackUrl, { shouldDirty: true, shouldValidate: true });
+          setImageError(false);
+          showInfoAlert(
+            'ดึงรูปโปรไฟล์สำเร็จ (Default Avatar)',
+            'เนื่องจากรูปโปรไฟล์เดิมในเซสชันหมดอายุ ระบบจึงใช้รูปเริ่มต้นของ Discord แทน หากต้องการรูปโปรไฟล์ล่าสุด ให้ล็อกเอาท์แล้วล็อกอินใหม่ด้วย Discord ครับ'
+          );
+        } else {
+          showErrorAlert(
+            'รูปภาพหมดอายุ',
+            'รูปโปรไฟล์ Discord เดิมในเซสชันหมดอายุ กรุณาล็อกเอาท์แล้วเข้าสู่ระบบใหม่ด้วย Discord หรือใส่ลิงก์รูปภาพโดยตรง'
+          );
+        }
       }
     } catch (err: any) {
       showErrorAlert('ผิดพลาด', err.message || 'ไม่สามารถดึงรูปภาพจาก Discord ได้');
@@ -153,18 +211,24 @@ export default function UserProfileModal({ isOpen, onClose }: UserProfileModalPr
           {/* Avatar Banner & Quick Info */}
           <div className="p-4 rounded-2xl bg-gradient-to-br from-slate-50/90 to-purple-50/30 border border-slate-200/80 flex items-center gap-4">
             <div className="relative group shrink-0">
-              <div className="w-16 h-16 rounded-2xl bg-purple-100/70 border-2 border-purple-200 overflow-hidden flex items-center justify-center text-purple-700 font-black text-xl shadow-xs">
-                {currentAvatarUrl ? (
+              <div className="w-16 h-16 rounded-2xl bg-purple-100/70 border-2 border-purple-200 overflow-hidden flex items-center justify-center text-purple-700 font-black text-xl shadow-xs relative">
+                <span className="select-none">{getInitial(user.ic_name)}</span>
+                {currentAvatarUrl && !imageError && (
                   <img 
                     src={currentAvatarUrl} 
                     alt="Preview" 
-                    className="w-full h-full object-cover"
-                    onError={(e) => {
-                      (e.target as HTMLElement).style.display = 'none';
+                    className="absolute inset-0 w-full h-full object-cover"
+                    onError={() => {
+                      if (user?.discord_id && currentAvatarUrl.includes('cdn.discordapp.com/avatars')) {
+                        try {
+                          const idx = Number((BigInt(user.discord_id) >> 22n) % 6n);
+                          setValue('avatar_url', `https://cdn.discordapp.com/embed/avatars/${idx}.png`, { shouldDirty: true });
+                          return;
+                        } catch {}
+                      }
+                      setImageError(true);
                     }}
                   />
-                ) : (
-                  getInitial(user.ic_name)
                 )}
               </div>
             </div>
@@ -259,7 +323,7 @@ export default function UserProfileModal({ isOpen, onClose }: UserProfileModalPr
               />
             </div>
             <p className="text-[11px] text-slate-400 m-0 mt-1">
-              รองรับ URL รูปภาพไฟล์ .png, .jpg, .webp หรือกดปุ่ม "ดึงรูปจาก Discord" ด้านบน
+              รองรับ URL รูปภาพไฟล์ .png, .jpg, .webp หรือกดปุ่ม "ดึงรูปจาก Discord" ด้านบน (หากเปลี่ยนรูปใน Discord แนะนำให้ล็อกเอาท์แล้วล็อกอินใหม่)
             </p>
           </div>
 
