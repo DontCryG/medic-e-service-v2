@@ -44,7 +44,7 @@ export function AnalyticsSystem() {
   };
 
   return (
-    <div className="w-full max-w-[1400px] mx-auto flex flex-col gap-6 animate-in fade-in duration-200">
+    <div className="w-full max-w-[1400px] mx-auto flex flex-col gap-6 animate-in fade-in duration-200 print:gap-4 print:max-w-none print:w-full print:m-0 print:animate-none">
       {/* Page Header */}
       <PageHeader
         title="สถิติและภาพรวมองค์กร (BI & Analytics)"
@@ -78,6 +78,18 @@ export function AnalyticsSystem() {
           </div>
         }
       />
+
+      {/* Print Report Subtitle Banner (Visible ONLY on print/PDF) */}
+      {data && (
+        <div className="hidden print:flex items-center justify-between text-xs text-slate-600 border-b border-slate-300 pb-2 mb-1 font-medium">
+          <span>
+            <strong>ช่วงเวลาของข้อมูล:</strong> {data.dateRange.startDate.toLocaleDateString('th-TH', { day: 'numeric', month: 'long', year: 'numeric' })} - {data.dateRange.endDate.toLocaleDateString('th-TH', { day: 'numeric', month: 'long', year: 'numeric' })} ({data.dateRange.daysCount} วัน)
+          </span>
+          <span>
+            <strong>พิมพ์เอกสารเมื่อ:</strong> {new Date().toLocaleDateString('th-TH', { day: 'numeric', month: 'short', year: 'numeric' })} {new Date().toLocaleTimeString('th-TH', { hour: '2-digit', minute: '2-digit' })} น.
+          </span>
+        </div>
+      )}
 
       {/* Date Range Selector Toolbar */}
       <div className="bg-white rounded-xl p-4 border border-slate-200/80 shadow-2xs flex flex-col lg:flex-row lg:items-center justify-between gap-4 print:hidden">
@@ -158,26 +170,34 @@ export function AnalyticsSystem() {
           <p className="text-xs text-rose-600 m-0">{(error as Error).message}</p>
         </div>
       ) : data ? (
-        <div className="flex flex-col gap-6">
+        <div className="flex flex-col gap-6 print:gap-5">
           {/* 1. Executive Metrics KPI Cards */}
-          <ExecutiveMetrics 
-            kpis={data.kpis} 
-            periodLabel={getPresetLabel(preset)} 
-          />
+          <div className="print:break-inside-avoid">
+            <ExecutiveMetrics 
+              kpis={data.kpis} 
+              periodLabel={getPresetLabel(preset)} 
+            />
+          </div>
 
           {/* 2. Staffing & Shortage Insights */}
-          <ShortageInsights insights={data.insights} />
+          <div className="print:break-inside-avoid">
+            <ShortageInsights insights={data.insights} />
+          </div>
 
           {/* 3. 7x24 Duty Coverage Heatmap */}
-          <DutyHeatmap matrix={data.heatmapMatrix} />
+          <div className="print:break-inside-avoid">
+            <DutyHeatmap matrix={data.heatmapMatrix} />
+          </div>
 
           {/* 4. Budget & Growth Analytics Chart */}
-          <BudgetGrowthChart
-            trendData={data.trendData}
-            positionBreakdown={data.positionBreakdown}
-            totalBudget={data.kpis.totalBudget}
-            totalHours={data.kpis.totalDutyHours}
-          />
+          <div className="print:break-inside-avoid">
+            <BudgetGrowthChart
+              trendData={data.trendData}
+              positionBreakdown={data.positionBreakdown}
+              totalBudget={data.kpis.totalBudget}
+              totalHours={data.kpis.totalDutyHours}
+            />
+          </div>
         </div>
       ) : null}
     </div>

@@ -34,9 +34,9 @@ export function ExecutiveMetrics({ kpis, periodLabel }: ExecutiveMetricsProps) {
   };
 
   return (
-    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 print:grid-cols-4 print:gap-3 print:break-inside-avoid">
       {/* 1. Total Budget */}
-      <div className="bg-white rounded-xl p-5 border border-slate-200/80 shadow-2xs flex flex-col justify-between hover:border-purple-200 hover:shadow-xs transition-all">
+      <div className="bg-white rounded-xl p-5 border border-slate-200/80 shadow-2xs flex flex-col justify-between hover:border-purple-200 hover:shadow-xs transition-all print:p-4 print:shadow-none print:border-slate-300">
         <div className="flex items-start justify-between gap-3 mb-2">
           <div className="w-10 h-10 rounded-xl bg-purple-50 text-purple-700 border border-purple-200/60 flex items-center justify-center shrink-0">
             <Banknote size={20} />
@@ -58,7 +58,7 @@ export function ExecutiveMetrics({ kpis, periodLabel }: ExecutiveMetricsProps) {
       </div>
 
       {/* 2. Total Duty Hours */}
-      <div className="bg-white rounded-xl p-5 border border-slate-200/80 shadow-2xs flex flex-col justify-between hover:border-emerald-200 hover:shadow-xs transition-all">
+      <div className="bg-white rounded-xl p-5 border border-slate-200/80 shadow-2xs flex flex-col justify-between hover:border-emerald-200 hover:shadow-xs transition-all print:p-4 print:shadow-none print:border-slate-300">
         <div className="flex items-start justify-between gap-3 mb-2">
           <div className="w-10 h-10 rounded-xl bg-emerald-50 text-emerald-700 border border-emerald-200/60 flex items-center justify-center shrink-0">
             <Clock size={20} />
@@ -80,7 +80,7 @@ export function ExecutiveMetrics({ kpis, periodLabel }: ExecutiveMetricsProps) {
       </div>
 
       {/* 3. Active Doctors */}
-      <div className="bg-white rounded-xl p-5 border border-slate-200/80 shadow-2xs flex flex-col justify-between hover:border-sky-200 hover:shadow-xs transition-all">
+      <div className="bg-white rounded-xl p-5 border border-slate-200/80 shadow-2xs flex flex-col justify-between hover:border-sky-200 hover:shadow-xs transition-all print:p-4 print:shadow-none print:border-slate-300">
         <div className="flex items-start justify-between gap-3 mb-2">
           <div className="w-10 h-10 rounded-xl bg-sky-50 text-sky-700 border border-sky-200/60 flex items-center justify-center shrink-0">
             <Users size={20} />
@@ -104,7 +104,7 @@ export function ExecutiveMetrics({ kpis, periodLabel }: ExecutiveMetricsProps) {
       </div>
 
       {/* 4. Cost Efficiency */}
-      <div className="bg-white rounded-xl p-5 border border-slate-200/80 shadow-2xs flex flex-col justify-between hover:border-amber-200 hover:shadow-xs transition-all">
+      <div className="bg-white rounded-xl p-5 border border-slate-200/80 shadow-2xs flex flex-col justify-between hover:border-amber-200 hover:shadow-xs transition-all print:p-4 print:shadow-none print:border-slate-300">
         <div className="flex items-start justify-between gap-3 mb-2">
           <div className="w-10 h-10 rounded-xl bg-amber-50 text-amber-700 border border-amber-200/60 flex items-center justify-center shrink-0">
             <Zap size={20} />

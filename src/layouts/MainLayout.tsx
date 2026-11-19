@@ -42,7 +42,7 @@ export default function MainLayout() {
   };
   
   return (
-    <div className="flex h-screen bg-[#fafafa] overflow-hidden text-slate-800 antialiased font-sans">
+    <div className="flex h-screen bg-[#fafafa] overflow-hidden text-slate-800 antialiased font-sans print:h-auto print:min-h-0 print:overflow-visible print:block print:bg-white">
       <Sidebar 
         isMobileMenuOpen={isMobileMenuOpen}
         setIsMobileMenuOpen={setIsMobileMenuOpen}
@@ -50,7 +50,7 @@ export default function MainLayout() {
         setIsCollapsed={setIsSidebarCollapsed}
       />
 
-      <main className="flex-1 flex flex-col min-w-0 overflow-hidden relative bg-[#fafafa]">
+      <main className="flex-1 flex flex-col min-w-0 overflow-hidden relative bg-[#fafafa] print:h-auto print:min-h-0 print:overflow-visible print:block print:static print:bg-white">
         {/* Top Warning Banner for Admins when Maintenance Mode is ON */}
         {isAdminRole && maintenance?.enabled && (
           <div className="bg-amber-600 text-white px-4 py-2 text-xs font-semibold flex flex-col sm:flex-row items-start sm:items-center justify-between gap-2 shadow-xs shrink-0 select-none z-50 print:hidden">
@@ -87,7 +87,7 @@ export default function MainLayout() {
           />
         </div>
         
-        <div className="flex-1 overflow-auto p-4 md:p-6 lg:p-7 relative">
+        <div className="flex-1 overflow-auto p-4 md:p-6 lg:p-7 relative print:h-auto print:min-h-0 print:overflow-visible print:block print:p-0 print:m-0">
           <Outlet />
         </div>
       </main>

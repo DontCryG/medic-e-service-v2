@@ -38,7 +38,7 @@ export function DutyHeatmap({ matrix }: DutyHeatmapProps) {
   };
 
   return (
-    <div className="bg-white rounded-xl p-5 border border-slate-200/80 shadow-2xs flex flex-col gap-4">
+    <div className="bg-white rounded-xl p-5 border border-slate-200/80 shadow-2xs flex flex-col gap-4 print:p-4 print:shadow-none print:border-slate-300 print:break-inside-avoid">
       {/* Header & Legends */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-3 border-b border-slate-100">
         <div className="flex items-center gap-2">
@@ -77,11 +77,11 @@ export function DutyHeatmap({ matrix }: DutyHeatmapProps) {
       </div>
 
       {/* 7x24 Heatmap Grid Table */}
-      <div className="w-full overflow-x-auto pb-2 scrollbar-thin">
-        <div className="min-w-[780px] flex flex-col gap-1.5 select-none">
+      <div className="w-full overflow-x-auto pb-2 scrollbar-thin print:overflow-visible print:pb-0">
+        <div className="min-w-[780px] print:min-w-0 print:w-full flex flex-col gap-1.5 print:gap-1 select-none">
           
           {/* Hours Header Row */}
-          <div className="flex items-center gap-1 text-[10px] font-bold text-slate-400 pl-16">
+          <div className="flex items-center gap-1 text-[10px] font-bold text-slate-400 pl-16 print:pl-14">
             {Array.from({ length: 24 }).map((_, h) => (
               <div 
                 key={h} 
@@ -95,20 +95,20 @@ export function DutyHeatmap({ matrix }: DutyHeatmapProps) {
 
           {/* Day Rows */}
           {matrix.map((row, dayIdx) => (
-            <div key={dayIdx} className="flex items-center gap-1">
+            <div key={dayIdx} className="flex items-center gap-1 print:gap-0.5">
               {/* Day Label Column */}
-              <div className="w-16 text-right pr-3 text-xs font-bold text-slate-700 truncate shrink-0">
+              <div className="w-16 print:w-14 text-right pr-3 print:pr-2 text-xs print:text-[11px] font-bold text-slate-700 truncate shrink-0">
                 {THAI_DAYS[dayIdx]}
               </div>
 
               {/* 24 Hour Cells */}
-              <div className="flex-1 flex items-center gap-1">
+              <div className="flex-1 flex items-center gap-1 print:gap-0.5">
                 {row.map((cell) => (
                   <div
                     key={cell.hour}
                     onMouseEnter={(e) => handleMouseEnter(e, cell)}
                     onMouseLeave={() => setHoveredCell(null)}
-                    className={`flex-1 h-7 rounded border transition-all duration-100 flex items-center justify-center text-[10px] cursor-pointer ${getCellClasses(
+                    className={`flex-1 h-7 print:h-6 rounded border transition-all duration-100 flex items-center justify-center text-[10px] print:text-[9px] cursor-pointer ${getCellClasses(
                       cell.densityLevel
                     )}`}
                   >
@@ -126,7 +126,7 @@ export function DutyHeatmap({ matrix }: DutyHeatmapProps) {
           ))}
 
           {/* Timeline Bar Sub-indicator */}
-          <div className="flex items-center gap-1 text-[10px] text-slate-400 pl-16 pt-1">
+          <div className="flex items-center gap-1 text-[10px] text-slate-400 pl-16 print:pl-14 pt-1">
             <div className="w-1/4 text-center border-t border-slate-200 pt-1">ช่วงดึก (00:00 - 06:00)</div>
             <div className="w-1/4 text-center border-t border-slate-200 pt-1">ช่วงเช้า (06:00 - 12:00)</div>
             <div className="w-1/4 text-center border-t border-slate-200 pt-1">ช่วงบ่าย (12:00 - 18:00)</div>
@@ -138,7 +138,7 @@ export function DutyHeatmap({ matrix }: DutyHeatmapProps) {
       {/* Floating Hover Tooltip */}
       {hoveredCell && (
         <div
-          className="fixed z-50 pointer-events-none transform -translate-x-1/2 -translate-y-full bg-slate-900 text-white rounded-xl p-3 shadow-xl border border-slate-700 text-xs w-60 animate-in fade-in duration-100"
+          className="fixed z-50 pointer-events-none transform -translate-x-1/2 -translate-y-full bg-slate-900 text-white rounded-xl p-3 shadow-xl border border-slate-700 text-xs w-60 animate-in fade-in duration-100 print:hidden"
           style={{ left: `${tooltipPos.x}px`, top: `${tooltipPos.y}px` }}
         >
           <div className="flex items-center justify-between pb-1.5 mb-1.5 border-b border-slate-800">

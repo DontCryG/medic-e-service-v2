@@ -35,11 +35,11 @@ export function ShortageInsights({ insights }: ShortageInsightsProps) {
   };
 
   return (
-    <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+    <div className="grid grid-cols-1 md:grid-cols-3 gap-4 print:grid-cols-3 print:gap-3 print:break-inside-avoid">
       {insights.map((insight, idx) => (
         <div
           key={idx}
-          className={`rounded-xl p-4 border transition-all ${getContainerStyles(insight.severity)} flex flex-col justify-between`}
+          className={`rounded-xl p-4 border transition-all ${getContainerStyles(insight.severity)} flex flex-col justify-between print:shadow-none print:break-inside-avoid`}
         >
           <div>
             <div className="flex items-center gap-2 mb-2">
